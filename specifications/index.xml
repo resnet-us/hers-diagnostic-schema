@@ -1,0 +1,781 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>HERS Diagnostic Output Schema – Specifications</title><link>https://resnet-us.github.io/hers-diagnostic-schema/specifications/</link><description>Recent content in Specifications on HERS Diagnostic Output Schema</description><generator>Hugo -- gohugo.io</generator><atom:link href="https://resnet-us.github.io/hers-diagnostic-schema/specifications/index.xml" rel="self" type="application/rss+xml"/><item><title>Specifications: HERSDiagnosticOutput</title><link>https://resnet-us.github.io/hers-diagnostic-schema/specifications/hersdiagnosticoutput/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://resnet-us.github.io/hers-diagnostic-schema/specifications/hersdiagnosticoutput/</guid><description>
+&lt;h1 id="hers-diagnostic-output-schema-specification">HERS Diagnostic
+Output Schema Specification&lt;/h1>
+&lt;h2 id="data-model">Data Model&lt;/h2>
+&lt;h3 id="enumerations">Enumerations&lt;/h3>
+&lt;h4 id="heatingfueltype">HeatingFuelType&lt;/h4>
+&lt;table style="width:99%;">
+&lt;colgroup>
+&lt;col style="width: 19%" />
+&lt;col style="width: 20%" />
+&lt;col style="width: 59%" />
+&lt;/colgroup>
+&lt;thead>
+&lt;tr class="header">
+&lt;th>&lt;strong>Enumerator&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Description&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Notes&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr class="odd">
+&lt;td>&lt;code>ELECTRIC&lt;/code>&lt;/td>
+&lt;td>Electric&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>FOSSIL_FUEL&lt;/code>&lt;/td>
+&lt;td>Fossil Fuel&lt;/td>
+&lt;td>Such as natural gas, liquid propane gas, fuel oil&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>BIOMASS&lt;/code>&lt;/td>
+&lt;td>Biomass&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="data-groups">Data Groups&lt;/h3>
+&lt;h4 id="hersdiagnosticoutput">HERSDiagnosticOutput&lt;/h4>
+&lt;table style="width:97%;">
+&lt;colgroup>
+&lt;col style="width: 21%" />
+&lt;col style="width: 14%" />
+&lt;col style="width: 25%" />
+&lt;col style="width: 8%" />
+&lt;col style="width: 12%" />
+&lt;col style="width: 6%" />
+&lt;col style="width: 8%" />
+&lt;/colgroup>
+&lt;thead>
+&lt;tr class="header">
+&lt;th>&lt;strong>Name&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Description&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Data Type&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Units&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Constraints&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Req&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Notes&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr class="odd">
+&lt;td>&lt;code>project_name&lt;/code>&lt;/td>
+&lt;td>Name of the file or project used to generate this data&lt;/td>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>home_description&lt;/code>&lt;/td>
+&lt;td>Supplementary descriptive information about the home&lt;/td>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>software_name&lt;/code>&lt;/td>
+&lt;td>Name of the software used to generate this data&lt;/td>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>software_version&lt;/code>&lt;/td>
+&lt;td>Version of the software used to generate this data&lt;/td>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>weather_data_location&lt;/code>&lt;/td>
+&lt;td>Descriptive name of the weather data location&lt;/td>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>For example: City, town, or airport name.&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>weather_data_state&lt;/code>&lt;/td>
+&lt;td>State&lt;/td>
+&lt;td>&lt;code>String&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;code>[A-Z]{2}&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>conditioned_floor_area&lt;/code>&lt;/td>
+&lt;td>Conditioned floor area&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>ft&lt;sup>2&lt;/sup>&lt;/td>
+&lt;td>&lt;code>&amp;gt;0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>number_of_bedrooms&lt;/code>&lt;/td>
+&lt;td>Number of bedrooms&lt;/td>
+&lt;td>&lt;code>Integer&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;code>≥1&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>number_of_stories&lt;/code>&lt;/td>
+&lt;td>Number of above-grade stories&lt;/td>
+&lt;td>&lt;code>Integer&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;code>≥1&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>hers_index&lt;/code>&lt;/td>
+&lt;td>HERS Index&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>Unrounded value based on the latest version of MINHERS&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>space_heating_system_output&lt;/code>&lt;/td>
+&lt;td>Array of outputs for space heating systems&lt;/td>
+&lt;td>&lt;code>[{SpaceHeatingSystemOutput}][1..]&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>space_cooling_system_output&lt;/code>&lt;/td>
+&lt;td>Array of outputs for space cooling systems&lt;/td>
+&lt;td>&lt;code>[{SpaceCoolingSystemOutput}][1..]&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>water_heating_system_output&lt;/code>&lt;/td>
+&lt;td>Array of outputs for water heating systems&lt;/td>
+&lt;td>&lt;code>[{WaterHeatingSystemOutput}][1..]&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>rec_la&lt;/code>&lt;/td>
+&lt;td>Reference home lighting and appliance energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_la&lt;/code>&lt;/td>
+&lt;td>Rated home lighting and appliance energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>rec_vent&lt;/code>&lt;/td>
+&lt;td>Reference home ventilation energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_vent&lt;/code>&lt;/td>
+&lt;td>Rated home ventilation energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>rec_dh&lt;/code>&lt;/td>
+&lt;td>Reference home dehumidification energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_dh&lt;/code>&lt;/td>
+&lt;td>Rated home dehumidification energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>opp&lt;/code>&lt;/td>
+&lt;td>On-site power production&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>kWh/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>iad_save&lt;/code>&lt;/td>
+&lt;td>Index adjustment design savings&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>hers_hourly_output&lt;/code>&lt;/td>
+&lt;td>HERS hourly output&lt;/td>
+&lt;td>&lt;code>{HERSHourlyOutput}&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h4 id="spaceheatingsystemoutput">SpaceHeatingSystemOutput&lt;/h4>
+&lt;table style="width:96%;">
+&lt;colgroup>
+&lt;col style="width: 15%" />
+&lt;col style="width: 20%" />
+&lt;col style="width: 17%" />
+&lt;col style="width: 9%" />
+&lt;col style="width: 14%" />
+&lt;col style="width: 8%" />
+&lt;col style="width: 9%" />
+&lt;/colgroup>
+&lt;thead>
+&lt;tr class="header">
+&lt;th>&lt;strong>Name&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Description&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Data Type&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Units&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Constraints&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Req&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Notes&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr class="odd">
+&lt;td>&lt;code>reul_heat&lt;/code>&lt;/td>
+&lt;td>Reference home space heating end use loads&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>ec_r_heat&lt;/code>&lt;/td>
+&lt;td>Reference home space heating energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_x_heat&lt;/code>&lt;/td>
+&lt;td>Rated home space heating energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>eec_r_heat&lt;/code>&lt;/td>
+&lt;td>Reference home space heating equipment efficiency coefficient&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>eec_x_heat&lt;/code>&lt;/td>
+&lt;td>Rated home space heating equipment efficiency coefficient&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>fuel_type_heat&lt;/code>&lt;/td>
+&lt;td>Fuel type used for space heating&lt;/td>
+&lt;td>&lt;code>&amp;lt;HeatingFuelType&amp;gt;&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h4 id="spacecoolingsystemoutput">SpaceCoolingSystemOutput&lt;/h4>
+&lt;table style="width:96%;">
+&lt;colgroup>
+&lt;col style="width: 13%" />
+&lt;col style="width: 22%" />
+&lt;col style="width: 14%" />
+&lt;col style="width: 10%" />
+&lt;col style="width: 15%" />
+&lt;col style="width: 8%" />
+&lt;col style="width: 10%" />
+&lt;/colgroup>
+&lt;thead>
+&lt;tr class="header">
+&lt;th>&lt;strong>Name&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Description&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Data Type&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Units&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Constraints&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Req&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Notes&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr class="odd">
+&lt;td>&lt;code>reul_cool&lt;/code>&lt;/td>
+&lt;td>Reference home space cooling end use loads&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>ec_r_cool&lt;/code>&lt;/td>
+&lt;td>Reference home space cooling energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_x_cool&lt;/code>&lt;/td>
+&lt;td>Rated home space cooling energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>eec_r_cool&lt;/code>&lt;/td>
+&lt;td>Reference home space cooling equipment efficiency coefficient&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>eec_x_cool&lt;/code>&lt;/td>
+&lt;td>Rated home space cooling equipment efficiency coefficient&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h4 id="waterheatingsystemoutput">WaterHeatingSystemOutput&lt;/h4>
+&lt;table style="width:96%;">
+&lt;colgroup>
+&lt;col style="width: 13%" />
+&lt;col style="width: 21%" />
+&lt;col style="width: 17%" />
+&lt;col style="width: 9%" />
+&lt;col style="width: 14%" />
+&lt;col style="width: 8%" />
+&lt;col style="width: 9%" />
+&lt;/colgroup>
+&lt;thead>
+&lt;tr class="header">
+&lt;th>&lt;strong>Name&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Description&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Data Type&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Units&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Constraints&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Req&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Notes&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr class="odd">
+&lt;td>&lt;code>reul_hw&lt;/code>&lt;/td>
+&lt;td>Reference home water heating end use loads&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>ec_r_hw&lt;/code>&lt;/td>
+&lt;td>Reference home water heating energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_x_hw&lt;/code>&lt;/td>
+&lt;td>Rated home water heating energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>MBtu/y&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>eec_r_hw&lt;/code>&lt;/td>
+&lt;td>Reference home water heating equipment efficiency coefficient&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>eec_x_hw&lt;/code>&lt;/td>
+&lt;td>Rated home water heating equipment efficiency coefficient&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>-&lt;/td>
+&lt;td>&lt;code>≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>fuel_type_hw&lt;/code>&lt;/td>
+&lt;td>Fuel type used for water heating&lt;/td>
+&lt;td>&lt;code>&amp;lt;HeatingFuelType&amp;gt;&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h4 id="hershourlyoutput">HERSHourlyOutput&lt;/h4>
+&lt;table style="width:97%;">
+&lt;colgroup>
+&lt;col style="width: 22%" />
+&lt;col style="width: 12%" />
+&lt;col style="width: 28%" />
+&lt;col style="width: 7%" />
+&lt;col style="width: 11%" />
+&lt;col style="width: 6%" />
+&lt;col style="width: 7%" />
+&lt;/colgroup>
+&lt;thead>
+&lt;tr class="header">
+&lt;th>&lt;strong>Name&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Description&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Data Type&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Units&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Constraints&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Req&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Notes&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr class="odd">
+&lt;td>&lt;code>outdoor_drybulb_temperature&lt;/code>&lt;/td>
+&lt;td>Outdoor drybulb temperature&lt;/td>
+&lt;td>&lt;code>[Numeric]&lt;/code>&lt;/td>
+&lt;td>F&lt;/td>
+&lt;td>&lt;code>[8760]&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>conditioned_space_temperature&lt;/code>&lt;/td>
+&lt;td>Conditioned space temperature&lt;/td>
+&lt;td>&lt;code>[Numeric]&lt;/code>&lt;/td>
+&lt;td>F&lt;/td>
+&lt;td>&lt;code>[8760]&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>space_heating_system_output&lt;/code>&lt;/td>
+&lt;td>Array of outputs for space heating systems&lt;/td>
+&lt;td>&lt;code>[{SpaceHeatingSystemHourlyOutput}][1..]&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>space_cooling_system_output&lt;/code>&lt;/td>
+&lt;td>Array of outputs for space cooling systems&lt;/td>
+&lt;td>&lt;code>[{SpaceCoolingSystemHourlyOutput}][1..]&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>water_heating_system_output&lt;/code>&lt;/td>
+&lt;td>Array of outputs for water heating systems&lt;/td>
+&lt;td>&lt;code>[{WaterHeatingSystemHourlyOutput}][1..]&lt;/code>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>rec_la&lt;/code>&lt;/td>
+&lt;td>Reference home lighting and appliance energy consumption&lt;/td>
+&lt;td>&lt;code>[Numeric]&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_la&lt;/code>&lt;/td>
+&lt;td>Rated home lighting and appliance energy consumption&lt;/td>
+&lt;td>&lt;code>[Numeric]&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>rec_vent&lt;/code>&lt;/td>
+&lt;td>Reference home ventilation energy consumption&lt;/td>
+&lt;td>&lt;code>[Numeric]&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_vent&lt;/code>&lt;/td>
+&lt;td>Rated home ventilation energy consumption&lt;/td>
+&lt;td>&lt;code>[Numeric]&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>rec_dh&lt;/code>&lt;/td>
+&lt;td>Reference home dehumidification energy consumption&lt;/td>
+&lt;td>&lt;code>[Numeric]&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_dh&lt;/code>&lt;/td>
+&lt;td>Rated home dehumidification energy consumption&lt;/td>
+&lt;td>&lt;code>[Numeric]&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>opp&lt;/code>&lt;/td>
+&lt;td>On-site power production&lt;/td>
+&lt;td>&lt;code>[Numeric]&lt;/code>&lt;/td>
+&lt;td>kWh&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h4
+id="spaceheatingsystemhourlyoutput">SpaceHeatingSystemHourlyOutput&lt;/h4>
+&lt;table style="width:96%;">
+&lt;colgroup>
+&lt;col style="width: 12%" />
+&lt;col style="width: 22%" />
+&lt;col style="width: 14%" />
+&lt;col style="width: 10%" />
+&lt;col style="width: 16%" />
+&lt;col style="width: 8%" />
+&lt;col style="width: 10%" />
+&lt;/colgroup>
+&lt;thead>
+&lt;tr class="header">
+&lt;th>&lt;strong>Name&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Description&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Data Type&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Units&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Constraints&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Req&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Notes&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr class="odd">
+&lt;td>&lt;code>reul_heat&lt;/code>&lt;/td>
+&lt;td>Reference home space heating end use loads&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>ec_r_heat&lt;/code>&lt;/td>
+&lt;td>Reference home space heating energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_x_heat&lt;/code>&lt;/td>
+&lt;td>Rated home space heating energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h4
+id="spacecoolingsystemhourlyoutput">SpaceCoolingSystemHourlyOutput&lt;/h4>
+&lt;table style="width:96%;">
+&lt;colgroup>
+&lt;col style="width: 12%" />
+&lt;col style="width: 22%" />
+&lt;col style="width: 14%" />
+&lt;col style="width: 10%" />
+&lt;col style="width: 16%" />
+&lt;col style="width: 8%" />
+&lt;col style="width: 10%" />
+&lt;/colgroup>
+&lt;thead>
+&lt;tr class="header">
+&lt;th>&lt;strong>Name&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Description&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Data Type&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Units&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Constraints&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Req&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Notes&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr class="odd">
+&lt;td>&lt;code>reul_cool&lt;/code>&lt;/td>
+&lt;td>Reference home space cooling end use loads&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>ec_r_cool&lt;/code>&lt;/td>
+&lt;td>Reference home space cooling energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_x_cool&lt;/code>&lt;/td>
+&lt;td>Rated home space cooling energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h4
+id="waterheatingsystemhourlyoutput">WaterHeatingSystemHourlyOutput&lt;/h4>
+&lt;table style="width:96%;">
+&lt;colgroup>
+&lt;col style="width: 10%" />
+&lt;col style="width: 24%" />
+&lt;col style="width: 14%" />
+&lt;col style="width: 10%" />
+&lt;col style="width: 16%" />
+&lt;col style="width: 8%" />
+&lt;col style="width: 10%" />
+&lt;/colgroup>
+&lt;thead>
+&lt;tr class="header">
+&lt;th>&lt;strong>Name&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Description&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Data Type&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Units&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Constraints&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Req&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Notes&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr class="odd">
+&lt;td>&lt;code>reul_hw&lt;/code>&lt;/td>
+&lt;td>Reference home water heating end use loads&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="even">
+&lt;td>&lt;code>ec_r_hw&lt;/code>&lt;/td>
+&lt;td>Reference home water heating energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr class="odd">
+&lt;td>&lt;code>ec_x_hw&lt;/code>&lt;/td>
+&lt;td>Rated home water heating energy consumption&lt;/td>
+&lt;td>&lt;code>Numeric&lt;/code>&lt;/td>
+&lt;td>kBtu&lt;/td>
+&lt;td>&lt;code>[8760], ≥0&lt;/code>&lt;/td>
+&lt;td>&lt;span class="math inline">\(✓\)&lt;/span>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item></channel></rss>
