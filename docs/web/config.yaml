@@ -1,0 +1,7 @@
+title: "HERS Diagnostic Output Schema"
+author: "RESNET"
+description: "A schema for detailed diagnostic outputs from RESNET Accredited HERS software tools."
+colors:
+  primary: "#e6e6e6"
+  secondary: "#002664"
+  menu_text: "#000"

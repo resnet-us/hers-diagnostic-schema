@@ -1,0 +1,29 @@
+name: Build and Test
+
+on: push
+
+jobs:
+  build:
+    name: Build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10"]
+    defaults:
+      run:
+        shell: bash
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: bigladder/github-actions/setup-python-poetry@main
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Setup Hugo
+        uses: bigladder/lattice/.github/actions/setup-hugo@main
+      - name: Build and test
+        run: |
+          source $VENV
+          poetry run doit
