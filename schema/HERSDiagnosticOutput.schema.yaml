@@ -337,7 +337,7 @@ SpaceHeatingSystemHourlyOutput:
   Data Elements:
     reul_heat:
       Description: Reference home space heating end use loads
-      Data Type: Numeric
+      Data Type: "[Numeric]"
       Units: kBtu
       Constraints:
         - "[8760]"
@@ -345,7 +345,7 @@ SpaceHeatingSystemHourlyOutput:
       Required: True
     ec_r_heat:
       Description: Reference home space heating energy consumption
-      Data Type: Numeric
+      Data Type: "[Numeric]"
       Units: kBtu
       Constraints:
         - "[8760]"
@@ -353,7 +353,7 @@ SpaceHeatingSystemHourlyOutput:
       Required: True
     ec_x_heat:
       Description: Rated home space heating energy consumption
-      Data Type: Numeric
+      Data Type: "[Numeric]"
       Units: kBtu
       Constraints:
         - "[8760]"
@@ -365,7 +365,7 @@ SpaceCoolingSystemHourlyOutput:
   Data Elements:
     reul_cool:
       Description: Reference home space cooling end use loads
-      Data Type: Numeric
+      Data Type: "[Numeric]"
       Units: kBtu
       Constraints:
         - "[8760]"
@@ -373,7 +373,7 @@ SpaceCoolingSystemHourlyOutput:
       Required: True
     ec_r_cool:
       Description: Reference home space cooling energy consumption
-      Data Type: Numeric
+      Data Type: "[Numeric]"
       Units: kBtu
       Constraints:
         - "[8760]"
@@ -381,7 +381,7 @@ SpaceCoolingSystemHourlyOutput:
       Required: True
     ec_x_cool:
       Description: Rated home space cooling energy consumption
-      Data Type: Numeric
+      Data Type: "[Numeric]"
       Units: kBtu
       Constraints:
         - "[8760]"
@@ -393,7 +393,7 @@ WaterHeatingSystemHourlyOutput:
   Data Elements:
     reul_hw:
       Description: Reference home water heating end use loads
-      Data Type: Numeric
+      Data Type: "[Numeric]"
       Units: kBtu
       Constraints:
         - "[8760]"
@@ -401,7 +401,7 @@ WaterHeatingSystemHourlyOutput:
       Required: True
     ec_r_hw:
       Description: Reference home water heating energy consumption
-      Data Type: Numeric
+      Data Type: "[Numeric]"
       Units: kBtu
       Constraints:
         - "[8760]"
@@ -409,7 +409,7 @@ WaterHeatingSystemHourlyOutput:
       Required: True
     ec_x_hw:
       Description: Rated home water heating energy consumption
-      Data Type: Numeric
+      Data Type: "[Numeric]"
       Units: kBtu
       Constraints:
         - "[8760]"
