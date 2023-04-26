@@ -12,10 +12,22 @@ Schema:
       - kBtu
       - kWh/y
       - kWh
+      - lb/kWh
+
+SchemaType:
+  Object Type: "Enumeration"
+  Enumerators:
+    HERS_DIAGNOSTIC_OUTPUT:
+      Description: "HERS Diagnostic Output"
 
 HERSDiagnosticOutput:
   Object Type: Data Group
   Data Elements:
+    metadata:
+      Description: ASHRAE Standard 232P metadata
+      Data Type: "{Metadata}"
+      Constraints: "schema=HERS_DIAGNOSTIC_OUTPUT"
+      Required: True
     project_name:
       Description: Name of the file or project used to generate this data
       Data Type: String
@@ -63,355 +75,139 @@ HERSDiagnosticOutput:
       Units: "-"
       Required: True
       Notes: Unrounded value based on the latest version of MINHERS
-    space_heating_system_output:
-      Description: Array of outputs for space heating systems
-      Data Type: "[{SpaceHeatingSystemOutput}][1..]"
-      Required: True
-    space_cooling_system_output:
-      Description: Array of outputs for space cooling systems
-      Data Type: "[{SpaceCoolingSystemOutput}][1..]"
-      Required: True
-    water_heating_system_output:
-      Description: Array of outputs for water heating systems
-      Data Type: "[{WaterHeatingSystemOutput}][1..]"
-      Required: True
-    rec_la:
-      Description: Reference home lighting and appliance energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    ec_la:
-      Description: Rated home lighting and appliance energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    rec_vent:
-      Description: Reference home ventilation energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    ec_vent:
-      Description: Rated home ventilation energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    rec_dh:
-      Description: Reference home dehumidification energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    ec_dh:
-      Description: Rated home dehumidification energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    opp:
-      Description: On-site power production
-      Data Type: Numeric
-      Units: kWh/y
-      Constraints: ">=0"
-      Required: True
-    iad_save:
-      Description: Index adjustment design savings
+    carbon_index:
+      Description: RESNET Carbon Index
       Data Type: Numeric
       Units: "-"
-      Required: True
-    hers_hourly_output:
-      Description: HERS hourly output
-      Data Type: "{HERSHourlyOutput}"
-      Required: True
-
-HeatingFuelType:
-  Object Type: Enumeration
-  Enumerators:
-    ELECTRIC:
-      Description: Electric
-    FOSSIL_FUEL:
-      Description: Fossil Fuel
-      Notes: Such as natural gas, liquid propane gas, fuel oil
-    BIOMASS:
-      Description: Biomass
-
-SpaceHeatingSystemOutput:
-  Object Type: Data Group
-  Data Elements:
-    reul_heat:
-      Description: Reference home space heating end use loads
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    ec_r_heat:
-      Description: Reference home space heating energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    ec_x_heat:
-      Description: Rated home space heating energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    eec_r_heat:
-      Description: Reference home space heating equipment efficiency coefficient
-      Data Type: Numeric
-      Units: "-"
-      Constraints: ">=0"
-      Required: True
-    eec_x_heat:
-      Description: Rated home space heating equipment efficiency coefficient
-      Data Type: Numeric
-      Units: "-"
-      Constraints: ">=0"
-      Required: True
-    fuel_type_heat:
-      Description: Fuel type used for space heating
-      Data Type: <HeatingFuelType>
-      Required: True
-
-SpaceCoolingSystemOutput:
-  Object Type: Data Group
-  Data Elements:
-    reul_cool:
-      Description: Reference home space cooling end use loads
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    ec_r_cool:
-      Description: Reference home space cooling energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    ec_x_cool:
-      Description: Rated home space cooling energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    eec_r_cool:
-      Description: Reference home space cooling equipment efficiency coefficient
-      Data Type: Numeric
-      Units: "-"
-      Constraints: ">=0"
-      Required: True
-    eec_x_cool:
-      Description: Rated home space cooling equipment efficiency coefficient
-      Data Type: Numeric
-      Units: "-"
-      Constraints: ">=0"
-      Required: True
-
-WaterHeatingSystemOutput:
-  Object Type: Data Group
-  Data Elements:
-    reul_hw:
-      Description: Reference home water heating end use loads
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    ec_r_hw:
-      Description: Reference home water heating energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    ec_x_hw:
-      Description: Rated home water heating energy consumption
-      Data Type: Numeric
-      Units: MBtu/y
-      Constraints: ">=0"
-      Required: True
-    eec_r_hw:
-      Description: Reference home water heating equipment efficiency coefficient
-      Data Type: Numeric
-      Units: "-"
-      Constraints: ">=0"
-      Required: True
-    eec_x_hw:
-      Description: Rated home water heating equipment efficiency coefficient
-      Data Type: Numeric
-      Units: "-"
-      Constraints: ">=0"
-      Required: True
-    fuel_type_hw:
-      Description: Fuel type used for water heating
-      Data Type: <HeatingFuelType>
-      Required: True
-
-HERSHourlyOutput:
-  Object Type: Data Group
-  Data Elements:
+      #Required: True
+      Notes: Unrounded value based on the latest version of MINHERS
+    electricity_co2_emissions_factors:
+      Description: Regional emissions factors for electricity use
+      Data Type: "[Numeric][8760]"
+      Units: lb/kWh
+      Constraints:
+        - ">=0"
+      #Required: True
     outdoor_drybulb_temperature:
       Description: Outdoor drybulb temperature
       Data Type: "[Numeric]"
       Units: "F"
       Constraints: "[8760]"
       Required: True
+    on_site_power_production:
+      Description: On-site power production (OPP) of the rated home
+      Data Type: "[Numeric][8760]"
+      Units: kWh
+      Constraints:
+        - ">=0"
+      Required: True
+    rated_home_output:
+      Description: Rated Home outputs
+      Data Type: "{HomeOutputs}"
+      Required: True
+    hers_reference_home_output:
+      Description: HERS Reference Home outputs
+      Data Type: "{HomeOutputs}"
+      Required: True
+    co2_reference_home_output:
+      Description: CO2 RaReferenceted Home outputs
+      Data Type: "{HomeOutputs}"
+      #Required: True
+    iad_rated_home_output:
+      Description: Index Adjustment Design (IAD) Rated Home outputs
+      Data Type: "{HomeOutputs}"
+      #Required: True
+    iad_hers_reference_home_output:
+      Description: Index Adjustment Design (IAD) HERS Reference Home outputs
+      Data Type: "{HomeOutputs}"
+      #Required: True
+    iad_co2_reference_home_output:
+      Description: Index Adjustment Design (IAD) CO2 Reference Home outputs
+      Data Type: "{HomeOutputs}"
+      #Required: True
+
+FuelType:
+  Object Type: Enumeration
+  Enumerators:
+    ELECTRICITY:
+      Description: Electricity
+    NATURAL_GAS:
+      Description: Natural gas
+    FUEL_OIL_2:
+      Description: "Fuel oil #2"
+    LIQUID_PETROLEUM_GAS:
+      Description: Liquid petroleum gas
+    BIOMASS:
+      Description: Biomass
+
+EnergyOutput:
+  Object Type: Data Group
+  Data Elements:
+    fuel_type:
+      Description: Fuel type
+      Data Type: <FuelType>
+      Required: True
+    energy:
+      Description: Energy use
+      Data Type: "[Numeric][8760]"
+      Units: kBtu
+      Constraints:
+        - ">=0"
+      Required: True
+
+SystemOutput:
+  Object Type: Data Group
+  Data Elements:
+    primary_fuel_type:
+      Description: System primary fuel type (needed to determine 'a' and 'b' coefficients for normalized energy consumption)
+      Data Type: <FuelType>
+      Required: True
+    equipment_efficiency_coefficient:
+      Description: Equipment efficiency coefficient (EEC)
+      Data Type: Numeric
+      Units: "-"
+      Constraints: ">=0"
+      Required: True
+    load:
+      Description: System load
+      Data Type: "[Numeric][8760]"
+      Units: kBtu
+      Constraints:
+        - ">=0"
+      Notes: Only required for systems of the HERS Reference Home
+    energy_use:
+      Description: System energy use
+      Data Type: "[{EnergyOutput}][1..]"
+      Required: True
+
+HomeOutputs:
+  Object Type: Data Group
+  Data Elements:
     conditioned_space_temperature:
       Description: Conditioned space temperature
-      Data Type: "[Numeric]"
+      Data Type: "[Numeric][8760]"
       Units: "F"
-      Constraints: "[8760]"
       Required: True
     space_heating_system_output:
       Description: Array of outputs for space heating systems
-      Data Type: "[{SpaceHeatingSystemHourlyOutput}][1..]"
+      Data Type: "[{SystemOutput}][1..]"
       Required: True
     space_cooling_system_output:
       Description: Array of outputs for space cooling systems
-      Data Type: "[{SpaceCoolingSystemHourlyOutput}][1..]"
+      Data Type: "[{SystemOutput}][1..]"
       Required: True
     water_heating_system_output:
       Description: Array of outputs for water heating systems
-      Data Type: "[{WaterHeatingSystemHourlyOutput}][1..]"
+      Data Type: "[{SystemOutput}][1..]"
       Required: True
-    rec_la:
-      Description: Reference home lighting and appliance energy consumption
-      Data Type: "[Numeric]"
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
+    lighting_and_appliance_energy:
+      Description: Lighting and appliance energy use
+      Data Type: "[{EnergyOutput}][1..]"
       Required: True
-    ec_la:
-      Description: Rated home lighting and appliance energy consumption
-      Data Type: "[Numeric]"
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
+    ventilation_energy:
+      Description: Ventilation energy use
+      Data Type: "[{EnergyOutput}][1..]"
       Required: True
-    rec_vent:
-      Description: Reference home ventilation energy consumption
-      Data Type: "[Numeric]"
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-    ec_vent:
-      Description: Rated home ventilation energy consumption
-      Data Type: "[Numeric]"
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-    rec_dh:
-      Description: Reference home dehumidification energy consumption
-      Data Type: "[Numeric]"
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-    ec_dh:
-      Description: Rated home dehumidification energy consumption
-      Data Type: "[Numeric]"
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-    opp:
-      Description: On-site power production
-      Data Type: "[Numeric]"
-      Units: kWh
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-
-SpaceHeatingSystemHourlyOutput:
-  Object Type: Data Group
-  Data Elements:
-    reul_heat:
-      Description: Reference home space heating end use loads
-      Data Type: Numeric
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-    ec_r_heat:
-      Description: Reference home space heating energy consumption
-      Data Type: Numeric
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-    ec_x_heat:
-      Description: Rated home space heating energy consumption
-      Data Type: Numeric
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-
-SpaceCoolingSystemHourlyOutput:
-  Object Type: Data Group
-  Data Elements:
-    reul_cool:
-      Description: Reference home space cooling end use loads
-      Data Type: Numeric
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-    ec_r_cool:
-      Description: Reference home space cooling energy consumption
-      Data Type: Numeric
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-    ec_x_cool:
-      Description: Rated home space cooling energy consumption
-      Data Type: Numeric
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-
-WaterHeatingSystemHourlyOutput:
-  Object Type: Data Group
-  Data Elements:
-    reul_hw:
-      Description: Reference home water heating end use loads
-      Data Type: Numeric
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-    ec_r_hw:
-      Description: Reference home water heating energy consumption
-      Data Type: Numeric
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
-    ec_x_hw:
-      Description: Rated home water heating energy consumption
-      Data Type: Numeric
-      Units: kBtu
-      Constraints:
-        - "[8760]"
-        - ">=0"
-      Required: True
+    dehumidification_energy:
+      Description: Dehumidification energy use
+      Data Type: "[{EnergyOutput}][1..]"
