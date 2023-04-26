@@ -2,7 +2,7 @@ Schema:
   Object Type: Meta
   Title: HERS Diagnostic Output
   Description: A schema for detailed diagnostic outputs from RESNET Accredited HERS software tools.
-  Version: "0.1.0"
+  Version: "0.2.0"
   Root Data Group: HERSDiagnosticOutput
   Unit Systems:
     HERSUnits:
