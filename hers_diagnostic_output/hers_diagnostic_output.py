@@ -37,7 +37,8 @@ class HERSDiagnosticData:
         EEC_x = self.get_system_energy_efficiency_coefficient('rated_home',system_type,system_index)
         EEC_r = self.get_system_energy_efficiency_coefficient('hers_reference_home',system_type,system_index)
         fuel_type = self.get_system_fuel_type('rated_home',system_type,system_index)
-        a = fuel_coefficients[(system_type,fuel_type)]
+        a = HERSDiagnosticData.fuel_coefficients[(system_type,fuel_type)]['a']
+        b = HERSDiagnosticData.fuel_coefficients[(system_type,fuel_type)]['b']
 
         return 
 
