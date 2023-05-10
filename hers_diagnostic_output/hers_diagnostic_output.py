@@ -2,7 +2,6 @@ import lattice
 
 class HERSDiagnosticData:
 
-    
     # Define coefficients 'a' and 'b based on Table 4.1.1(1) in Standard 301 for 
     # space heating, space cooling, and water heating
     fuel_coefficients = {("space_heating","ELECTRICITY"):{"a":2.2561,"b":0},
@@ -12,12 +11,14 @@ class HERSDiagnosticData:
                          ("water_heating","ELECTRICITY"):{"a":0.92,"b":0},
                          ("water_heating","FOSSIL_FUEL"):{"a":1.1877,"b":1.013}}
     
-    # define FOSSIL_FUEL types to allocate proper 'a' and 'b' coefficients in table fuel_coefficients
+    # define FOSSIL_FUEL types to allocate proper 'a' and 'b' coefficients in fuel_coefficients dictionary
     fossil_fuel_types = ['NATURAL_GAS','FUEL_OIL_2','LIQUID_PETROLEUM_GAS']
     system_types = ['space_heating','space_cooling','water_heating']
     other_end_uses = ['lighting_and_appliance','ventilation','dehumidification']
 
     def __init__(self, file):
+        # load data
+        # determine number of sub-systems for each system type (ex. determine number of heating systems)
         self.data = lattice.load(file)
         self.number_of_systems = {}
         for system_type in self.system_types:
@@ -46,6 +47,8 @@ class HERSDiagnosticData:
     
     def calculate_normalized_energy_consumption(self,system_type,system_index):
         # nEC_x = EC_x * (a * EEC_x - b) * (EEC_r/EEC_x)
+        # Retrieve energy consumption for each sub system and normalize the energy consumption
+        # with the proper energy coefficients, 'a' and 'b'
         EC_x = self.get_system_energy_consumption('rated_home',system_type,system_index)
         EEC_x = self.get_system_energy_efficiency_coefficient('rated_home',system_type,system_index)
         EEC_r = self.get_system_energy_efficiency_coefficient('hers_reference_home',system_type,system_index)
@@ -83,24 +86,29 @@ class HERSDiagnosticData:
     def calculate_total_normalized_modified_load(self):
         # TnML = nMEUL_HEAT + nMEUL_COOL + nMEUL_HW + EC_LA + EC_VENT + EC_DH
 
+        # Calculate total normalized rated home loads for heating (nMEUL_HEAT), cooling (nMEUL_COOL), and hot water (nMEUL_HW)
         nMEUL_total = 0
-
         for system_type in self.system_types:
             for system_index in range(self.number_of_systems[system_type]):
                 nMEUL_total += self.calculate_normalized_modified_load(system_type,system_index)
-        
+
+        # Calculate rated home other end use energy consumption (lighting and appliances (EC_LA), 
+        # ventilation (EC_VENT), and dehumidification (EC_DH))
         EC_end_use_total = self.calculate_other_end_use_energy_consumtpion('rated_home')
     
         return nMEUL_total + EC_end_use_total
     
     def calculate_total_reference_home_load(self):
-
+        # TRL = REUL_HEAT + REUL_COOL + REUL_HW + REC_LA + REC_VENT + REC_DH
+        
+        # Calculate total reference home loads for heating (REUL_HEAT), cooling (REUL_COOL), and hot water (REUL_HW)
         REUL_total = 0
-
         for system_type in self.system_types:
             for system_index in range(self.number_of_systems[system_type]):
                 REUL_total += self.calculate_system_loads('hers_reference_home',system_type,system_index)
 
+        # Calculate reference home other end use energy consumption (lighting and appliances (REC_LA), 
+        # ventilation (REC_VENT), and dehumidification (REC_DH))
         REC_system_total = self.calculate_other_end_use_energy_consumtpion('hers_reference_home')
         
         return REUL_total + REC_system_total
@@ -114,3 +122,5 @@ class HERSDiagnosticData:
         TRL = self.calculate_total_reference_home_load()
 
         return TnML / TRL * 100
+
+# REUL calculation is repeated. This could be simplified by caching data in a dictionary.
