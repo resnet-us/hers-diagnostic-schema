@@ -59,12 +59,7 @@ class HERSDiagnosticData:
 
     def calculate_system_loads(self,home_type,system_type,system_index):
         # REUL
-        
         return sum(self.data[f"{home_type}_output"][f"{system_type}_system_output"][system_index]['load'])
-        
-         
-    
-    ## REUL_space_heating = sum(data['hers_reference_home_output']['space_heating_system_output'][0]['load'])
 
     def calculate_normalized_modified_load(self,system_type,system_index):
         # nMEUL  = REUL * nEC_x / EC_r
@@ -74,11 +69,16 @@ class HERSDiagnosticData:
 
         return REUL * nEC_x / EC_r
     
-    def calculate_other_end_use_energy_consumtpion(self,home_type,electricity_system):
+    def calculate_other_end_use_energy_consumtpion(self,home_type):
         # EC for lighting and appliances, ventilation, and dehumidification
         # REC for lighting and appliances, ventilation, and dehumidification
-        return self.data[f"{home_type}_output"][f"{electricity_system}_energy"][0]["energy"]
 
+        end_use_total = 0
+
+        for other_end_use in self.other_end_uses:
+            end_use_total += sum(self.data[f"{home_type}_output"][f"{other_end_use}_energy"][0]["energy"])
+        
+        return end_use_total
     
     def calculate_total_normalized_modified_load(self):
         # TnML = nMEUL_HEAT + nMEUL_COOL + nMEUL_HW + EC_LA + EC_VENT + EC_DH
@@ -89,10 +89,7 @@ class HERSDiagnosticData:
             for system_index in range(self.number_of_systems[system_type]):
                 nMEUL_total += self.calculate_normalized_modified_load(system_type,system_index)
         
-        EC_end_use_total = 0
-
-        for other_end_use in self.other_end_uses:
-            EC_end_use_total += sum(self.calculate_other_end_use_energy_consumtpion('rated_home',other_end_use))
+        EC_end_use_total = self.calculate_other_end_use_energy_consumtpion('rated_home')
     
         return nMEUL_total + EC_end_use_total
     
@@ -104,10 +101,7 @@ class HERSDiagnosticData:
             for system_index in range(self.number_of_systems[system_type]):
                 REUL_total += self.calculate_system_loads('hers_reference_home',system_type,system_index)
 
-        REC_system_total = 0
-
-        for other_end_use in self.other_end_uses:
-            REC_system_total += sum(self.calculate_other_end_use_energy_consumtpion('hers_reference_home',other_end_use))
+        REC_system_total = self.calculate_other_end_use_energy_consumtpion('hers_reference_home')
         
         return REUL_total + REC_system_total
 
