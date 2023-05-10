@@ -110,7 +110,7 @@ HERSDiagnosticOutput:
       Data Type: "{HomeOutputs}"
       Required: True
     co2_reference_home_output:
-      Description: CO2 RaReferenceted Home outputs
+      Description: CO2 Reference Home outputs
       Data Type: "{HomeOutputs}"
       Required: True
     iad_rated_home_output:
@@ -119,10 +119,6 @@ HERSDiagnosticOutput:
       Required: True
     iad_hers_reference_home_output:
       Description: Index Adjustment Design (IAD) HERS Reference Home outputs
-      Data Type: "{HomeOutputs}"
-      Required: True
-    iad_co2_reference_home_output:
-      Description: Index Adjustment Design (IAD) CO2 Reference Home outputs
       Data Type: "{HomeOutputs}"
       Required: True
 
