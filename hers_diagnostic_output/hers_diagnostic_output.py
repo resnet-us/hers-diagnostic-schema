@@ -79,8 +79,14 @@ class HERSDiagnosticData:
         end_use_total = 0
 
         for other_end_use in self.other_end_uses:
-            end_use_total += sum(self.data[f"{home_type}_output"][f"{other_end_use}_energy"][0]["energy"])
-        
+            if other_end_use == 'dehumidification':
+                if other_end_use in self.data:
+                    end_use_total += sum(self.data[f"{home_type}_output"][f"{other_end_use}_energy"][0]["energy"])
+                else:
+                    pass
+            else:
+                end_use_total += sum(self.data[f"{home_type}_output"][f"{other_end_use}_energy"][0]["energy"])
+    
         return end_use_total
     
     def calculate_total_normalized_modified_load(self):
