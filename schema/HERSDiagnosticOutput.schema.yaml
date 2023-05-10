@@ -79,7 +79,7 @@ HERSDiagnosticOutput:
       Description: RESNET Carbon Index
       Data Type: Numeric
       Units: "-"
-      #Required: True
+      Required: True
       Notes: Unrounded value based on the latest version of MINHERS
     electricity_co2_emissions_factors:
       Description: Regional emissions factors for electricity use
@@ -87,7 +87,7 @@ HERSDiagnosticOutput:
       Units: lb/kWh
       Constraints:
         - ">=0"
-      #Required: True
+      Required: True
     outdoor_drybulb_temperature:
       Description: Outdoor drybulb temperature
       Data Type: "[Numeric]"
@@ -112,15 +112,15 @@ HERSDiagnosticOutput:
     co2_reference_home_output:
       Description: CO2 Reference Home outputs
       Data Type: "{HomeOutputs}"
-      #Required: True
+      Required: True
     iad_rated_home_output:
       Description: Index Adjustment Design (IAD) Rated Home outputs
       Data Type: "{HomeOutputs}"
-      #Required: True
+      Required: True
     iad_hers_reference_home_output:
       Description: Index Adjustment Design (IAD) HERS Reference Home outputs
       Data Type: "{HomeOutputs}"
-      #Required: True
+      Required: True
 
 FuelType:
   Object Type: Enumeration
