@@ -1,4 +1,5 @@
 import lattice
+import numpy as np
 
 class HERSDiagnosticData:
 
@@ -11,6 +12,15 @@ class HERSDiagnosticData:
                          ("water_heating","ELECTRICITY"):{"a":0.92,"b":0},
                          ("water_heating","FOSSIL_FUEL"):{"a":1.1877,"b":1.013}}
     
+    fuel_conversion_co2e_lb_MBtu_to_lb_kWh = 3412.14/1e6
+    
+    # fuel_emission_factors = {'NATURAL_GAS':117.6,'FUEL_OIL_2':161.0,'LIQUID_PETROLEUM_GAS':136.6}
+    
+    fuel_emission_factors = {'NATURAL_GAS':147.3*fuel_conversion_co2e_lb_MBtu_to_lb_kWh,
+                             'FUEL_OIL_2':195.9*fuel_conversion_co2e_lb_MBtu_to_lb_kWh,
+                             'LIQUID_PETROLEUM_GAS':177.8*fuel_conversion_co2e_lb_MBtu_to_lb_kWh
+                             }
+
     # define FOSSIL_FUEL types to allocate proper 'a' and 'b' coefficients in fuel_coefficients dictionary
     fossil_fuel_types = ['NATURAL_GAS','FUEL_OIL_2','LIQUID_PETROLEUM_GAS']
     system_types = ['space_heating','space_cooling','water_heating']
@@ -23,7 +33,9 @@ class HERSDiagnosticData:
         self.number_of_systems = {}
         for system_type in self.system_types:
             self.number_of_systems[f"{system_type}"] = len(self.data["rated_home_output"][f"{system_type}_system_output"])
-
+        
+        # define hourly electricity emissions
+        self.electricity_emissions_hourly = self.data["electricity_co2_emissions_factors"]
 
     def get_system_energy_efficiency_coefficient(self,home_type,system_type,system_index):
         # EEC_x for rated home
@@ -34,6 +46,10 @@ class HERSDiagnosticData:
     def get_system_fuel_type(self,home_type,system_type,system_index):
         # Retrieve fuel type
         return self.data[f"{home_type}_output"][f"{system_type}_system_output"][system_index]['primary_fuel_type']
+    
+    def get_system_fuel_type_co2(self,home_type,system_type,system_index):
+        # Retrieve fuel type
+        return self.data[f"{home_type}_output"][f"{system_type}_system_output"][system_index]['energy_use']
 
     def get_system_energy_consumption(self,home_type,system_type,system_index):
         # EC_x for rated home
@@ -72,6 +88,17 @@ class HERSDiagnosticData:
 
         return REUL * nEC_x / EC_r
     
+    def calculate_other_end_use_system_energy_types(self,home_type,other_end_use):
+        # sum other end use system energy use (ex. heating system may use electricity and natural gas; this ensures both natural gas and electricity are accounted for)
+        
+        system_total = 0
+
+        for system_energy_type in range(len(self.data[f"{home_type}_output"][f"{other_end_use}_energy"])):
+
+            system_total += sum(self.data[f"{home_type}_output"][f"{other_end_use}_energy"][system_energy_type]["energy"])
+        
+        return system_total
+
     def calculate_other_end_use_energy_consumtpion(self,home_type):
         # EC for lighting and appliances, ventilation, and dehumidification
         # REC for lighting and appliances, ventilation, and dehumidification
@@ -80,13 +107,14 @@ class HERSDiagnosticData:
 
         for other_end_use in self.other_end_uses:
             if other_end_use == 'dehumidification':
+                # skip dehumidification if not in json file
                 if other_end_use in self.data:
-                    end_use_total += sum(self.data[f"{home_type}_output"][f"{other_end_use}_energy"][0]["energy"])
-                else:
-                    pass
+                    # if dehumdification exists, then it is added to end_use_total
+                    end_use_total += self.calculate_other_end_use_system_energy_types(home_type,other_end_use)
             else:
-                end_use_total += sum(self.data[f"{home_type}_output"][f"{other_end_use}_energy"][0]["energy"])
-    
+                # ventilation, and lighting and appliances are added to end_use_total
+                end_use_total += self.calculate_other_end_use_system_energy_types(home_type,other_end_use)
+        
         return end_use_total
     
     def calculate_total_normalized_modified_load(self):
@@ -118,11 +146,38 @@ class HERSDiagnosticData:
         REC_system_total = self.calculate_other_end_use_energy_consumtpion('hers_reference_home')
         
         return REUL_total + REC_system_total
+    
+    def matrix_multiplication(self,matrix1,matrix2):
+        
+        sum = 0
+        for n in range(8760):
+            sum += matrix1[n]*matrix2[n]
+        return sum
 
+
+    def calculate_annual_hourly_co2_emissions(self,home_type):
+        # retrieve energy use for each subsystem and multiply energy by emissions factors
+
+        total_emissions = 0
+
+        for system_type in self.system_types:
+            for system_index in range(self.number_of_systems[system_type]):
+                for energy_use in self.data[f"{home_type}_output"][f"{system_type}_system_output"][system_index]['energy_use']:
+                    energy_consumption = energy_use['energy']
+                    fuel_type = energy_use['fuel_type']
+                    print(home_type, system_type, fuel_type, system_index)
+                    if fuel_type == 'ELECTRICITY':
+                        print(self.matrix_multiplication(self.electricity_emissions_hourly,energy_consumption))
+                        total_emissions += self.matrix_multiplication(self.electricity_emissions_hourly,energy_consumption)
+                    elif fuel_type in self.fossil_fuel_types:
+                        print(sum(energy_consumption) * self.fuel_emission_factors[fuel_type])
+                        total_emissions += sum(energy_consumption) * self.fuel_emission_factors[fuel_type]
+        
+        for system_type in self.other_end_uses:
+            pass
 
     def calculate_eri(self):
-        # rated home outputs
-        # ERI = TnML / TRL
+        # ERI = TnML / TRL * 100
         TnML = self.calculate_total_normalized_modified_load()
 
         TRL = self.calculate_total_reference_home_load()
