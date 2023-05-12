@@ -12,7 +12,18 @@ class HERSDiagnosticData:
                          ("water_heating","ELECTRICITY"):{"a":0.92,"b":0},
                          ("water_heating","FOSSIL_FUEL"):{"a":1.1877,"b":1.013}}
     
+    total_fuel_type_energy = {("ELECTRICITY","rated_home"):np.zeros(8760,),
+                              ("NATURAL_GAS","rated_home"):0,
+                              ("FUEL_OIL_2","rated_home"):0,
+                              ("LIQUID_PETROLEUM_GAS","rated_home"):0,
+                              ("ELECTRICITY","hers_reference_home"):np.zeros(8760,),
+                              ("NATURAL_GAS","hers_reference_home"):0,
+                              ("FUEL_OIL_2","hers_reference_home"):0,
+                              ("LIQUID_PETROLEUM_GAS","hers_reference_home"):0
+                              }
+    
     fuel_conversion_co2e_lb_MBtu_to_lb_kWh = 3412.14/1e6
+    # fuel_conversion_co2e_lb_MBtu_to_lb_kWh = 1
     
     # fuel_emission_factors = {'NATURAL_GAS':117.6,'FUEL_OIL_2':161.0,'LIQUID_PETROLEUM_GAS':136.6}
     
@@ -25,6 +36,9 @@ class HERSDiagnosticData:
     fossil_fuel_types = ['NATURAL_GAS','FUEL_OIL_2','LIQUID_PETROLEUM_GAS']
     system_types = ['space_heating','space_cooling','water_heating']
     other_end_uses = ['lighting_and_appliance','ventilation','dehumidification']
+    system_types_system_output = ['space_heating_system_output','space_cooling_system_output','water_heating_system_output']
+    other_end_uses_energy = ['lighting_and_appliance_energy','ventilation_energy','dehumidification_energy']
+    
 
     def __init__(self, file):
         # load data
@@ -32,7 +46,7 @@ class HERSDiagnosticData:
         self.data = lattice.load(file)
         self.number_of_systems = {}
         for system_type in self.system_types:
-            self.number_of_systems[f"{system_type}"] = len(self.data["rated_home_output"][f"{system_type}_system_output"])
+            self.number_of_systems[system_type] = len(self.data["rated_home_output"][f"{system_type}_system_output"])
         
         # define hourly electricity emissions
         self.electricity_emissions_hourly = self.data["electricity_co2_emissions_factors"]
@@ -155,26 +169,49 @@ class HERSDiagnosticData:
         return sum
 
 
-    def calculate_annual_hourly_co2_emissions(self,home_type):
-        # retrieve energy use for each subsystem and multiply energy by emissions factors
+    def calculate_energy_type_total_energy(self,energy_use,home_type,total_fuel_type_energy):
 
-        total_emissions = 0
+        fuel_type = energy_use["fuel_type"]
+        energy = energy_use["energy"]
 
-        for system_type in self.system_types:
-            for system_index in range(self.number_of_systems[system_type]):
-                for energy_use in self.data[f"{home_type}_output"][f"{system_type}_system_output"][system_index]['energy_use']:
-                    energy_consumption = energy_use['energy']
-                    fuel_type = energy_use['fuel_type']
-                    print(home_type, system_type, fuel_type, system_index)
-                    if fuel_type == 'ELECTRICITY':
-                        print(self.matrix_multiplication(self.electricity_emissions_hourly,energy_consumption))
-                        total_emissions += self.matrix_multiplication(self.electricity_emissions_hourly,energy_consumption)
-                    elif fuel_type in self.fossil_fuel_types:
-                        print(sum(energy_consumption) * self.fuel_emission_factors[fuel_type])
-                        total_emissions += sum(energy_consumption) * self.fuel_emission_factors[fuel_type]
+        if fuel_type == 'ELECTRICITY':
+            total_fuel_type_energy[(fuel_type,home_type)] += energy
+        else:
+            total_fuel_type_energy[(fuel_type,home_type)] += sum(energy)
         
-        for system_type in self.other_end_uses:
-            pass
+        return total_fuel_type_energy
+
+    def multiply_energy_use_and_emission_factors(self,total_fuel_type_energy):
+
+        self.emissions = {'rated_home':0,
+                          'hers_reference_home':0
+                          }
+
+        for key in total_fuel_type_energy.keys():
+            fuel_type = key[0]
+            home_type = key[1]
+            if fuel_type == "ELECTRICITY":
+                self.emissions[home_type] += self.matrix_multiplication(self.electricity_emissions_hourly,total_fuel_type_energy[(fuel_type,home_type)])
+            else:
+                self.emissions[home_type] += total_fuel_type_energy[(fuel_type,home_type)]*self.fuel_emission_factors[fuel_type]
+
+        return self.emissions['rated_home'], self.emissions['hers_reference_home']
+
+
+    def calculate_annual_hourly_co2_emissions(self,total_fuel_type_energy):
+        # retrieve energy use for each subsystem and multiply energy by emissions factors
+        
+        for home_type in ['rated_home','hers_reference_home']:
+            for system_type in self.data[f"{home_type}_output"]:
+                if system_type in self.system_types_system_output:
+                    for system_index in range(len(self.data[f"{home_type}_output"][system_type])):
+                        for energy_use in self.data[f"{home_type}_output"][system_type][system_index]["energy_use"]:
+                            total_fuel_type_energy = self.calculate_energy_type_total_energy(energy_use,home_type,total_fuel_type_energy)
+                elif system_type in self.other_end_uses_energy:
+                    for energy_use in self.data[f"{home_type}_output"][system_type]:
+                        total_fuel_type_energy = self.calculate_energy_type_total_energy(energy_use,home_type,total_fuel_type_energy)
+
+        return self.multiply_energy_use_and_emission_factors(total_fuel_type_energy)
 
     def calculate_eri(self):
         # ERI = TnML / TRL * 100
@@ -183,5 +220,13 @@ class HERSDiagnosticData:
         TRL = self.calculate_total_reference_home_load()
 
         return TnML / TRL * 100
+
+    def calculate_co2(self):
+
+        # CO2 Index = ACO2 / ARCO2 * 100
+
+        ACO2, ARCO2 = self.calculate_annual_hourly_co2_emissions(self.total_fuel_type_energy)
+
+        return ACO2 / ARCO2 * 100
 
 # REUL calculation is repeated. This could be simplified by caching data in a dictionary.
