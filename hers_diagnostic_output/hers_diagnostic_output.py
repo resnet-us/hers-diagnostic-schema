@@ -12,6 +12,7 @@ class HERSDiagnosticData:
                          ("water_heating","ELECTRICITY"):{"a":0.92,"b":0},
                          ("water_heating","FOSSIL_FUEL"):{"a":1.1877,"b":1.013}}
     
+    # initialize energy use for each fuel type and home type to calculate co2e emissions
     total_fuel_type_energy = {("ELECTRICITY","rated_home"):np.zeros(8760,),
                               ("NATURAL_GAS","rated_home"):0,
                               ("FUEL_OIL_2","rated_home"):0,
@@ -22,20 +23,21 @@ class HERSDiagnosticData:
                               ("LIQUID_PETROLEUM_GAS","co2_reference_home"):0
                               }
     
-    fuel_conversion_co2e_lb_MBtu_to_lb_kbtu = 1/1000
-    # fuel_conversion_co2e_lb_MBtu_to_lb_kWh = 1
-    
-    # fuel_emission_factors = {'NATURAL_GAS':117.6,'FUEL_OIL_2':161.0,'LIQUID_PETROLEUM_GAS':136.6}
-    
-    fuel_emission_factors = {'NATURAL_GAS':147.3*fuel_conversion_co2e_lb_MBtu_to_lb_kbtu,
-                             'FUEL_OIL_2':195.9*fuel_conversion_co2e_lb_MBtu_to_lb_kbtu,
-                             'LIQUID_PETROLEUM_GAS':177.8*fuel_conversion_co2e_lb_MBtu_to_lb_kbtu
+    # fossil fuel co2e coefficients
+    # biomass is not included, and will need to be added in a future version
+    # conversion of electricity co2e lb/Mbtu to lb/kbtu is included in calculation below
+    fuel_conversion_co2e_lb_Mbtu_to_lb_kbtu = 1/1000
+    fuel_emission_factors = {'NATURAL_GAS':147.3*fuel_conversion_co2e_lb_Mbtu_to_lb_kbtu,
+                             'FUEL_OIL_2':195.9*fuel_conversion_co2e_lb_Mbtu_to_lb_kbtu,
+                             'LIQUID_PETROLEUM_GAS':177.8*fuel_conversion_co2e_lb_Mbtu_to_lb_kbtu
                              }
 
     # define FOSSIL_FUEL types to allocate proper 'a' and 'b' coefficients in fuel_coefficients dictionary
     fossil_fuel_types = ['NATURAL_GAS','FUEL_OIL_2','LIQUID_PETROLEUM_GAS']
     system_types = ['space_heating','space_cooling','water_heating']
     other_end_uses = ['lighting_and_appliance','ventilation','dehumidification']
+
+    # '_system_output" and "_energy" are added to simplify code for co2e emission calculation
     system_types_system_output = ['space_heating_system_output','space_cooling_system_output','water_heating_system_output']
     other_end_uses_energy = ['lighting_and_appliance_energy','ventilation_energy','dehumidification_energy']
     
@@ -162,7 +164,8 @@ class HERSDiagnosticData:
         return REUL_total + REC_system_total
     
     def matrix_multiplication(self,matrix1,matrix2):
-        
+        # multiply electricity hourly emissions and electricity hourly energy use arrays together to obtain annual co2e emissions
+
         sum = 0
         for n in range(8760):
             sum += matrix1[n]*matrix2[n]
@@ -170,6 +173,8 @@ class HERSDiagnosticData:
 
 
     def calculate_energy_type_total_energy(self,energy_use,home_type,total_fuel_type_energy):
+        # add annual energy use by fuel type for each system to total_fuel_type_energy dictionary
+        # total_fuel_type_energy will be used to sum energy use by fuel type for rated home and co2 reference home and calculate annual co2e emissions
 
         fuel_type = energy_use["fuel_type"]
         energy = energy_use["energy"]
@@ -182,6 +187,7 @@ class HERSDiagnosticData:
         return total_fuel_type_energy
 
     def multiply_energy_use_and_emission_factors(self,total_fuel_type_energy):
+        # multiply co2e emission factors with each fuel type and home type, and then find annual co2e emissions for each home type
 
         self.emissions = {'rated_home':0,
                           'co2_reference_home':0
@@ -191,6 +197,7 @@ class HERSDiagnosticData:
             fuel_type = key[0]
             home_type = key[1]
             if fuel_type == "ELECTRICITY":
+                # conversion of electricity co2e lb/kWh to lb/kbtu is included in calculation below
                 self.emissions[home_type] += self.matrix_multiplication(self.electricity_emissions_hourly,total_fuel_type_energy[(fuel_type,home_type)])*1000/3412.14
             else:
                 self.emissions[home_type] += total_fuel_type_energy[(fuel_type,home_type)]*self.fuel_emission_factors[fuel_type]
@@ -222,7 +229,6 @@ class HERSDiagnosticData:
         return TnML / TRL * 100
 
     def calculate_co2(self):
-
         # CO2 Index = ACO2 / ARCO2 * 100
 
         ACO2, ARCO2 = self.calculate_annual_hourly_co2_emissions(self.total_fuel_type_energy)
