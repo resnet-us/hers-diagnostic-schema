@@ -16,20 +16,20 @@ class HERSDiagnosticData:
                               ("NATURAL_GAS","rated_home"):0,
                               ("FUEL_OIL_2","rated_home"):0,
                               ("LIQUID_PETROLEUM_GAS","rated_home"):0,
-                              ("ELECTRICITY","hers_reference_home"):np.zeros(8760,),
-                              ("NATURAL_GAS","hers_reference_home"):0,
-                              ("FUEL_OIL_2","hers_reference_home"):0,
-                              ("LIQUID_PETROLEUM_GAS","hers_reference_home"):0
+                              ("ELECTRICITY","co2_reference_home"):np.zeros(8760,),
+                              ("NATURAL_GAS","co2_reference_home"):0,
+                              ("FUEL_OIL_2","co2_reference_home"):0,
+                              ("LIQUID_PETROLEUM_GAS","co2_reference_home"):0
                               }
     
-    fuel_conversion_co2e_lb_MBtu_to_lb_kWh = 3412.14/1e6
+    fuel_conversion_co2e_lb_MBtu_to_lb_kbtu = 1/1000
     # fuel_conversion_co2e_lb_MBtu_to_lb_kWh = 1
     
     # fuel_emission_factors = {'NATURAL_GAS':117.6,'FUEL_OIL_2':161.0,'LIQUID_PETROLEUM_GAS':136.6}
     
-    fuel_emission_factors = {'NATURAL_GAS':147.3*fuel_conversion_co2e_lb_MBtu_to_lb_kWh,
-                             'FUEL_OIL_2':195.9*fuel_conversion_co2e_lb_MBtu_to_lb_kWh,
-                             'LIQUID_PETROLEUM_GAS':177.8*fuel_conversion_co2e_lb_MBtu_to_lb_kWh
+    fuel_emission_factors = {'NATURAL_GAS':147.3*fuel_conversion_co2e_lb_MBtu_to_lb_kbtu,
+                             'FUEL_OIL_2':195.9*fuel_conversion_co2e_lb_MBtu_to_lb_kbtu,
+                             'LIQUID_PETROLEUM_GAS':177.8*fuel_conversion_co2e_lb_MBtu_to_lb_kbtu
                              }
 
     # define FOSSIL_FUEL types to allocate proper 'a' and 'b' coefficients in fuel_coefficients dictionary
@@ -184,24 +184,24 @@ class HERSDiagnosticData:
     def multiply_energy_use_and_emission_factors(self,total_fuel_type_energy):
 
         self.emissions = {'rated_home':0,
-                          'hers_reference_home':0
+                          'co2_reference_home':0
                           }
 
         for key in total_fuel_type_energy.keys():
             fuel_type = key[0]
             home_type = key[1]
             if fuel_type == "ELECTRICITY":
-                self.emissions[home_type] += self.matrix_multiplication(self.electricity_emissions_hourly,total_fuel_type_energy[(fuel_type,home_type)])
+                self.emissions[home_type] += self.matrix_multiplication(self.electricity_emissions_hourly,total_fuel_type_energy[(fuel_type,home_type)])*1000/3412.14
             else:
                 self.emissions[home_type] += total_fuel_type_energy[(fuel_type,home_type)]*self.fuel_emission_factors[fuel_type]
 
-        return self.emissions['rated_home'], self.emissions['hers_reference_home']
+        return self.emissions['rated_home'], self.emissions['co2_reference_home']
 
 
     def calculate_annual_hourly_co2_emissions(self,total_fuel_type_energy):
         # retrieve energy use for each subsystem and multiply energy by emissions factors
         
-        for home_type in ['rated_home','hers_reference_home']:
+        for home_type in ['rated_home','co2_reference_home']:
             for system_type in self.data[f"{home_type}_output"]:
                 if system_type in self.system_types_system_output:
                     for system_index in range(len(self.data[f"{home_type}_output"][system_type])):
@@ -210,7 +210,7 @@ class HERSDiagnosticData:
                 elif system_type in self.other_end_uses_energy:
                     for energy_use in self.data[f"{home_type}_output"][system_type]:
                         total_fuel_type_energy = self.calculate_energy_type_total_energy(energy_use,home_type,total_fuel_type_energy)
-
+                        
         return self.multiply_energy_use_and_emission_factors(total_fuel_type_energy)
 
     def calculate_eri(self):
