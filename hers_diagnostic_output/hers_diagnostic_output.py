@@ -222,6 +222,7 @@ class HERSDiagnosticData:
 
     def calculate_eri(self):
         # ERI = TnML / TRL * 100
+        
         TnML = self.calculate_total_normalized_modified_load()
 
         TRL = self.calculate_total_reference_home_load()
