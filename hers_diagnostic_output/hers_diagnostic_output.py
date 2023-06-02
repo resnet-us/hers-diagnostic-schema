@@ -86,6 +86,7 @@ class HERSDiagnosticData:
         # Retrieve fuel type
         return self.data[f"{home_type}_output"][f"{system_type}_system_output"][system_index]['primary_fuel_type']
 
+
     def get_system_fuel_type_co2(self,home_type,system_type,system_index):
         # Retrieve fuel type
         return self.data[f"{home_type}_output"][f"{system_type}_system_output"][system_index]['energy_use']
