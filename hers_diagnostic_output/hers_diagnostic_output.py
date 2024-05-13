@@ -43,6 +43,7 @@ class HERSDiagnosticData:
     other_end_uses = ['lighting_and_appliance','ventilation','dehumidification']
 
     time_types = ['annual','hourly']
+    measurement_types = ['load','energy_use']
 
     # '_system_output" and "_energy" are added to simplify code for co2e emission calculation
     system_types_system_output = [system_type + '_system_output' for system_type in system_types]
@@ -63,15 +64,19 @@ class HERSDiagnosticData:
         # TODO: there will be several layers to the data cashe
         # TODO: loop through to initialize data cashe, start with loads, and then afterwards we can add other items to the cashe
 
-        self.data_cashe = {}
+        self.data_cache = {}
 
         for home_type in self.home_types:
             for energy_type in self.energy_types:
                 for time_type in self.time_types:
-                    if time_type == 'hourly':
-                        self.data_cashe[(energy_type,home_type,time_type)] = [0]*self.NUMBER_OF_TIMESTEPS
-                    elif time_type == 'annual':
-                        self.data_cashe[(energy_type,home_type,time_type)] = 0
+                    for measurement_type in self.measurement_types:
+                        if time_type == 'hourly':
+                            self.data_cache[(energy_type,home_type,time_type,measurement_type)] = [0]*self.NUMBER_OF_TIMESTEPS
+                        elif time_type == 'annual':
+                            self.data_cache[(energy_type,home_type,time_type,measurement_type)] = 0
+
+                        if measurement_type == 'load':
+                            pass
 
         self.emissions = {'rated_home':0,
                           'co2_reference_home':0
@@ -117,15 +122,18 @@ class HERSDiagnosticData:
 
         return EC_x * (a * EEC_x - b) * (EEC_r/EEC_x)
 
-    def calculate_system_loads(self,home_type,system_type,system_index):
+    def get_system_loads(self,home_type,system_type,system_index):
         # TODO: change name to get_system...
         # TODO: if new calculation --> store, if already calculated --> retrieve
         # REUL
-        return sum(self.data[f"{home_type}_output"][f"{system_type}_system_output"][system_index]['load'])
+        cache_key = (home_type,system_type,system_index,'load')
+        if cache_key not in self.data_cache:
+            self.data_cache[cache_key] = sum(self.data[f"{home_type}_output"][f"{system_type}_system_output"][system_index]['load'])
+        return self.data_cache[cache_key]
 
     def calculate_normalized_modified_load(self,system_type,system_index):
         # nMEUL  = REUL * nEC_x / EC_r
-        REUL = self.calculate_system_loads('hers_reference_home',system_type,system_index)
+        REUL = self.get_system_loads('hers_reference_home',system_type,system_index)
         nEC_x = self.calculate_normalized_energy_consumption(system_type,system_index)
         EC_r = self.get_system_energy_consumption('hers_reference_home',system_type,system_index)
 
@@ -181,7 +189,7 @@ class HERSDiagnosticData:
         REUL_total = 0
         for system_type in self.system_types:
             for system_index in range(self.number_of_systems[system_type]):
-                REUL_total += self.calculate_system_loads('hers_reference_home',system_type,system_index)
+                REUL_total += self.get_system_loads('hers_reference_home',system_type,system_index)
 
         # Calculate reference home other end use energy consumption (lighting and appliances (REC_LA),
         # ventilation (REC_VENT), and dehumidification (REC_DH))
@@ -190,32 +198,27 @@ class HERSDiagnosticData:
         return REUL_total + REC_system_total
 
     def calculate_energy_type_total_energy(self,energy_use,home_type):
-        # add annual energy use by fuel type for each system to data_cashe dictionary
-        # data_cashe will be used to sum energy use by fuel type for rated home and co2 reference home and calculate annual co2e emissions
+        # add annual energy use by fuel type for each system to data_cache dictionary
+        # data_cache will be used to sum energy use by fuel type for rated home and co2 reference home and calculate annual co2e emissions
 
         fuel_type = energy_use["fuel_type"]
         energy = energy_use["energy"]
-
-        self.data_cashe[(fuel_type,home_type,'hourly')] = element_add(self.data_cashe[(fuel_type,home_type,'hourly')], energy)
-        self.data_cashe[(fuel_type,home_type,'annual')] += sum(energy)
-
-        # if fuel_type == 'ELECTRICITY':
-        #     self.data_cashe[(fuel_type,home_type,'hourly')] = element_add(self.data_cashe[(fuel_type,home_type,'hourly')], energy)
-        # else:
-        #     self.data_cashe[(fuel_type,home_type,'annual')] += sum(energy)
+        #TODO: set 
+        # self.data_cache[(fuel_type,home_type,'hourly','energy_use')] = element_add(self.data_cache[(fuel_type,home_type,'hourly','energy_use')], energy)
+        self.data_cache[(fuel_type,home_type,'annual','energy_use')] += sum(energy)
 
     def multiply_energy_use_and_emission_factors(self):
         # multiply co2e emission factors with each fuel type and home type, and then find annual co2e emissions for each home type
 
-        for key in self.data_cashe.keys():
+        for key in self.data_cache.keys():
             fuel_type = key[0]
             home_type = key[1]
             if home_type != 'hers_reference_home':
                 if fuel_type == "ELECTRICITY":
                     # conversion of electricity co2e lb/kWh to lb/kbtu is included in calculation below
-                    self.emissions[home_type] += convert(sum(element_product(self.data["electricity_co2_emissions_factors"],self.data_cashe[(fuel_type,home_type,'hourly')])), "lb/kWh", "lb/kBtu")
+                    self.emissions[home_type] += convert(sum(element_product(self.data["electricity_co2_emissions_factors"],self.data_cache[(fuel_type,home_type,'hourly','energy_use')])), "lb/kWh", "lb/kBtu")
                 else:
-                    self.emissions[home_type] += self.data_cashe[(fuel_type,home_type,'annual')]*self.fuel_emission_factors[fuel_type]
+                    self.emissions[home_type] += self.data_cache[(fuel_type,home_type,'annual','energy_use')]*self.fuel_emission_factors[fuel_type]
 
     def calculate_annual_hourly_co2_emissions(self):
         # retrieve energy use for each subsystem and multiply energy by emissions factors
@@ -225,6 +228,7 @@ class HERSDiagnosticData:
                 if system_type in self.system_types_system_output:
                     for system_index in range(len(self.data[f"{home_type}_output"][system_type])):
                         for energy_use in self.data[f"{home_type}_output"][system_type][system_index]["energy_use"]:
+
                             self.calculate_energy_type_total_energy(energy_use,home_type)
                 elif system_type in self.other_end_uses_energy:
                     for energy_use in self.data[f"{home_type}_output"][system_type]:
@@ -236,7 +240,6 @@ class HERSDiagnosticData:
         # ERI = TnML / TRL * 100
 
         TnML = self.calculate_total_normalized_modified_load()
-
         TRL = self.calculate_total_reference_home_load()
 
         return TnML / TRL * 100
