@@ -5,3 +5,5 @@ build/
 .vscode/
 __pycache__/
 .lattice/
+examples/
+energy_system_data.yaml
