@@ -25,5 +25,4 @@ jobs:
         uses: bigladder/lattice/.github/actions/setup-hugo@main
       - name: Build and test
         run: |
-          source $VENV
           poetry run doit
