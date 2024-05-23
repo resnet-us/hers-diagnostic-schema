@@ -105,7 +105,7 @@ HERSDiagnosticOutput:
       Data Type: "[Numeric][8760]"
       Units: kWh
       Constraints:
-        - "<=0"
+        - ">=0"
     rated_home_output:
       Description: Rated Home outputs
       Data Type: "{HomeOutputs}"
