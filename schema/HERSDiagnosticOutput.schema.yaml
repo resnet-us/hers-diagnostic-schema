@@ -100,7 +100,12 @@ HERSDiagnosticOutput:
       Units: kWh
       Constraints:
         - ">=0"
-      Required: True
+    battery_storage_losses:
+      Description: Battery storage losses (BSL) of the rated home
+      Data Type: "[Numeric][8760]"
+      Units: kWh
+      Constraints:
+        - ">=0"
     rated_home_output:
       Description: Rated Home outputs
       Data Type: "{HomeOutputs}"
