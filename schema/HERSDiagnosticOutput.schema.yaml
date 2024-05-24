@@ -51,7 +51,7 @@ HERSDiagnosticOutput:
     weather_data_state:
       Description: State
       Data Type: String
-      Constraints: "[A-Z]{2}"
+      Constraints: "\"[A-Z]{2}\""
       Required: True
     conditioned_floor_area:
       Description: Conditioned floor area
