@@ -6,7 +6,7 @@ authors = ["Big Ladder Software"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-lattice = {git = "https://github.com/bigladder/lattice.git", branch = "fix-string-pattern"} # {git = "https://github.com/bigladder/lattice.git", branch = "main"} #{path = "../lattice", develop = true} # "0.1.4"
+lattice = {git = "https://github.com/bigladder/lattice.git", branch = "fix-string-patterns"} # {git = "https://github.com/bigladder/lattice.git", branch = "main"} #{path = "../lattice", develop = true} # "0.1.4"
 
 [tool.poetry.dev-dependencies]
 doit = "0.36.0"

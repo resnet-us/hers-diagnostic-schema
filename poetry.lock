@@ -442,7 +442,7 @@ description = "A framework for developing data models, including schema developm
 optional = false
 python-versions = "^3.8"
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 cbor2 = "*"
@@ -455,8 +455,10 @@ pyyaml = "*"
 stringcase = "1.2.0"
 
 [package.source]
-type = "directory"
-url = "../lattice"
+type = "git"
+url = "https://github.com/bigladder/lattice.git"
+reference = "fix-string-patterns"
+resolved_reference = "8584bfa92c67d28164ced54c16cb0cd198e53ca9"
 
 [[package]]
 name = "markdown"
@@ -1255,4 +1257,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "748bc781490defc6915ce2b565242c2cd5f69cf163e8b8ffcdf89f73340edf67"
+content-hash = "07586e569e010dc60c0aeeb423668052951ccf84e12af88b123f6e63082caf51"
