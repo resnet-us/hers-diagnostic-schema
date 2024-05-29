@@ -1,0 +1,1606 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A schema for detailed diagnostic outputs from RESNET&reg Accredited HERS&reg software tools.">
+      
+      
+        <meta name="author" content="RESNET&reg">
+      
+      
+        <link rel="canonical" href="https://resnet-us.github.io/hers-diagnostic-schema/specifications/HERSDiagnosticOutput/">
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../../schema/schema/">
+      
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+    
+    
+      
+        <title>HERSDiagnosticOutput - HERS&reg Diagnostic Output Schema</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#hers-diagnostic-output-schema-specification" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HERS&amp;reg Diagnostic Output Schema" class="md-header__button md-logo" aria-label="HERS&reg Diagnostic Output Schema" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HERS&reg Diagnostic Output Schema
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              HERSDiagnosticOutput
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/resnet-us/hers-diagnostic-schema" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hers-diagnostic-schema
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HERS&amp;reg Diagnostic Output Schema" class="md-nav__button md-logo" aria-label="HERS&reg Diagnostic Output Schema" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    HERS&reg Diagnostic Output Schema
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/resnet-us/hers-diagnostic-schema" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    hers-diagnostic-schema
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Specification
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Specification
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enumerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enumerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Enumerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#schematype" class="md-nav__link">
+    <span class="md-ellipsis">
+      SchemaType
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fueltype" class="md-nav__link">
+    <span class="md-ellipsis">
+      FuelType
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Groups
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Groups">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hersdiagnosticoutput" class="md-nav__link">
+    <span class="md-ellipsis">
+      HERSDiagnosticOutput
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#energyoutput" class="md-nav__link">
+    <span class="md-ellipsis">
+      EnergyOutput
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#systemoutput" class="md-nav__link">
+    <span class="md-ellipsis">
+      SystemOutput
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#homeoutputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      HomeOutputs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../schema/schema/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Schema
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Model
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enumerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enumerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Enumerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#schematype" class="md-nav__link">
+    <span class="md-ellipsis">
+      SchemaType
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fueltype" class="md-nav__link">
+    <span class="md-ellipsis">
+      FuelType
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Groups
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Groups">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hersdiagnosticoutput" class="md-nav__link">
+    <span class="md-ellipsis">
+      HERSDiagnosticOutput
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#energyoutput" class="md-nav__link">
+    <span class="md-ellipsis">
+      EnergyOutput
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#systemoutput" class="md-nav__link">
+    <span class="md-ellipsis">
+      SystemOutput
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#homeoutputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      HomeOutputs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="hers-diagnostic-output-schema-specification">HERS&reg; Diagnostic Output Schema Specification</h1>
+<h2 id="data-model">Data Model</h2>
+<h3 id="enumerations">Enumerations</h3>
+<h4 id="schematype">SchemaType</h4>
+<table>
+<thead>
+<tr>
+<th colspan="1" rowspan="1">
+<p><strong>Enumerator</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Description</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Notes</strong></p>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>HERS_DIAGNOSTIC_OUTPUT</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>HERS Diagnostic Output</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+</tbody>
+</table>
+<h4 id="fueltype">FuelType</h4>
+<table>
+<thead>
+<tr>
+<th colspan="1" rowspan="1">
+<p><strong>Enumerator</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Description</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Notes</strong></p>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>ELECTRICITY</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Electricity</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>NATURAL_GAS</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Natural gas</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>FUEL_OIL_2</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Fuel oil #2</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>LIQUID_PETROLEUM_GAS</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Liquid petroleum gas</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>BIOMASS</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Biomass</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+</tbody>
+</table>
+<h3 id="data-groups">Data Groups</h3>
+<h4 id="hersdiagnosticoutput">HERSDiagnosticOutput</h4>
+<table>
+<thead>
+<tr>
+<th colspan="1" rowspan="1">
+<p><strong>Name</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Description</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Data Type</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Units</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Constraints</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Req</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Notes</strong></p>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>metadata</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>ASHRAE Standard
+232P metadata</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>{Metadata}</code>
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p><code>schema=HERS_DIAGNOSTIC_OUTPUT</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>$✓$
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>project_name</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Name of the
+file or project
+used to
+generate this
+data</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>String</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>home_description</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Supplementary
+descriptive
+information
+about the home</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>String</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>software_name</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Name of the
+software used
+to generate
+this data</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>String</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>software_version</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Version of the
+software used
+to generate
+this data</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>String</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>weather_data_location</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Descriptive
+name of the
+weather data
+location</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>String</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>For
+example:
+City,
+town, or
+airport
+name.</p>
+</td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>weather_data_state</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>State</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>String</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p><code>"[A-Z]{2}"</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>conditioned_floor_area</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Conditioned
+floor area</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>Numeric</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>ft^2^
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>&gt;0</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>$✓$
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>number_of_bedrooms</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Number of
+bedrooms</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>Integer</code>
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p><code>≥1</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>$✓$
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>number_of_stories</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Number of
+above-grade
+stories</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>Integer</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p><code>≥1</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>hers_index</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>HERS Index</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>Numeric</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>-</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Unrounded
+value
+based on
+the latest
+version of
+MINHERS&reg;</p>
+</td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>carbon_index</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>RESNET&reg;
+Carbon Index</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>Numeric</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>-</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Unrounded
+value
+based on
+the latest
+version of
+MINHERS&reg;</p>
+</td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>electricity_co2_emissions_factors</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Regional
+emissions
+factors for
+electricity use</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[Numeric][8760]</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>lb/kWh</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>≥0</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>outdoor_drybulb_temperature</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Outdoor drybulb
+temperature</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[Numeric]</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>F
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[8760]</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>$✓$
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>on_site_power_production</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>On-site power
+production
+(OPP) of the
+rated home</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[Numeric][8760]</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>kWh</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>≥0</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>battery_storage_losses</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Battery storage
+losses (BSL) of
+the rated home</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[Numeric][8760]</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>kWh</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>≥0</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>rated_home_output</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Rated Home
+outputs</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>{HomeOutputs}</code>
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>hers_reference_home_output</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>HERS Reference
+Home outputs</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>{HomeOutputs}</code>
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>co2_reference_home_output</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>CO2 Reference
+Home outputs</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>{HomeOutputs}</code>
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>iad_rated_home_output</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Index
+Adjustment
+Design (IAD)
+Rated Home
+outputs</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>{HomeOutputs}</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>iad_hers_reference_home_output</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Index
+Adjustment
+Design (IAD)
+HERS Reference
+Home outputs</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>{HomeOutputs}</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+</tbody>
+</table>
+<h4 id="energyoutput">EnergyOutput</h4>
+<table>
+<thead>
+<tr>
+<th colspan="1" rowspan="1">
+<p><strong>Name</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Description</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Data Type</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Units</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Constraints</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Req</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Notes</strong></p>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>fuel_type</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Fuel type</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>&lt;FuelType&gt;</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>energy</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Energy use</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[Numeric][8760]</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>kBtu</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>≥0</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+</tbody>
+</table>
+<h4 id="systemoutput">SystemOutput</h4>
+<table>
+<thead>
+<tr>
+<th colspan="1" rowspan="1">
+<p><strong>Name</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Description</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Data Type</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Units</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Constraints</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Req</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Notes</strong></p>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>primary_fuel_type</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>System primary
+fuel type
+(needed to
+determine 'a'
+and 'b'
+coefficients
+for normalized
+energy
+consumption)</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>&lt;FuelType&gt;</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>equipment_efficiency_coefficient</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Equipment
+efficiency
+coefficient
+(EEC)</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>Numeric</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>-</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>≥0</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>load</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>System load</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[Numeric][8760]</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>kBtu</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>≥0</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>Only
+required
+for
+systems
+of the
+HERS
+Reference
+Home</p>
+</td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>energy_use</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>System energy
+use</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[{EnergyOutput}][1..]</code>
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+</tbody>
+</table>
+<h4 id="homeoutputs">HomeOutputs</h4>
+<table>
+<thead>
+<tr>
+<th colspan="1" rowspan="1">
+<p><strong>Name</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Description</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Data Type</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Units</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Constraints</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Req</strong></p>
+</th>
+<th colspan="1" rowspan="1">
+<p><strong>Notes</strong></p>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>conditioned_space_temperature</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Conditioned
+space
+temperature</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[Numeric][8760]</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>F</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>space_heating_system_output</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Array of outputs
+for space
+heating systems</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[{SystemOutput}][1..]</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>space_cooling_system_output</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Array of outputs
+for space
+cooling systems</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[{SystemOutput}][1..]</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>water_heating_system_output</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Array of outputs
+for water
+heating systems</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[{SystemOutput}][1..]</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>lighting_and_appliance_energy</code></p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Lighting and
+appliance energy
+use</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[{EnergyOutput}][1..]</code></p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>ventilation_energy</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Ventilation
+energy use</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[{EnergyOutput}][1..]</code>
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1">
+<p>$✓$
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+<tr>
+<td colspan="1" rowspan="1">
+<p><code>dehumidification_energy</code>
+</p>
+</td>
+<td colspan="1" rowspan="1">
+<p>Dehumidification
+energy use</p>
+</td>
+<td colspan="1" rowspan="1">
+<p><code>[{EnergyOutput}][1..]</code>
+</p>
+</td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+<td colspan="1" rowspan="1"></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy 2024 RESNET&reg All rights reserved
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.081f42fc.min.js"></script>
+      
+    
+  </body>
+</html>

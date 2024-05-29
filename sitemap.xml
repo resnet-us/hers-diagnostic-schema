@@ -1,1 +1,23 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"><url><loc>https://resnet-us.github.io/hers-diagnostic-schema/examples/</loc></url><url><loc>https://resnet-us.github.io/hers-diagnostic-schema/specifications/hersdiagnosticoutput/</loc></url><url><loc>https://resnet-us.github.io/hers-diagnostic-schema/schema/</loc></url><url><loc>https://resnet-us.github.io/hers-diagnostic-schema/specifications/</loc></url><url><loc>https://resnet-us.github.io/hers-diagnostic-schema/categories/</loc></url><url><loc>https://resnet-us.github.io/hers-diagnostic-schema/</loc></url><url><loc>https://resnet-us.github.io/hers-diagnostic-schema/tags/</loc></url></urlset>
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://resnet-us.github.io/hers-diagnostic-schema/</loc>
+         <lastmod>2024-05-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://resnet-us.github.io/hers-diagnostic-schema/examples/examples/</loc>
+         <lastmod>2024-05-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://resnet-us.github.io/hers-diagnostic-schema/schema/schema/</loc>
+         <lastmod>2024-05-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://resnet-us.github.io/hers-diagnostic-schema/specifications/HERSDiagnosticOutput/</loc>
+         <lastmod>2024-05-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+</urlset>
