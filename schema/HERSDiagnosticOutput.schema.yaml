@@ -1,7 +1,7 @@
 Schema:
   Object Type: Meta
   Title: HERS Diagnostic Output
-  Description: A schema for detailed diagnostic outputs from RESNET Accredited HERS software tools.
+  Description: A schema for detailed diagnostic outputs from RESNET(r) Accredited HERS software tools.
   Version: "0.2.0"
   Root Data Group: HERSDiagnosticOutput
   Unit Systems:
@@ -51,7 +51,7 @@ HERSDiagnosticOutput:
     weather_data_state:
       Description: State
       Data Type: String
-      Constraints: "[A-Z]{2}"
+      Constraints: "\"[A-Z]{2}\""
       Required: True
     conditioned_floor_area:
       Description: Conditioned floor area
@@ -74,13 +74,13 @@ HERSDiagnosticOutput:
       Data Type: Numeric
       Units: "-"
       Required: True
-      Notes: Unrounded value based on the latest version of MINHERS
+      Notes: Unrounded value based on the latest version of MINHERS(r)
     carbon_index:
-      Description: RESNET Carbon Index
+      Description: RESNET(r) Carbon Index
       Data Type: Numeric
       Units: "-"
       Required: True
-      Notes: Unrounded value based on the latest version of MINHERS
+      Notes: Unrounded value based on the latest version of MINHERS(r)
     electricity_co2_emissions_factors:
       Description: Regional emissions factors for electricity use
       Data Type: "[Numeric][8760]"

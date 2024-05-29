@@ -21,8 +21,5 @@ jobs:
         uses: bigladder/github-actions/setup-python-poetry@main
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Setup Hugo
-        uses: bigladder/lattice/.github/actions/setup-hugo@main
       - name: Build and test
-        run: |
-          poetry run doit
+        run: poetry run doit
