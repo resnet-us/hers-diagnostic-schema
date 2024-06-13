@@ -73,8 +73,8 @@ class HERSDiagnosticData:
             )
 
         # initialize energy use for each fuel type and home type to calculate co2e emissions
-        # TODO: there will be several layers to the data cashe
-        # TODO: loop through to initialize data cashe, start with loads, and then afterwards we can add other items to the cashe
+        # TODO: there will be several layers to the data cache
+        # TODO: loop through to initialize data cache, start with loads, and then afterwards we can add other items to the cache
 
         self.data_cache = {}
 
