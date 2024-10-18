@@ -186,14 +186,13 @@
                     },
                     "units": "kWh"
                 },
-                "battery_storage_losses": {
-                    "description": "Battery storage losses (BSL) of the rated home",
+                "battery_storage": {
+                    "description": "Battery storage charging (+) or discharging (-) of the rated home",
                     "type": "array",
                     "minItems": 8760,
                     "maxItems": 8760,
                     "items": {
-                        "type": "number",
-                        "minimum": 0.0
+                        "type": "number"
                     },
                     "units": "kWh"
                 },
@@ -2434,8 +2433,6 @@
                 "number_of_bedrooms",
                 "number_of_stories",
                 "hers_index",
-                "carbon_index",
-                "electricity_co2_emissions_factors",
                 "outdoor_drybulb_temperature",
                 "rated_home_output",
                 "hers_reference_home_output",
@@ -3177,14 +3174,13 @@
             },
             "units": "kWh"
         },
-        "battery_storage_losses": {
-            "description": "Battery storage losses (BSL) of the rated home",
+        "battery_storage": {
+            "description": "Battery storage charging (+) or discharging (-) of the rated home",
             "type": "array",
             "minItems": 8760,
             "maxItems": 8760,
             "items": {
-                "type": "number",
-                "minimum": 0.0
+                "type": "number"
             },
             "units": "kWh"
         },
@@ -5425,8 +5421,6 @@
         "number_of_bedrooms",
         "number_of_stories",
         "hers_index",
-        "carbon_index",
-        "electricity_co2_emissions_factors",
         "outdoor_drybulb_temperature",
         "rated_home_output",
         "hers_reference_home_output",
