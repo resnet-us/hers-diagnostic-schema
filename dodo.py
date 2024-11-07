@@ -3,9 +3,8 @@ doit task/build automation
 """
 
 import os
-
-from lattice import Lattice
-from hers_diagnostic_output.hers_diagnostic_output import HERSDiagnosticData
+from lattice import Lattice  # type: ignore
+from hers_diagnostic_output import HERSDiagnosticData
 
 data_model = Lattice(build_validation=False)
 
@@ -23,4 +22,4 @@ def task_generate_web_docs():
 def task_calculate_hers_index():
     """Calculates HERS Index"""
     for example_file in data_model.examples:
-        print(HERSDiagnosticData(example_file).calculate_hers_index())
+        HERSDiagnosticData(example_file).verify()
