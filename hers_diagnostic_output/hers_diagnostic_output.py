@@ -1,6 +1,7 @@
-import lattice
-import warnings
-from koozie import convert
+"""Package calculating HERS Index."""
+
+import lattice  # type: ignore
+from koozie import convert  # type: ignore
 
 
 def element_add(list1, list2):
@@ -58,7 +59,7 @@ class HERSDiagnosticData:
         other_end_use + "_energy" for other_end_use in other_end_uses
     ]
 
-    INDEX_TOLERANCE = 0.01
+    INDEX_TOLERANCE = 0.005
     NUMBER_OF_TIMESTEPS = 8760
 
     def __init__(self, file):
@@ -445,10 +446,13 @@ class HERSDiagnosticData:
         return ACO2 / (ARCO2 * IAF_RH) * 100
 
     def check_index_mismatch(self, index_name, calculated_index, output_index):
-        difference = calculated_index - output_index
-        print(f"""{index_name} Output:     {output_index:.2f}""")
-        print(f"{index_name} Calculated: {calculated_index:.2f}")
-        print(f"""{index_name} Difference: {difference:.2f}""")
+        difference_ratio = (calculated_index - output_index) / output_index
+        if difference_ratio >= self.INDEX_TOLERANCE:
+            raise RuntimeError(
+                f"""\n{self.data["project_name"]} {index_name} outside tolerance.\nCalculated Index: {calculated_index:.2f}\nOutput Index: {output_index:.2f}\nPercent Difference: {difference_ratio*100:.2f}%"""
+            )
+        else:
+            print(f"""{self.data["project_name"]} {index_name} within tolerance.""")
 
     def verify_hers_index(self):
         self.check_index_mismatch(
@@ -457,7 +461,7 @@ class HERSDiagnosticData:
 
     def verify_carbon_index(self):
         self.check_index_mismatch(
-            "Carbon Index", self.calculate_carbon_index(), self.data["carbon_index"]
+            "CO2 Index", self.calculate_carbon_index(), self.data["carbon_index"]
         )
 
     def verify(self):
