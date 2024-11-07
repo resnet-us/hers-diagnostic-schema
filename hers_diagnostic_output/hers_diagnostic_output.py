@@ -67,18 +67,9 @@ class HERSDiagnosticData:
         self.data = lattice.load(file)
         self.number_of_systems = {}
         for system_type in self.system_types:
-            number_of_systems = len(
+            self.number_of_systems[system_type] = len(
                 self.data["rated_home_output"][f"{system_type}_system_output"]
             )
-            for system_index in range(number_of_systems):
-                number_of_subsystems = len(
-                    self.data["rated_home_output"][f"{system_type}_system_output"][
-                        system_index
-                    ]["energy_use"]
-                )
-                self.number_of_systems[f"{system_type}_{system_index}"] = (
-                    number_of_subsystems
-                )
         self.number_of_other_end_uses = {}
         for other_end_use in self.other_end_uses:
             try:
@@ -364,6 +355,7 @@ class HERSDiagnosticData:
 
     def get_fuel_conversion(self, fuel_type):
         # If fuel type is a fossil fuel, return 0.4, else return 1
+
         if fuel_type in self.fossil_fuel_types:
             return 0.4
         else:
@@ -371,21 +363,14 @@ class HERSDiagnosticData:
 
     def get_annual_energy_use_or_consumption(self, energy_use_hourly):
         # return the annual energy use from an 8760 array
+
         return sum(energy_use_hourly)
 
     def calculate_sub_system_energy_use(self, energy_use_specs):
+        # Calculate the sub-system energy use, converted into kWh
+
         energy_use_hourly = energy_use_specs["energy"]
         fuel_type = energy_use_specs["fuel_type"]
-        print(fuel_type)
-        print(self.get_fuel_conversion(fuel_type))
-        print(
-            convert(
-                self.get_annual_energy_use_or_consumption(energy_use_hourly)
-                * self.get_fuel_conversion(fuel_type),
-                "kBtu",
-                "MBtu",
-            )
-        )
         return convert(
             self.get_annual_energy_use_or_consumption(energy_use_hourly)
             * self.get_fuel_conversion(fuel_type),
@@ -395,35 +380,35 @@ class HERSDiagnosticData:
 
     def calculate_total_energy_use_rated_home(self):
         # calculate total energy use from the rated home
+
         TEU = 0
         for system_type, number_of_systems in self.number_of_systems.items():
+            number_of_systems = len(
+                self.data["rated_home_output"][f"{system_type}_system_output"]
+            )
             for system_index in range(number_of_systems):
                 for energy_use_specs in self.data["rated_home_output"][
                     f"{system_type}_system_output"
                 ][system_index]["energy_use"]:
-                    print("\n")
-                    print(system_type)
-                    print(system_index)
                     TEU += self.calculate_sub_system_energy_use(energy_use_specs)
         for other_end_use, number_of_systems in self.number_of_other_end_uses.items():
             for energy_use_specs in self.data["rated_home_output"][
                 f"{other_end_use}_energy"
             ]:
-                print("\n")
-                print(other_end_use)
-                print(system_index)
                 TEU += self.calculate_sub_system_energy_use(energy_use_specs)
         return TEU
 
     def calculate_battery_storage_charge_discharge(self):
-        # calculate net annual battery storage losses of the rated home
+        # Calculate net annual battery storage losses of the rated home
+
         try:
             return sum(self.data["battery_storage"])
         except:
             return 0.0
 
     def calculate_on_site_power_production(self):
-        # calculate on-site power production (OPP)
+        # Calculate on-site power production (OPP)
+
         try:
             return self.get_annual_energy_use_or_consumption(
                 self.data["on_site_power_production"]
@@ -443,7 +428,6 @@ class HERSDiagnosticData:
         # ERI = PEfrac * (TnML / TRL * IAF_RH) * 100
 
         PEfrac = self.calculate_pefrac()
-        # PEfrac = 1
         TnML = self.calculate_total_normalized_modified_load("rated_home")
         TRL = self.calculate_total_reference_home_load("hers_reference_home")
         IAF_RH = self.calculate_index_adjustment_factor_rated_home()
@@ -465,11 +449,6 @@ class HERSDiagnosticData:
         print(f"""{index_name} Output:     {output_index:.2f}""")
         print(f"{index_name} Calculated: {calculated_index:.2f}")
         print(f"""{index_name} Difference: {difference:.2f}""")
-        # if abs(difference) > self.INDEX_TOLERANCE:
-        #     pass
-        # warnings.warn(
-        #     f"Calculated {index_name} {calculated_index:.2f} differs from output {index_name} {output_index:.2f} by {difference:.4f}, which is more than {self.INDEX_TOLERANCE:.4f}."
-        # )
 
     def verify_hers_index(self):
         self.check_index_mismatch(
@@ -483,7 +462,7 @@ class HERSDiagnosticData:
 
     def verify(self):
         self.verify_hers_index()
-        # self.verify_carbon_index()
+        self.verify_carbon_index()
 
 
 # REUL calculation is repeated. This could be simplified by caching data in a dictionary.
