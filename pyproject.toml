@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "hers-diagnostic-output"
+name = "hers_diagnostic_output"
 version = "0.3.0"
 description = ""
 authors = ["Big Ladder Software"]
