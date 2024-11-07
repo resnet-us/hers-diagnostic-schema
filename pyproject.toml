@@ -1,12 +1,13 @@
 [tool.poetry]
 name = "hers-diagnostic-output"
-version = "0.2.0"
+version = "0.3.0"
 description = ""
 authors = ["Big Ladder Software"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 lattice = {git = "https://github.com/bigladder/lattice.git", branch = "main"} # {git = "https://github.com/bigladder/lattice.git", branch = "main"} #{path = "../lattice", develop = true} # "0.1.4"
+koozie = "*"
 
 [tool.poetry.dev-dependencies]
 doit = "0.36.0"
