@@ -71,6 +71,9 @@ class HERSDiagnosticData:
     NUMBER_OF_TIMESTEPS = 8760
 
     def __init__(self, file):
+
+        self._hers_index = -1
+        self.hers_index_set = False
         # load data
         # determine number of sub-systems for each system type (ex. determine number of heating systems)
         self.data = lattice.load(file)
@@ -105,6 +108,17 @@ class HERSDiagnosticData:
                         self.data_cache[(energy_type, home_type, time_type)] = 0
 
         self.emissions = {"rated_home": 0, "co2_reference_home": 0}
+
+    @property
+    def hers_index(self):
+        if self.hers_index_set:
+            return self._hers_index
+        raise RuntimeError("HERS Index not set")
+
+    @hers_index.setter
+    def hers_index(self, hers_index):
+        self._hers_index = hers_index
+        self.wb_set = True
 
     def get_system_energy_efficiency_coefficient(
         self, home_type, system_type, system_index
@@ -465,8 +479,8 @@ class HERSDiagnosticData:
         TnML = self.calculate_total_normalized_modified_load("rated_home")
         TRL = self.calculate_total_reference_home_load("hers_reference_home")
         IAF_RH = self.calculate_index_adjustment_factor_rated_home()
-        HERS_INDEX = PEfrac * TnML / (TRL * IAF_RH) * 100
-        return HERS_INDEX
+        hers_index = PEfrac * TnML / (TRL * IAF_RH) * 100
+        return hers_index
 
     def calculate_carbon_index(self):
         # CO2 Index = ACO2 / ARCO2 * 100
