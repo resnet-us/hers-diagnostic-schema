@@ -1,7 +1,9 @@
 """Package calculating HERS Index."""
 
+from pathlib import Path
 import lattice  # type: ignore
 from koozie import convert  # type: ignore
+import pandas as pd
 
 
 def element_add(list1, list2):
@@ -20,6 +22,12 @@ def element_product(list1, list2):
     return list3
 
 
+class EndUseSystem:
+    fuel_type: str
+    end_use_type: str
+    home_type: str
+
+
 class HERSDiagnosticData:
 
     # Define coefficients 'a' and 'b based on Table 4.1.1(1) in Standard 301 for
@@ -33,7 +41,7 @@ class HERSDiagnosticData:
         ("water_heating", "FOSSIL_FUEL"): {"a": 1.1877, "b": 1.013},
     }
 
-    home_types = ["rated_home", "hers_reference_home", "co2_reference_home"]
+    co2_home_types = ["rated_home", "co2_reference_home"]
 
     # Fossil fuel co2e coefficients
     # TODO: biomass is not included, and will need to be added in a future version
@@ -86,7 +94,7 @@ class HERSDiagnosticData:
 
         self.data_cache = {}
 
-        for home_type in self.home_types:
+        for home_type in self.co2_home_types:
             for energy_type in self.energy_types:
                 for time_type in self.time_types:
                     if time_type == "hourly":
@@ -220,6 +228,10 @@ class HERSDiagnosticData:
         # Calculate total normalized rated home loads for heating (nMEUL_HEAT), cooling (nMEUL_COOL), and hot water (nMEUL_HW)
         nMEUL_total = 0
         for system_type in self.system_types:
+            # self.nMEUL = { TODO: create nMEUL dictionary cache
+            #     "heating": [],
+            #     "cooling": [],
+            # }
             for system_index in range(self.number_of_systems[system_type]):
                 nMEUL_total += self.calculate_normalized_modified_load(
                     system_type, system_index, home_type
@@ -304,6 +316,29 @@ class HERSDiagnosticData:
                     for energy_use in self.data[f"{home_type}_output"][system_type]:
                         self.calculate_energy_type_total_energy(energy_use, home_type)
 
+            if "on_site_power_production" in self.data:
+                self.calculate_energy_type_total_energy(
+                    {
+                        "fuel_type": "ELECTRICITY",
+                        "energy": [
+                            convert(-value, "kWh", "kBtu")
+                            for value in self.data["on_site_power_production"]
+                        ],
+                    },
+                    "rated_home",
+                )
+            if "battery_storage" in self.data:
+                self.calculate_energy_type_total_energy(
+                    {
+                        "fuel_type": "ELECTRICITY",
+                        "energy": [
+                            convert(value, "kWh", "kBtu")
+                            for value in self.data["battery_storage"]
+                        ],
+                    },
+                    "rated_home",
+                )
+
         self.multiply_energy_use_and_emission_factors()
 
     def calculate_iad_hers_index(self):
@@ -351,7 +386,6 @@ class HERSDiagnosticData:
         )
         IAF_Nbr = self.calculate_index_adjustment_factor_number_of_bedrooms(IAD_SAVE)
         IAF_NS = self.calculate_index_adjustment_factor_number_of_stories(IAD_SAVE)
-
         return IAF_CFA * IAF_Nbr * IAF_NS
 
     def get_fuel_conversion(self, fuel_type):
@@ -422,8 +456,7 @@ class HERSDiagnosticData:
         TEU = convert(self.calculate_total_energy_use_rated_home(), "kWh", "MBtu")
         OPP = convert(self.calculate_on_site_power_production(), "kWh", "MBtu")
         BSL = convert(self.calculate_battery_storage_charge_discharge(), "kWh", "MBtu")
-        calc = (TEU - OPP + BSL) / TEU
-        return calc
+        return (TEU - OPP + BSL) / TEU
 
     def calculate_hers_index(self):
         # ERI = PEfrac * (TnML / TRL * IAF_RH) * 100
@@ -432,8 +465,8 @@ class HERSDiagnosticData:
         TnML = self.calculate_total_normalized_modified_load("rated_home")
         TRL = self.calculate_total_reference_home_load("hers_reference_home")
         IAF_RH = self.calculate_index_adjustment_factor_rated_home()
-
-        return PEfrac * TnML / (TRL * IAF_RH) * 100
+        HERS_INDEX = PEfrac * TnML / (TRL * IAF_RH) * 100
+        return HERS_INDEX
 
     def calculate_carbon_index(self):
         # CO2 Index = ACO2 / ARCO2 * 100
@@ -442,7 +475,6 @@ class HERSDiagnosticData:
         ACO2 = self.emissions["rated_home"]
         ARCO2 = self.emissions["co2_reference_home"]
         IAF_RH = self.calculate_index_adjustment_factor_rated_home()
-
         return ACO2 / (ARCO2 * IAF_RH) * 100
 
     def check_index_mismatch(self, index_name, calculated_index, output_index):
