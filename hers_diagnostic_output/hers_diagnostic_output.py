@@ -22,6 +22,12 @@ def element_product(list1, list2):
     return list3
 
 
+class EndUseSystem:
+    fuel_type: str
+    end_use_type: str
+    home_type: str
+
+
 class HERSDiagnosticData:
 
     # Define coefficients 'a' and 'b based on Table 4.1.1(1) in Standard 301 for
@@ -35,7 +41,7 @@ class HERSDiagnosticData:
         ("water_heating", "FOSSIL_FUEL"): {"a": 1.1877, "b": 1.013},
     }
 
-    home_types = ["rated_home", "hers_reference_home", "co2_reference_home"]
+    co2_home_types = ["rated_home", "co2_reference_home"]
 
     # Fossil fuel co2e coefficients
     # TODO: biomass is not included, and will need to be added in a future version
@@ -88,7 +94,7 @@ class HERSDiagnosticData:
 
         self.data_cache = {}
 
-        for home_type in self.home_types:
+        for home_type in self.co2_home_types:
             for energy_type in self.energy_types:
                 for time_type in self.time_types:
                     if time_type == "hourly":
@@ -222,6 +228,10 @@ class HERSDiagnosticData:
         # Calculate total normalized rated home loads for heating (nMEUL_HEAT), cooling (nMEUL_COOL), and hot water (nMEUL_HW)
         nMEUL_total = 0
         for system_type in self.system_types:
+            # self.nMEUL = { TODO: create nMEUL dictionary cache
+            #     "heating": [],
+            #     "cooling": [],
+            # }
             for system_index in range(self.number_of_systems[system_type]):
                 nMEUL_total += self.calculate_normalized_modified_load(
                     system_type, system_index, home_type
@@ -306,17 +316,29 @@ class HERSDiagnosticData:
                     for energy_use in self.data[f"{home_type}_output"][system_type]:
                         self.calculate_energy_type_total_energy(energy_use, home_type)
 
-        for distributed_energy in ["on_site_power_production", "battery_storage"]:
-            try:
+            if "on_site_power_production" in self.data:
                 self.calculate_energy_type_total_energy(
                     {
                         "fuel_type": "ELECTRICITY",
-                        "energy": self.data[distributed_energy],
+                        "energy": [
+                            convert(-value, "kWh", "kBtu")
+                            for value in self.data["on_site_power_production"]
+                        ],
                     },
                     "rated_home",
                 )
-            except:
-                pass
+            if "battery_storage" in self.data:
+                self.calculate_energy_type_total_energy(
+                    {
+                        "fuel_type": "ELECTRICITY",
+                        "energy": [
+                            convert(value, "kWh", "kBtu")
+                            for value in self.data["battery_storage"]
+                        ],
+                    },
+                    "rated_home",
+                )
+
         self.multiply_energy_use_and_emission_factors()
 
     def calculate_iad_hers_index(self):
@@ -358,17 +380,13 @@ class HERSDiagnosticData:
     def calculate_index_adjustment_factor_rated_home(self):
         # IAF_RH = IAF_CFA * IAF_Nbr * IAF_NS
 
-        self.IAD_SAVE = self.calculate_index_adjustment_design_savings()
-        self.IAF_CFA = self.calculate_index_adjustment_factor_conditioned_floor_area(
-            self.IAD_SAVE
+        IAD_SAVE = self.calculate_index_adjustment_design_savings()
+        IAF_CFA = self.calculate_index_adjustment_factor_conditioned_floor_area(
+            IAD_SAVE
         )
-        self.IAF_Nbr = self.calculate_index_adjustment_factor_number_of_bedrooms(
-            self.IAD_SAVE
-        )
-        self.IAF_NS = self.calculate_index_adjustment_factor_number_of_stories(
-            self.IAD_SAVE
-        )
-        return self.IAF_CFA * self.IAF_Nbr * self.IAF_NS
+        IAF_Nbr = self.calculate_index_adjustment_factor_number_of_bedrooms(IAD_SAVE)
+        IAF_NS = self.calculate_index_adjustment_factor_number_of_stories(IAD_SAVE)
+        return IAF_CFA * IAF_Nbr * IAF_NS
 
     def get_fuel_conversion(self, fuel_type):
         # If fuel type is a fossil fuel, return 0.4, else return 1
@@ -435,22 +453,20 @@ class HERSDiagnosticData:
 
     def calculate_pefrac(self):
         # PEfrac = (TEU - OPP) / TEU
-        self.TEU = convert(self.calculate_total_energy_use_rated_home(), "kWh", "MBtu")
-        self.OPP = convert(self.calculate_on_site_power_production(), "kWh", "MBtu")
-        self.BSL = convert(
-            self.calculate_battery_storage_charge_discharge(), "kWh", "MBtu"
-        )
-        return (self.TEU - self.OPP + self.BSL) / self.TEU
+        TEU = convert(self.calculate_total_energy_use_rated_home(), "kWh", "MBtu")
+        OPP = convert(self.calculate_on_site_power_production(), "kWh", "MBtu")
+        BSL = convert(self.calculate_battery_storage_charge_discharge(), "kWh", "MBtu")
+        return (TEU - OPP + BSL) / TEU
 
     def calculate_hers_index(self):
         # ERI = PEfrac * (TnML / TRL * IAF_RH) * 100
 
-        self.PEfrac = self.calculate_pefrac()
-        self.TnML = self.calculate_total_normalized_modified_load("rated_home")
-        self.TRL = self.calculate_total_reference_home_load("hers_reference_home")
-        self.IAF_RH = self.calculate_index_adjustment_factor_rated_home()
-        self.HERS_INDEX = self.PEfrac * self.TnML / (self.TRL * self.IAF_RH) * 100
-        return self.HERS_INDEX
+        PEfrac = self.calculate_pefrac()
+        TnML = self.calculate_total_normalized_modified_load("rated_home")
+        TRL = self.calculate_total_reference_home_load("hers_reference_home")
+        IAF_RH = self.calculate_index_adjustment_factor_rated_home()
+        HERS_INDEX = PEfrac * TnML / (TRL * IAF_RH) * 100
+        return HERS_INDEX
 
     def calculate_carbon_index(self):
         # CO2 Index = ACO2 / ARCO2 * 100
@@ -459,14 +475,9 @@ class HERSDiagnosticData:
         ACO2 = self.emissions["rated_home"]
         ARCO2 = self.emissions["co2_reference_home"]
         IAF_RH = self.calculate_index_adjustment_factor_rated_home()
-        print(ACO2)
-        print(ARCO2)
-        print(IAF_RH)
         return ACO2 / (ARCO2 * IAF_RH) * 100
 
     def check_index_mismatch(self, index_name, calculated_index, output_index):
-        print(calculated_index)
-        print(output_index)
         difference_ratio = (calculated_index - output_index) / output_index
         if difference_ratio >= self.INDEX_TOLERANCE:
             raise RuntimeError(
@@ -475,30 +486,10 @@ class HERSDiagnosticData:
         else:
             print(f"""{self.data["project_name"]} {index_name} within tolerance.""")
 
-    def save_hers_values(self):
-        hers_cache = {
-            "HERS Index": self.HERS_INDEX,
-            "TnML": self.TnML,
-            "TRL": self.TRL,
-            "IAF RH": self.IAF_RH,
-            "PEfrac": self.PEfrac,
-            "TEU": self.TEU,
-            "OPP": self.OPP,
-            "BSL": self.BSL,
-            "IAD Save": self.IAD_SAVE,
-            "IAF CFA": self.IAF_CFA,
-            "IAF NBR": self.IAF_Nbr,
-            "IAF NS": self.IAF_NS,
-        }
-        pd.DataFrame([hers_cache], index=["software1"]).transpose().to_csv(
-            Path("build", "hers_outputs.csv")
-        )
-
     def verify_hers_index(self):
         self.check_index_mismatch(
             "HERS Index", self.calculate_hers_index(), self.data["hers_index"]
         )
-        self.save_hers_values()
 
     def verify_carbon_index(self):
         self.check_index_mismatch(
