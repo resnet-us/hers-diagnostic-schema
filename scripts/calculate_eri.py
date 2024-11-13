@@ -9,5 +9,5 @@ file_paths = [file for file in directory_path.glob("*.json")]
 for file_path in file_paths:
     data = HERSDiagnosticData(file_path)
     data.verify()
-    eri = data.calculate_hers_index()
-    co2 = data.calculate_carbon_index()
+    eri = data.hers_index
+    co2 = data.co2_index
