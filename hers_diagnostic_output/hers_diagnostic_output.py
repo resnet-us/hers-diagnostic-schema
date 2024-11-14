@@ -107,7 +107,7 @@ class HERSDiagnosticData:
         self._teu = -1.0
         self._opp = -1.0
         self._bsl = -1.0
-        self._iad_save_set = -1.0
+        self._iad_save = -1.0
         self._iaf_cfa = -1.0
         self._iaf_nbr = -1.0
         self._iaf_ns = -1.0
