@@ -1198,5 +1198,54 @@ class HERSDiagnosticData:
         self.verify_hers_index()
         self.verify_carbon_index()
 
+    def save_hers_index_intermediaries(self):
+
+        pd.DataFrame(
+            {
+                "hers_index": self.hers_index,
+                "co2_index": self.co2_index,
+                "iaf_rh": self.iaf_rh,
+                "aco2": self.aco2,
+                "arco2": self.arco2,
+                "pe_frac": self.pe_frac,
+                "tnml": self.tnml,
+                "trl": self.trl,
+                "teu": self.teu,
+                "opp": self.opp,
+                "bsl": self.bsl,
+                "iad_save": self.iad_save,
+                "iaf_cfa": self.iaf_cfa,
+                "iaf_nbr": self.iaf_nbr,
+                "iaf_ns": self.iaf_ns,
+                "tnml_iad": self.tnml_iad,
+                "trl_iad": self.trl_iad,
+                "nmeul_heat": self.nmeul_heat,
+                "nmeul_cool": self.nmeul_cool,
+                "nmeul_hw": self.nmeul_hw,
+                "ec_la": self.ec_la,
+                "ec_vent": self.ec_vent,
+                "ec_dh": self.ec_dh,
+                "nmeul_heat_iad": self.nmeul_heat_iad,
+                "nmeul_cool_iad": self.nmeul_cool_iad,
+                "nmeul_hw_iad": self.nmeul_hw_iad,
+                "ec_la_iad": self.ec_la_iad,
+                "ec_vent_iad": self.ec_vent_iad,
+                "ec_dh_iad": self.ec_dh_iad,
+                "reul_heat": self.reul_heat,
+                "reul_cool": self.reul_cool,
+                "reul_hw": self.reul_hw,
+                "rec_la": self.rec_la,
+                "rec_vent": self.rec_vent,
+                "rec_dh": self.rec_dh,
+                "reul_heat_iad": self.reul_heat_iad,
+                "reul_cool_iad": self.reul_cool_iad,
+                "reul_hw_iad": self.reul_hw_iad,
+                "rec_la_iad": self.rec_la_iad,
+                "rec_vent_iad": self.rec_vent_iad,
+                "rec_dh_iad": self.rec_dh_iad,
+            },
+            index=["software1"],
+        ).transpose().to_csv(Path("build", f"{self.project_name}_hers_outputs.csv"))
+
 
 # REUL calculation is repeated. This could be simplified by caching data in a dictionary.
