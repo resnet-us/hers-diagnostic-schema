@@ -183,6 +183,8 @@ class HERSDiagnosticData:
         # load data
         # determine number of sub-systems for each system type (ex. determine number of heating systems)
         self.data = lattice.load(file)
+        self.project_name = self.data["project_name"]
+
         self.number_of_systems = {}
         for end_use in self.end_uses:
             self.number_of_systems[end_use] = len(
