@@ -1179,10 +1179,10 @@ class HERSDiagnosticData:
         difference_ratio = (calculated_index - output_index) / output_index
         if difference_ratio >= self.INDEX_TOLERANCE:
             raise RuntimeError(
-                f"""\n{self.data["project_name"]} {index_name} outside tolerance.\nCalculated Index: {calculated_index:.2f}\nOutput Index: {output_index:.2f}\nPercent Difference: {difference_ratio*100:.2f}%"""
+                f"""\n{self.project_name} {index_name} outside tolerance.\nCalculated Index: {calculated_index:.2f}\nOutput Index: {output_index:.2f}\nPercent Difference: {difference_ratio*100:.2f}%"""
             )
         else:
-            print(f"""{self.data["project_name"]} {index_name} within tolerance.""")
+            print(f"""{self.project_name} {index_name} within tolerance.""")
 
     def verify_hers_index(self):
         self.check_index_mismatch(
