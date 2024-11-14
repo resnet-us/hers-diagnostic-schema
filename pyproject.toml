@@ -1,20 +1,22 @@
 [tool.poetry]
-name = "hers_diagnostic_output"
+name = "hers-diagnostic-output"
 version = "0.3.0"
 description = ""
 authors = ["Big Ladder Software"]
+packages = [{include = "hers_diagnostic_output"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
 lattice = {git = "https://github.com/bigladder/lattice.git", branch = "main"} # {git = "https://github.com/bigladder/lattice.git", branch = "main"} #{path = "../lattice", develop = true} # "0.1.4"
 koozie = "*"
 pandas = "==2.1.4"
-#numpy = "==1.26.4"
-#python-dateutil = "==2.9.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 doit = "0.36.0"
 tomli = "2.0.1"
+
+[tool.poetry.group.extras.dependencies]
+pyinstrument = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

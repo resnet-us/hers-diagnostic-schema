@@ -6,7 +6,7 @@ import os
 from lattice import Lattice  # type: ignore
 from hers_diagnostic_output import HERSDiagnosticData
 
-data_model = Lattice(build_validation=False)
+data_model = Lattice()
 
 
 def task_generate_web_docs():
