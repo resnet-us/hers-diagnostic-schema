@@ -11,3 +11,4 @@ for file_path in file_paths:
     data.verify()
     eri = data.hers_index
     co2 = data.co2_index
+    data.save_hers_index_intermediaries()
