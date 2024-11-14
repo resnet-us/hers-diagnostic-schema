@@ -46,17 +46,32 @@ class EndUse(Enum):
     DEHUMIDIFCATION = "dehumidification"
 
 
+class FuelType(Enum):
+    ELECTRICITY = "ELECTRICITY"
+    BIOMASS = "BIOMASS"
+    NATURAL_GAS = "NATURAL_GAS"
+    FUEL_OIL_2 = "FUEL_OIL_2"
+    LIQUID_PETROLEUM_GAS = "LIQUID_PETROLEUM_GAS"
+    FOSSIL_FUEL = "FOSSIL_FUEL"
+
+
 class HERSDiagnosticData:
 
     # Define coefficients 'a' and 'b based on Table 4.1.1(1) in Standard 301 for
     # space heating, space cooling, and water heating
     fuel_coefficients = {
-        (EndUse.SPACE_HEATING.value, "ELECTRICITY"): {"a": 2.2561, "b": 0},
-        (EndUse.SPACE_HEATING.value, "FOSSIL_FUEL"): {"a": 1.0943, "b": 0.403},
-        (EndUse.SPACE_HEATING.value, "BIOMASS"): {"a": 0.885, "b": 0.4047},
-        (EndUse.SPACE_COOLING.value, "ELECTRICITY"): {"a": 3.809, "b": 0},
-        (EndUse.WATER_HEATING.value, "ELECTRICITY"): {"a": 0.92, "b": 0},
-        (EndUse.WATER_HEATING.value, "FOSSIL_FUEL"): {"a": 1.1877, "b": 1.013},
+        (EndUse.SPACE_HEATING.value, FuelType.ELECTRICITY.value): {"a": 2.2561, "b": 0},
+        (EndUse.SPACE_HEATING.value, FuelType.FOSSIL_FUEL.value): {
+            "a": 1.0943,
+            "b": 0.403,
+        },
+        (EndUse.SPACE_HEATING.value, FuelType.BIOMASS.value): {"a": 0.885, "b": 0.4047},
+        (EndUse.SPACE_COOLING.value, FuelType.ELECTRICITY.value): {"a": 3.809, "b": 0},
+        (EndUse.WATER_HEATING.value, FuelType.ELECTRICITY.value): {"a": 0.92, "b": 0},
+        (EndUse.WATER_HEATING.value, FuelType.FOSSIL_FUEL.value): {
+            "a": 1.1877,
+            "b": 1.013,
+        },
     }
 
     co2_home_types = [HomeType.RATED_HOME.value, HomeType.CO2_REFERENCE_HOME.value]
@@ -64,14 +79,18 @@ class HERSDiagnosticData:
     # Fossil fuel co2e coefficients
     # TODO: biomass is not included, and will need to be added in a future version
     fuel_emission_factors = {
-        "NATURAL_GAS": convert(147.3, "lb/MBtu", "lb/kBtu"),
-        "FUEL_OIL_2": convert(195.9, "lb/MBtu", "lb/kBtu"),
-        "LIQUID_PETROLEUM_GAS": convert(177.8, "lb/MBtu", "lb/kBtu"),
+        FuelType.NATURAL_GAS.value: convert(147.3, "lb/MBtu", "lb/kBtu"),
+        FuelType.FUEL_OIL_2.value: convert(195.9, "lb/MBtu", "lb/kBtu"),
+        FuelType.LIQUID_PETROLEUM_GAS.value: convert(177.8, "lb/MBtu", "lb/kBtu"),
     }
 
     # define FOSSIL_FUEL types to allocate proper 'a' and 'b' coefficients in fuel_coefficients dictionary
-    fossil_fuel_types = ["NATURAL_GAS", "FUEL_OIL_2", "LIQUID_PETROLEUM_GAS"]
-    energy_types = fossil_fuel_types + ["ELECTRICITY"]
+    fossil_fuel_types = [
+        FuelType.NATURAL_GAS.value,
+        FuelType.FUEL_OIL_2.value,
+        FuelType.LIQUID_PETROLEUM_GAS.value,
+    ]
+    energy_types = fossil_fuel_types + [FuelType.ELECTRICITY.value]
     end_uses = [
         EndUse.SPACE_HEATING.value,
         EndUse.SPACE_COOLING.value,
@@ -82,8 +101,6 @@ class HERSDiagnosticData:
         EndUse.VENTILATION.value,
         EndUse.DEHUMIDIFCATION.value,
     ]
-
-    time_types = ["annual", "hourly"]
 
     # '_system_output" and "_energy" are added to simplify code for co2e emission calculation
     end_uses_system_output = [end_use + "_system_output" for end_use in end_uses]
@@ -205,13 +222,12 @@ class HERSDiagnosticData:
 
         for home_type in self.co2_home_types:
             for energy_type in self.energy_types:
-                for time_type in self.time_types:
-                    if time_type == "hourly":
-                        self.data_cache[(energy_type, home_type, time_type)] = [
-                            0
-                        ] * self.NUMBER_OF_TIMESTEPS
-                    elif time_type == "annual":
-                        self.data_cache[(energy_type, home_type, time_type)] = 0
+                if energy_type == FuelType.ELECTRICITY.value:
+                    self.data_cache[(energy_type, home_type, "hourly")] = [
+                        0
+                    ] * self.NUMBER_OF_TIMESTEPS
+                else:
+                    self.data_cache[(energy_type, home_type, "annual")] = 0
 
         self.emissions = {
             HomeType.RATED_HOME.value: 0,
@@ -872,7 +888,7 @@ class HERSDiagnosticData:
         )
         fuel_type = self.get_system_fuel_type(home_type, end_use, system_index)
         if fuel_type in self.fossil_fuel_types:
-            fuel_type = "FOSSIL_FUEL"
+            fuel_type = FuelType.FOSSIL_FUEL.value
         a = self.fuel_coefficients[(end_use, fuel_type)]["a"]
         b = self.fuel_coefficients[(end_use, fuel_type)]["b"]
 
@@ -921,14 +937,14 @@ class HERSDiagnosticData:
 
         energy_output = home_type_output[other_end_use_energy]
 
-        for fuel_type_index in range(len(energy_output)):
+        for fuel_type_index, _ in enumerate(energy_output):
             system_total += sum(energy_output[fuel_type_index]["energy"])
 
         return system_total
 
     def calculate_end_use_energy_consumption(self, home_type, end_use):
         end_use_total = 0
-        for system_index in range(self.number_of_systems[end_use]):
+        for system_index, _ in enumerate(self.number_of_systems[end_use]):
             end_use_total += self.calculate_normalized_modified_load(
                 end_use, system_index, home_type
             )
@@ -998,10 +1014,12 @@ class HERSDiagnosticData:
         fuel_type = energy_use["fuel_type"]
         energy = energy_use["energy"]
 
-        self.data_cache[(fuel_type, home_type, "hourly")] = element_add(
-            self.data_cache[(fuel_type, home_type, "hourly")], energy
-        )
-        self.data_cache[(fuel_type, home_type, "annual")] += sum(energy)
+        if fuel_type == FuelType.ELECTRICITY.value:
+            self.data_cache[(fuel_type, home_type, "hourly")] = element_add(
+                self.data_cache[(fuel_type, home_type, "hourly")], energy
+            )
+        else:
+            self.data_cache[(fuel_type, home_type, "annual")] += sum(energy)
 
     def multiply_energy_use_and_emission_factors(self, home_type):
         # multiply co2e emission factors with each fuel type and home type, and then find annual co2e emissions for each home type
@@ -1011,7 +1029,7 @@ class HERSDiagnosticData:
             fuel_type = key[0]
             home_type = key[1]
             if home_type != HomeType.HERS_REFERENCE_HOME.value:
-                if fuel_type == "ELECTRICITY":
+                if fuel_type == FuelType.ELECTRICITY.value:
                     # conversion of electricity co2e lb/kWh to lb/kbtu is included in calculation below
                     total_emissions += convert(
                         sum(
@@ -1049,7 +1067,7 @@ class HERSDiagnosticData:
         if "on_site_power_production" in self.data:
             self.calculate_energy_type_total_energy(
                 {
-                    "fuel_type": "ELECTRICITY",
+                    "fuel_type": FuelType.ELECTRICITY.value,
                     "energy": [
                         -value
                         for value in convert(
@@ -1062,7 +1080,7 @@ class HERSDiagnosticData:
         if "battery_storage" in self.data:
             self.calculate_energy_type_total_energy(
                 {
-                    "fuel_type": "ELECTRICITY",
+                    "fuel_type": FuelType.ELECTRICITY.value,
                     "energy": convert(self.data["battery_storage"], "kWh", "kBtu"),
                 },
                 HomeType.RATED_HOME.value,
