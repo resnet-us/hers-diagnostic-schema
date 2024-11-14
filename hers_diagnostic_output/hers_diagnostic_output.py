@@ -1115,19 +1115,13 @@ class HERSDiagnosticData:
             return 0.4
         return 1.0
 
-    def get_annual_energy_use_or_consumption(self, energy_use_hourly):
-        # return the annual energy use from an 8760 array
-
-        return sum(energy_use_hourly)
-
     def calculate_sub_system_energy_use(self, energy_use_specs):
         # Calculate the sub-system energy use, converted into kWh
 
         energy_use_hourly = energy_use_specs["energy"]
         fuel_type = energy_use_specs["fuel_type"]
         return convert(
-            self.get_annual_energy_use_or_consumption(energy_use_hourly)
-            * self.get_fuel_conversion(fuel_type),
+            sum(energy_use_hourly) * self.get_fuel_conversion(fuel_type),
             "kBtu",
             "kWh",
         )
@@ -1163,9 +1157,7 @@ class HERSDiagnosticData:
         # Calculate on-site power production (OPP)
 
         if "on_site_power_production" in self.data:
-            return self.get_annual_energy_use_or_consumption(
-                self.data["on_site_power_production"]
-            )
+            return sum(self.data["on_site_power_production"])
         return 0.0
 
     def calculate_pefrac(self):
