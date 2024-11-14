@@ -1188,8 +1188,6 @@ class HERSDiagnosticData:
         self.check_index_mismatch(
             "HERS Index", self.hers_index, self.data["hers_index"]
         )
-        print(self.hers_index)
-        print(self.data["hers_index"])
 
     def verify_carbon_index(self):
         self.check_index_mismatch(
