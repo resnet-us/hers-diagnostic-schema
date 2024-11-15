@@ -944,7 +944,7 @@ class HERSDiagnosticData:
 
     def calculate_end_use_energy_consumption(self, home_type, end_use):
         end_use_total = 0
-        for system_index, _ in enumerate(self.number_of_systems[end_use]):
+        for system_index in range(self.number_of_systems[end_use]):
             end_use_total += self.calculate_normalized_modified_load(
                 end_use, system_index, home_type
             )
