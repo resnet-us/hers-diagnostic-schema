@@ -200,6 +200,7 @@ class HERSDiagnosticData:
         # load data
         # determine number of sub-systems for each system type (ex. determine number of heating systems)
         self.data = lattice.load(file)
+        self.software = self.data["software_name"]
         self.project_name = self.data["project_name"]
 
         self.number_of_systems = {}
@@ -1262,7 +1263,7 @@ class HERSDiagnosticData:
                 "rec_vent_iad": self.rec_vent_iad,
                 "rec_dh_iad": self.rec_dh_iad,
             },
-            index=["software1"],
+            index=[f"{self.software} {self.project_name}"],
         ).transpose().to_csv(Path("build", f"{self.project_name}_hers_outputs.csv"))
 
 
