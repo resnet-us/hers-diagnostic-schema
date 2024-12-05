@@ -254,7 +254,9 @@ class HERSDiagnosticData:
         if self.co2_index_set:
             return self._co2_index
         else:
-            self.co2_index = self.calculate_carbon_index()
+            self.co2_index = (
+                self.aco2 / (self.arco2 * self.iaf_rh) * 100
+            )  # CO2 Index = ACO2 / ARCO2 * 100
             return self._co2_index
 
     @co2_index.setter
@@ -267,7 +269,9 @@ class HERSDiagnosticData:
         if self.iaf_rh_set:
             return self._iaf_rh
         else:
-            self.iaf_rh = self.calculate_index_adjustment_factor_rated_home()
+            self.iaf_rh = (
+                self.iaf_cfa * self.iaf_nbr * self.iaf_ns
+            )  # IAF_RH = IAF_CFA * IAF_Nbr * IAF_NS
             return self._iaf_rh
 
     @iaf_rh.setter
@@ -308,7 +312,9 @@ class HERSDiagnosticData:
         if self.pe_frac_set:
             return self._pe_frac
         else:
-            self.pe_frac = self.calculate_pefrac()
+            self.pe_frac = (
+                self.teu - self.opp + self.bsl
+            ) / self.teu  # PEfrac = (TEU - OPP) / TEU
             return self._pe_frac
 
     @pe_frac.setter
@@ -1121,11 +1127,6 @@ class HERSDiagnosticData:
 
         return (2 / ns) ** (0.12 * self.iad_save)
 
-    def calculate_index_adjustment_factor_rated_home(self):
-        # IAF_RH = IAF_CFA * IAF_Nbr * IAF_NS
-
-        return self.iaf_cfa * self.iaf_nbr * self.iaf_ns
-
     def get_fuel_conversion(self, fuel_type):
         # If fuel type is a fossil fuel, return 0.4, else return 1
 
@@ -1177,16 +1178,6 @@ class HERSDiagnosticData:
         if "on_site_power_production" in self.data:
             return sum(self.data["on_site_power_production"])
         return 0.0
-
-    def calculate_pefrac(self):
-        # PEfrac = (TEU - OPP) / TEU
-
-        return (self.teu - self.opp + self.bsl) / self.teu
-
-    def calculate_carbon_index(self):
-        # CO2 Index = ACO2 / ARCO2 * 100
-
-        return self.aco2 / (self.arco2 * self.iaf_rh) * 100
 
     def check_index_mismatch(self, index_name, calculated_index, output_index):
         difference_ratio = (calculated_index - output_index) / output_index
