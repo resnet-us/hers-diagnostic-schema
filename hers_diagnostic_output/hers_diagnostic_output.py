@@ -5,6 +5,7 @@ import lattice  # type: ignore
 from koozie import convert  # type: ignore
 import pandas as pd
 from enum import Enum
+from typing import Dict
 
 
 def element_add(list1, list2):
@@ -1217,7 +1218,7 @@ class HERSDiagnosticData:
         self.verify_hers_index()
         self.verify_carbon_index()
 
-    def save_hers_index_intermediaries(self):
+    def get_hers_index_intermediaries(self) -> Dict:
 
         return {
             "hers_index": self.hers_index,
