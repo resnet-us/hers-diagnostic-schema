@@ -30,7 +30,7 @@ class EndUseSystem:
     home_type: str
 
 
-class HomeType(Enum):
+class HomeType:
     RATED_HOME = "rated_home"
     HERS_REFERENCE_HOME = "hers_reference_home"
     CO2_REFERENCE_HOME = "co2_reference_home"
@@ -38,7 +38,7 @@ class HomeType(Enum):
     IAD_HERS_REFERENCE_HOME = "iad_hers_reference_home"
 
 
-class EndUse(Enum):
+class EndUse:
     SPACE_HEATING = "space_heating"
     SPACE_COOLING = "space_cooling"
     WATER_HEATING = "water_heating"
@@ -47,7 +47,7 @@ class EndUse(Enum):
     DEHUMIDIFCATION = "dehumidification"
 
 
-class FuelType(Enum):
+class FuelType:
     ELECTRICITY = "ELECTRICITY"
     BIOMASS = "BIOMASS"
     NATURAL_GAS = "NATURAL_GAS"
@@ -61,46 +61,46 @@ class HERSDiagnosticData:
     # Define coefficients 'a' and 'b based on Table 4.1.1(1) in Standard 301 for
     # space heating, space cooling, and water heating
     fuel_coefficients = {
-        (EndUse.SPACE_HEATING.value, FuelType.ELECTRICITY.value): {"a": 2.2561, "b": 0},
-        (EndUse.SPACE_HEATING.value, FuelType.FOSSIL_FUEL.value): {
+        (EndUse.SPACE_HEATING, FuelType.ELECTRICITY): {"a": 2.2561, "b": 0},
+        (EndUse.SPACE_HEATING, FuelType.FOSSIL_FUEL): {
             "a": 1.0943,
             "b": 0.403,
         },
-        (EndUse.SPACE_HEATING.value, FuelType.BIOMASS.value): {"a": 0.885, "b": 0.4047},
-        (EndUse.SPACE_COOLING.value, FuelType.ELECTRICITY.value): {"a": 3.809, "b": 0},
-        (EndUse.WATER_HEATING.value, FuelType.ELECTRICITY.value): {"a": 0.92, "b": 0},
-        (EndUse.WATER_HEATING.value, FuelType.FOSSIL_FUEL.value): {
+        (EndUse.SPACE_HEATING, FuelType.BIOMASS): {"a": 0.885, "b": 0.4047},
+        (EndUse.SPACE_COOLING, FuelType.ELECTRICITY): {"a": 3.809, "b": 0},
+        (EndUse.WATER_HEATING, FuelType.ELECTRICITY): {"a": 0.92, "b": 0},
+        (EndUse.WATER_HEATING, FuelType.FOSSIL_FUEL): {
             "a": 1.1877,
             "b": 1.013,
         },
     }
 
-    co2_home_types = [HomeType.RATED_HOME.value, HomeType.CO2_REFERENCE_HOME.value]
+    co2_home_types = [HomeType.RATED_HOME, HomeType.CO2_REFERENCE_HOME]
 
     # Fossil fuel co2e coefficients
     # TODO: biomass is not included, and will need to be added in a future version
     fuel_emission_factors = {
-        FuelType.NATURAL_GAS.value: convert(147.3, "lb/MBtu", "lb/kBtu"),
-        FuelType.FUEL_OIL_2.value: convert(195.9, "lb/MBtu", "lb/kBtu"),
-        FuelType.LIQUID_PETROLEUM_GAS.value: convert(177.8, "lb/MBtu", "lb/kBtu"),
+        FuelType.NATURAL_GAS: convert(147.3, "lb/MBtu", "lb/kBtu"),
+        FuelType.FUEL_OIL_2: convert(195.9, "lb/MBtu", "lb/kBtu"),
+        FuelType.LIQUID_PETROLEUM_GAS: convert(177.8, "lb/MBtu", "lb/kBtu"),
     }
 
     # define FOSSIL_FUEL types to allocate proper 'a' and 'b' coefficients in fuel_coefficients dictionary
     fossil_fuel_types = [
-        FuelType.NATURAL_GAS.value,
-        FuelType.FUEL_OIL_2.value,
-        FuelType.LIQUID_PETROLEUM_GAS.value,
+        FuelType.NATURAL_GAS,
+        FuelType.FUEL_OIL_2,
+        FuelType.LIQUID_PETROLEUM_GAS,
     ]
-    energy_types = fossil_fuel_types + [FuelType.ELECTRICITY.value]
+    energy_types = fossil_fuel_types + [FuelType.ELECTRICITY]
     end_uses = [
-        EndUse.SPACE_HEATING.value,
-        EndUse.SPACE_COOLING.value,
-        EndUse.WATER_HEATING.value,
+        EndUse.SPACE_HEATING,
+        EndUse.SPACE_COOLING,
+        EndUse.WATER_HEATING,
     ]
     other_end_uses = [
-        EndUse.LIGHTING_AND_APPLIANCE.value,
-        EndUse.VENTILATION.value,
-        EndUse.DEHUMIDIFCATION.value,
+        EndUse.LIGHTING_AND_APPLIANCE,
+        EndUse.VENTILATION,
+        EndUse.DEHUMIDIFCATION,
     ]
 
     # '_system_output" and "_energy" are added to simplify code for co2e emission calculation
@@ -224,7 +224,7 @@ class HERSDiagnosticData:
 
         for home_type in self.co2_home_types:
             for energy_type in self.energy_types:
-                if energy_type == FuelType.ELECTRICITY.value:
+                if energy_type == FuelType.ELECTRICITY:
                     self.data_cache[(energy_type, home_type, "hourly")] = [
                         0
                     ] * self.NUMBER_OF_TIMESTEPS
@@ -232,8 +232,8 @@ class HERSDiagnosticData:
                     self.data_cache[(energy_type, home_type, "annual")] = 0
 
         self.emissions = {
-            HomeType.RATED_HOME.value: 0,
-            HomeType.CO2_REFERENCE_HOME.value: 0,
+            HomeType.RATED_HOME: 0,
+            HomeType.CO2_REFERENCE_HOME: 0,
         }
 
     @property
@@ -280,9 +280,7 @@ class HERSDiagnosticData:
         if self.aco2_set:
             return self._aco2
         else:
-            self.aco2 = self.calculate_annual_hourly_co2_emissions(
-                HomeType.RATED_HOME.value
-            )
+            self.aco2 = self.calculate_annual_hourly_co2_emissions(HomeType.RATED_HOME)
             return self._aco2
 
     @aco2.setter
@@ -296,7 +294,7 @@ class HERSDiagnosticData:
             return self._arco2
         else:
             self.arco2 = self.calculate_annual_hourly_co2_emissions(
-                HomeType.CO2_REFERENCE_HOME.value
+                HomeType.CO2_REFERENCE_HOME
             )
             return self._arco2
 
@@ -324,7 +322,7 @@ class HERSDiagnosticData:
             return self._tnml
         else:
             self.tnml = self.calculate_total_normalized_modified_load(
-                HomeType.RATED_HOME.value
+                HomeType.RATED_HOME
             )
             return self._tnml
 
@@ -339,7 +337,7 @@ class HERSDiagnosticData:
             return self._trl
         else:
             self.trl = self.calculate_total_reference_home_load(
-                HomeType.HERS_REFERENCE_HOME.value
+                HomeType.HERS_REFERENCE_HOME
             )
             return self._trl
 
@@ -451,7 +449,7 @@ class HERSDiagnosticData:
             return self._tnml_iad
         else:
             self.tnml_iad = self.calculate_total_normalized_modified_load(
-                HomeType.IAD_RATED_HOME.value
+                HomeType.IAD_RATED_HOME
             )
             return self._tnml_iad
 
@@ -466,7 +464,7 @@ class HERSDiagnosticData:
             return self._trl_iad
         else:
             self.trl_iad = self.calculate_total_reference_home_load(
-                HomeType.IAD_HERS_REFERENCE_HOME.value
+                HomeType.IAD_HERS_REFERENCE_HOME
             )
             return self._trl_iad
 
@@ -482,7 +480,7 @@ class HERSDiagnosticData:
             return self._nmeul_heat
         else:
             self.nmeul_heat = self.calculate_end_use_energy_consumption(
-                HomeType.RATED_HOME.value, EndUse.SPACE_HEATING.value
+                HomeType.RATED_HOME, EndUse.SPACE_HEATING
             )
             return self._nmeul_heat
 
@@ -497,7 +495,7 @@ class HERSDiagnosticData:
             return self._nmeul_cool
         else:
             self.nmeul_cool = self.calculate_end_use_energy_consumption(
-                HomeType.RATED_HOME.value, EndUse.SPACE_COOLING.value
+                HomeType.RATED_HOME, EndUse.SPACE_COOLING
             )
             return self._nmeul_cool
 
@@ -512,7 +510,7 @@ class HERSDiagnosticData:
             return self._nmeul_hw
         else:
             self.nmeul_hw = self.calculate_end_use_energy_consumption(
-                HomeType.RATED_HOME.value, EndUse.WATER_HEATING.value
+                HomeType.RATED_HOME, EndUse.WATER_HEATING
             )
             return self._nmeul_hw
 
@@ -527,7 +525,7 @@ class HERSDiagnosticData:
             return self._ec_la
         else:
             self.ec_la = self.calculate_other_end_use_system_energy_types(
-                HomeType.RATED_HOME.value, EndUse.LIGHTING_AND_APPLIANCE.value
+                HomeType.RATED_HOME, EndUse.LIGHTING_AND_APPLIANCE
             )
             return self._ec_la
 
@@ -542,7 +540,7 @@ class HERSDiagnosticData:
             return self._ec_vent
         else:
             self.ec_vent = self.calculate_other_end_use_system_energy_types(
-                HomeType.RATED_HOME.value, EndUse.VENTILATION.value
+                HomeType.RATED_HOME, EndUse.VENTILATION
             )
             return self._ec_vent
 
@@ -557,7 +555,7 @@ class HERSDiagnosticData:
             return self._ec_dh
         else:
             self.ec_dh = self.calculate_other_end_use_system_energy_types(
-                HomeType.RATED_HOME.value, EndUse.DEHUMIDIFCATION.value
+                HomeType.RATED_HOME, EndUse.DEHUMIDIFCATION
             )
             return self._ec_dh
 
@@ -573,7 +571,7 @@ class HERSDiagnosticData:
             return self._reul_heat
         else:
             self.reul_heat = self.calculate_reference_home_system_load(
-                HomeType.HERS_REFERENCE_HOME.value, EndUse.SPACE_HEATING.value
+                HomeType.HERS_REFERENCE_HOME, EndUse.SPACE_HEATING
             )
             return self._reul_heat
 
@@ -588,7 +586,7 @@ class HERSDiagnosticData:
             return self._reul_cool
         else:
             self.reul_cool = self.calculate_reference_home_system_load(
-                HomeType.HERS_REFERENCE_HOME.value, EndUse.SPACE_COOLING.value
+                HomeType.HERS_REFERENCE_HOME, EndUse.SPACE_COOLING
             )
             return self._reul_cool
 
@@ -603,7 +601,7 @@ class HERSDiagnosticData:
             return self._reul_hw
         else:
             self.reul_hw = self.calculate_reference_home_system_load(
-                HomeType.HERS_REFERENCE_HOME.value, EndUse.WATER_HEATING.value
+                HomeType.HERS_REFERENCE_HOME, EndUse.WATER_HEATING
             )
             return self._reul_hw
 
@@ -618,7 +616,7 @@ class HERSDiagnosticData:
             return self._rec_la
         else:
             self.rec_la = self.calculate_other_end_use_system_energy_types(
-                HomeType.HERS_REFERENCE_HOME.value, EndUse.LIGHTING_AND_APPLIANCE.value
+                HomeType.HERS_REFERENCE_HOME, EndUse.LIGHTING_AND_APPLIANCE
             )
             return self._rec_la
 
@@ -633,7 +631,7 @@ class HERSDiagnosticData:
             return self._rec_vent
         else:
             self.rec_vent = self.calculate_other_end_use_system_energy_types(
-                HomeType.HERS_REFERENCE_HOME.value, EndUse.VENTILATION.value
+                HomeType.HERS_REFERENCE_HOME, EndUse.VENTILATION
             )
             return self._rec_vent
 
@@ -648,7 +646,7 @@ class HERSDiagnosticData:
             return self._rec_dh
         else:
             self.rec_dh = self.calculate_other_end_use_system_energy_types(
-                HomeType.HERS_REFERENCE_HOME.value, EndUse.DEHUMIDIFCATION.value
+                HomeType.HERS_REFERENCE_HOME, EndUse.DEHUMIDIFCATION
             )
             return self._rec_dh
 
@@ -664,7 +662,7 @@ class HERSDiagnosticData:
             return self._nmeul_heat_iad
         else:
             self.nmeul_heat_iad = self.calculate_end_use_energy_consumption(
-                HomeType.IAD_RATED_HOME.value, EndUse.SPACE_HEATING.value
+                HomeType.IAD_RATED_HOME, EndUse.SPACE_HEATING
             )
             return self._nmeul_heat_iad
 
@@ -679,7 +677,7 @@ class HERSDiagnosticData:
             return self._nmeul_cool_iad
         else:
             self.nmeul_cool_iad = self.calculate_end_use_energy_consumption(
-                HomeType.IAD_RATED_HOME.value, EndUse.SPACE_COOLING.value
+                HomeType.IAD_RATED_HOME, EndUse.SPACE_COOLING
             )
             return self._nmeul_cool_iad
 
@@ -694,7 +692,7 @@ class HERSDiagnosticData:
             return self._nmeul_hw_iad
         else:
             self.nmeul_hw_iad = self.calculate_end_use_energy_consumption(
-                HomeType.IAD_RATED_HOME.value, EndUse.WATER_HEATING.value
+                HomeType.IAD_RATED_HOME, EndUse.WATER_HEATING
             )
             return self._nmeul_hw_iad
 
@@ -709,8 +707,8 @@ class HERSDiagnosticData:
             return self._ec_la_iad
         else:
             self.ec_la_iad = self.calculate_other_end_use_system_energy_types(
-                HomeType.IAD_RATED_HOME.value,
-                EndUse.LIGHTING_AND_APPLIANCE.value,
+                HomeType.IAD_RATED_HOME,
+                EndUse.LIGHTING_AND_APPLIANCE,
             )
             return self._ec_la_iad
 
@@ -725,7 +723,7 @@ class HERSDiagnosticData:
             return self._ec_vent_iad
         else:
             self.ec_vent_iad = self.calculate_other_end_use_system_energy_types(
-                HomeType.IAD_RATED_HOME.value, EndUse.VENTILATION.value
+                HomeType.IAD_RATED_HOME, EndUse.VENTILATION
             )
             return self._ec_vent_iad
 
@@ -740,7 +738,7 @@ class HERSDiagnosticData:
             return self._ec_dh_iad
         else:
             self.ec_dh_iad = self.calculate_other_end_use_system_energy_types(
-                HomeType.IAD_RATED_HOME.value, EndUse.DEHUMIDIFCATION.value
+                HomeType.IAD_RATED_HOME, EndUse.DEHUMIDIFCATION
             )
             return self._ec_dh_iad
 
@@ -756,7 +754,7 @@ class HERSDiagnosticData:
             return self._reul_heat_iad
         else:
             self.reul_heat_iad = self.calculate_reference_home_system_load(
-                HomeType.IAD_HERS_REFERENCE_HOME.value, EndUse.SPACE_HEATING.value
+                HomeType.IAD_HERS_REFERENCE_HOME, EndUse.SPACE_HEATING
             )
             return self._reul_heat_iad
 
@@ -771,7 +769,7 @@ class HERSDiagnosticData:
             return self._reul_cool_iad
         else:
             self.reul_cool_iad = self.calculate_reference_home_system_load(
-                HomeType.IAD_HERS_REFERENCE_HOME.value, EndUse.SPACE_COOLING.value
+                HomeType.IAD_HERS_REFERENCE_HOME, EndUse.SPACE_COOLING
             )
             return self._reul_cool_iad
 
@@ -786,7 +784,7 @@ class HERSDiagnosticData:
             return self._reul_hw_iad
         else:
             self.reul_hw_iad = self.calculate_reference_home_system_load(
-                HomeType.IAD_HERS_REFERENCE_HOME.value, EndUse.WATER_HEATING.value
+                HomeType.IAD_HERS_REFERENCE_HOME, EndUse.WATER_HEATING
             )
             return self._reul_hw_iad
 
@@ -801,8 +799,8 @@ class HERSDiagnosticData:
             return self._rec_la_iad
         else:
             self.rec_la_iad = self.calculate_other_end_use_system_energy_types(
-                HomeType.IAD_HERS_REFERENCE_HOME.value,
-                EndUse.LIGHTING_AND_APPLIANCE.value,
+                HomeType.IAD_HERS_REFERENCE_HOME,
+                EndUse.LIGHTING_AND_APPLIANCE,
             )
             return self._rec_la_iad
 
@@ -817,7 +815,7 @@ class HERSDiagnosticData:
             return self._rec_vent_iad
         else:
             self.rec_vent_iad = self.calculate_other_end_use_system_energy_types(
-                HomeType.IAD_HERS_REFERENCE_HOME.value, EndUse.VENTILATION.value
+                HomeType.IAD_HERS_REFERENCE_HOME, EndUse.VENTILATION
             )
             return self._rec_vent_iad
 
@@ -832,7 +830,7 @@ class HERSDiagnosticData:
             return self._rec_dh_iad
         else:
             self.rec_dh_iad = self.calculate_other_end_use_system_energy_types(
-                HomeType.IAD_HERS_REFERENCE_HOME.value, EndUse.DEHUMIDIFCATION.value
+                HomeType.IAD_HERS_REFERENCE_HOME, EndUse.DEHUMIDIFCATION
             )
             return self._rec_dh_iad
 
@@ -890,7 +888,7 @@ class HERSDiagnosticData:
         )
         fuel_type = self.get_system_fuel_type(home_type, end_use, system_index)
         if fuel_type in self.fossil_fuel_types:
-            fuel_type = FuelType.FOSSIL_FUEL.value
+            fuel_type = FuelType.FOSSIL_FUEL
         a = self.fuel_coefficients[(end_use, fuel_type)]["a"]
         b = self.fuel_coefficients[(end_use, fuel_type)]["b"]
 
@@ -908,10 +906,10 @@ class HERSDiagnosticData:
 
     def calculate_normalized_modified_load(self, end_use, system_index, home_type):
         # nMEUL  = REUL * nEC_x / EC_r
-        if home_type == HomeType.RATED_HOME.value:
-            reference_home_type = HomeType.HERS_REFERENCE_HOME.value
-        elif home_type == HomeType.IAD_RATED_HOME.value:
-            reference_home_type = HomeType.IAD_HERS_REFERENCE_HOME.value
+        if home_type == HomeType.RATED_HOME:
+            reference_home_type = HomeType.HERS_REFERENCE_HOME
+        elif home_type == HomeType.IAD_RATED_HOME:
+            reference_home_type = HomeType.IAD_HERS_REFERENCE_HOME
         else:
             raise NameError(
                 "'home_type' must be equal to 'rated_home' or 'iad_rated_home'."
@@ -954,7 +952,7 @@ class HERSDiagnosticData:
 
     def calculate_total_normalized_modified_load(self, home_type):
         # TnML = nMEUL_HEAT + nMEUL_COOL + nMEUL_HW + EC_LA + EC_VENT + EC_DH
-        if home_type == HomeType.RATED_HOME.value:
+        if home_type == HomeType.RATED_HOME:
             return (
                 self.nmeul_heat
                 + self.nmeul_cool
@@ -963,7 +961,7 @@ class HERSDiagnosticData:
                 + self.ec_vent
                 + self.ec_dh
             )
-        elif home_type == HomeType.IAD_RATED_HOME.value:
+        elif home_type == HomeType.IAD_RATED_HOME:
             return (
                 self.nmeul_heat_iad
                 + self.nmeul_cool_iad
@@ -986,7 +984,7 @@ class HERSDiagnosticData:
     def calculate_total_reference_home_load(self, home_type):
         # TRL = REUL_HEAT + REUL_COOL + REUL_HW + REC_LA + REC_VENT + REC_DH
 
-        if home_type == HomeType.HERS_REFERENCE_HOME.value:
+        if home_type == HomeType.HERS_REFERENCE_HOME:
             return (
                 self.reul_heat
                 + self.reul_cool
@@ -995,7 +993,7 @@ class HERSDiagnosticData:
                 + self.rec_vent
                 + self.rec_dh
             )
-        elif home_type == HomeType.IAD_HERS_REFERENCE_HOME.value:
+        elif home_type == HomeType.IAD_HERS_REFERENCE_HOME:
             return (
                 self.reul_heat_iad
                 + self.reul_cool_iad
@@ -1016,7 +1014,7 @@ class HERSDiagnosticData:
         fuel_type = energy_use["fuel_type"]
         energy = energy_use["energy"]
 
-        if fuel_type == FuelType.ELECTRICITY.value:
+        if fuel_type == FuelType.ELECTRICITY:
             self.data_cache[(fuel_type, home_type, "hourly")] = element_add(
                 self.data_cache[(fuel_type, home_type, "hourly")], energy
             )
@@ -1030,8 +1028,8 @@ class HERSDiagnosticData:
         for key in self.data_cache.keys():
             fuel_type = key[0]
             home_type = key[1]
-            if home_type != HomeType.HERS_REFERENCE_HOME.value:
-                if fuel_type == FuelType.ELECTRICITY.value:
+            if home_type != HomeType.HERS_REFERENCE_HOME:
+                if fuel_type == FuelType.ELECTRICITY:
                     # conversion of electricity co2e lb/kWh to lb/kbtu is included in calculation below
                     total_emissions += convert(
                         sum(
@@ -1069,7 +1067,7 @@ class HERSDiagnosticData:
         if "on_site_power_production" in self.data:
             self.calculate_energy_type_total_energy(
                 {
-                    "fuel_type": FuelType.ELECTRICITY.value,
+                    "fuel_type": FuelType.ELECTRICITY,
                     "energy": [
                         -value
                         for value in convert(
@@ -1077,15 +1075,15 @@ class HERSDiagnosticData:
                         )
                     ],
                 },
-                HomeType.RATED_HOME.value,
+                HomeType.RATED_HOME,
             )
         if "battery_storage" in self.data:
             self.calculate_energy_type_total_energy(
                 {
-                    "fuel_type": FuelType.ELECTRICITY.value,
+                    "fuel_type": FuelType.ELECTRICITY,
                     "energy": convert(self.data["battery_storage"], "kWh", "kBtu"),
                 },
-                HomeType.RATED_HOME.value,
+                HomeType.RATED_HOME,
             )
 
         return self.multiply_energy_use_and_emission_factors(home_type)
