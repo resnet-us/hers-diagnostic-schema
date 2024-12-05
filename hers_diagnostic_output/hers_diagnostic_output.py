@@ -241,7 +241,7 @@ class HERSDiagnosticData:
         if self.hers_index_set:
             return self._hers_index
         else:
-            self.hers_index = self.calculate_hers_index()
+            self.hers_index = self.pe_frac * self.tnml / (self.trl * self.iaf_rh) * 100
             return self._hers_index
 
     @hers_index.setter
@@ -1184,11 +1184,6 @@ class HERSDiagnosticData:
         # PEfrac = (TEU - OPP) / TEU
 
         return (self.teu - self.opp + self.bsl) / self.teu
-
-    def calculate_hers_index(self):
-        # ERI = PEfrac * (TnML / TRL * IAF_RH) * 100
-
-        return self.pe_frac * self.tnml / (self.trl * self.iaf_rh) * 100
 
     def calculate_carbon_index(self):
         # CO2 Index = ACO2 / ARCO2 * 100
