@@ -1091,12 +1091,12 @@ class HERSDiagnosticData:
     def calculate_iad_hers_index(self):
         # ERI = TnML_IAD / TRL_IAD
 
-        return self.tnml_iad / self.trl_iad
+        return self.tnml_iad / self.trl_iad * 100
 
     def calculate_index_adjustment_design_savings(self):
         # IAD_SAVE = (100 - ERI_IAD) / 100
 
-        eri_iad = self.calculate_iad_hers_index() * 100
+        eri_iad = self.calculate_iad_hers_index()
 
         return (100 - eri_iad) / 100
 
