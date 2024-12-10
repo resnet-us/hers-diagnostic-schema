@@ -342,9 +342,7 @@ class HERSDiagnosticData:
         if self.tnml_set:
             return self._tnml
         else:
-            self.tnml = self.get_total_normalized_modified_load(
-                HomeType.RATED_HOME
-            )
+            self.tnml = self.get_total_normalized_modified_load(HomeType.RATED_HOME)
             return self._tnml
 
     @tnml.setter
@@ -357,9 +355,7 @@ class HERSDiagnosticData:
         if self.trl_set:
             return self._trl
         else:
-            self.trl = self.get_total_reference_home_load(
-                HomeType.HERS_REFERENCE_HOME
-            )
+            self.trl = self.get_total_reference_home_load(HomeType.HERS_REFERENCE_HOME)
             return self._trl
 
     @trl.setter
@@ -372,9 +368,7 @@ class HERSDiagnosticData:
         if self.teu_set:
             return self._teu
         else:
-            self.teu = convert(
-                self.get_total_energy_use_rated_home(), "kWh", "MBtu"
-            )
+            self.teu = convert(self.get_total_energy_use_rated_home(), "kWh", "MBtu")
             return self._teu
 
     @teu.setter
@@ -428,9 +422,7 @@ class HERSDiagnosticData:
         if self.iaf_cfa_set:
             return self._iaf_cfa
         else:
-            self.iaf_cfa = (
-                self.get_index_adjustment_factor_conditioned_floor_area()
-            )
+            self.iaf_cfa = self.get_index_adjustment_factor_conditioned_floor_area()
             return self._iaf_cfa
 
     @iaf_cfa.setter
