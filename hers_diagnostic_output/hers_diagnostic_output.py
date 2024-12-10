@@ -241,6 +241,15 @@ class HERSDiagnosticData:
         self.annual_energy_cache = {}
         self.annual_end_use_energy_cache = {}
         self.annual_fuel_type_energy_cache = {}
+        self.hourly_electricity_use = [0] * self.NUMBER_OF_TIMESTEPS
+        self.hourly_electricity_emission_factors_kwh = self.data[
+            "electricity_co2_emissions_factors"
+        ]
+        self.hourly_electricity_emission_factors_kbtu = convert(
+            self.data["electricity_co2_emissions_factors"],
+            "lb/kWh",
+            "lb/kBtu",
+        )
 
     @property
     def hers_index(self):
@@ -1010,33 +1019,6 @@ class HERSDiagnosticData:
         else:
             self.data_cache[(fuel_type, home_type, "annual")] += sum(energy)
 
-    def multiply_energy_use_and_emission_factors(self, home_type):
-        # multiply co2e emission factors with each fuel type and home type, and then find annual co2e emissions for each home type
-
-        total_emissions = 0
-        for key in self.data_cache.keys():
-            fuel_type = key[0]
-            home_type = key[1]
-            if home_type != HomeType.HERS_REFERENCE_HOME:
-                if fuel_type == FuelType.ELECTRICITY:
-                    # conversion of electricity co2e lb/kWh to lb/kbtu is included in calculation below
-                    total_emissions += convert(
-                        sum(
-                            element_product(
-                                self.data["electricity_co2_emissions_factors"],
-                                self.data_cache[(fuel_type, home_type, "hourly")],
-                            )
-                        ),
-                        "lb/kWh",
-                        "lb/kBtu",
-                    )
-                else:
-                    total_emissions += (
-                        self.data_cache[(fuel_type, home_type, "annual")]
-                        * self.fuel_emission_factors[fuel_type]
-                    )
-        return total_emissions
-
     def get_system_end_use_annual_energy(
         self,
         home_type,
@@ -1094,46 +1076,69 @@ class HERSDiagnosticData:
             total_energy = 0
             for fuel_type in self.fuel_types:
                 total_energy += self.get_annual_energy(home_type, end_use, fuel_type)
-
             self.annual_end_use_energy_cache[(home_type, end_use)] = total_energy
-
         return self.annual_end_use_energy_cache[(home_type, end_use)]
 
+    def get_annual_fuel_type_energy(self, home_type, fuel_type):
+        if (home_type, fuel_type) not in self.annual_fuel_type_energy_cache:
+            total_energy = 0
+            for end_use in self.end_uses:
+                total_energy += self.get_annual_energy(home_type, end_use, fuel_type)
+            self.annual_fuel_type_energy_cache[(home_type, fuel_type)] = total_energy
+        return self.annual_fuel_type_energy_cache[(home_type, fuel_type)]
+
+    def get_hourly_electricity_emissions(self, home_type):
+        for end_use in self.end_uses:
+            if end_use in self.system_end_uses:
+                for energy_data in self.data[f"{home_type}_output"][
+                    f"{end_use}_system_output"
+                ]:
+                    for energy_use in energy_data["energy_use"]:
+                        if energy_use["fuel_type"] == FuelType.ELECTRICITY:
+                            self.hourly_electricity_use = element_add(
+                                energy_use["energy"], self.hourly_electricity_use
+                            )
+            else:  # other end uses
+                if f"{end_use}_energy" in self.data[f"{home_type}_output"]:
+                    for energy_use in self.data[f"{home_type}_output"][
+                        f"{end_use}_energy"
+                    ]:
+                        if energy_use["fuel_type"] == FuelType.ELECTRICITY:
+                            self.hourly_electricity_use = element_add(
+                                energy_use["energy"], self.hourly_electricity_use
+                            )
+        return self.hourly_electricity_use
+
     def calculate_annual_hourly_co2_emissions(self, home_type):
-        # retrieve energy use for each subsystem and multiply energy by emissions factors
-
-        for end_use in self.data[f"{home_type}_output"]:
-            if end_use in self.end_uses_system_output:
-                for system_data in self.data[f"{home_type}_output"][end_use]:
-                    for energy_use in system_data["energy_use"]:
-                        self.calculate_energy_type_total_energy(energy_use, home_type)
-            elif end_use in self.other_end_uses_energy:
-                for energy_use in self.data[f"{home_type}_output"][end_use]:
-                    self.calculate_energy_type_total_energy(energy_use, home_type)
-
+        emissions = 0
+        for fuel_type in self.fuel_types:
+            if fuel_type == FuelType.ELECTRICITY:
+                emissions += sum(
+                    element_product(
+                        self.get_hourly_electricity_emissions(home_type),
+                        self.hourly_electricity_emission_factors_kbtu,
+                    )
+                )
+            else:
+                emissions += (
+                    self.get_annual_fuel_type_energy(home_type, fuel_type)
+                    * self.fuel_emission_factors[fuel_type]
+                )
         if "on_site_power_production" in self.data:
-            self.calculate_energy_type_total_energy(
-                {
-                    "fuel_type": FuelType.ELECTRICITY,
-                    "energy": [
-                        -value
-                        for value in convert(
-                            self.data["on_site_power_production"], "kWh", "kBtu"
-                        )
-                    ],
-                },
-                HomeType.RATED_HOME,
+            emissions += sum(
+                element_product(
+                    [-value for value in self.data["on_site_power_production"]],  # kWh
+                    self.hourly_electricity_emission_factors_kwh,  # lb/kWh
+                )
             )
         if "battery_storage" in self.data:
-            self.calculate_energy_type_total_energy(
-                {
-                    "fuel_type": FuelType.ELECTRICITY,
-                    "energy": convert(self.data["battery_storage"], "kWh", "kBtu"),
-                },
-                HomeType.RATED_HOME,
+            emissions += sum(
+                element_product(
+                    self.data["battery_storage"],
+                    self.hourly_electricity_emission_factors_kwh,
+                )
             )
-
-        return self.multiply_energy_use_and_emission_factors(home_type)
+        return emissions
 
     def calculate_iad_hers_index(self):
         # ERI = TnML_IAD / TRL_IAD
