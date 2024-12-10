@@ -4,6 +4,8 @@ from pathlib import Path
 import lattice  # type: ignore
 from koozie import convert  # type: ignore
 import pandas as pd
+from enum import Enum
+from typing import Dict
 
 
 def element_add(list1, list2):
@@ -28,41 +30,82 @@ class EndUseSystem:
     home_type: str
 
 
+class HomeType:
+    RATED_HOME = "rated_home"
+    HERS_REFERENCE_HOME = "hers_reference_home"
+    CO2_REFERENCE_HOME = "co2_reference_home"
+    IAD_RATED_HOME = "iad_rated_home"
+    IAD_HERS_REFERENCE_HOME = "iad_hers_reference_home"
+
+
+class EndUse:
+    SPACE_HEATING = "space_heating"
+    SPACE_COOLING = "space_cooling"
+    WATER_HEATING = "water_heating"
+    LIGHTING_AND_APPLIANCE = "lighting_and_appliance"
+    VENTILATION = "ventilation"
+    DEHUMIDIFCATION = "dehumidification"
+
+
+class FuelType:
+    ELECTRICITY = "ELECTRICITY"
+    BIOMASS = "BIOMASS"
+    NATURAL_GAS = "NATURAL_GAS"
+    FUEL_OIL_2 = "FUEL_OIL_2"
+    LIQUID_PETROLEUM_GAS = "LIQUID_PETROLEUM_GAS"
+    FOSSIL_FUEL = "FOSSIL_FUEL"
+
+
 class HERSDiagnosticData:
 
     # Define coefficients 'a' and 'b based on Table 4.1.1(1) in Standard 301 for
     # space heating, space cooling, and water heating
     fuel_coefficients = {
-        ("space_heating", "ELECTRICITY"): {"a": 2.2561, "b": 0},
-        ("space_heating", "FOSSIL_FUEL"): {"a": 1.0943, "b": 0.403},
-        ("space_heating", "BIOMASS"): {"a": 0.885, "b": 0.4047},
-        ("space_cooling", "ELECTRICITY"): {"a": 3.809, "b": 0},
-        ("water_heating", "ELECTRICITY"): {"a": 0.92, "b": 0},
-        ("water_heating", "FOSSIL_FUEL"): {"a": 1.1877, "b": 1.013},
+        (EndUse.SPACE_HEATING, FuelType.ELECTRICITY): {"a": 2.2561, "b": 0},
+        (EndUse.SPACE_HEATING, FuelType.FOSSIL_FUEL): {
+            "a": 1.0943,
+            "b": 0.403,
+        },
+        (EndUse.SPACE_HEATING, FuelType.BIOMASS): {"a": 0.885, "b": 0.4047},
+        (EndUse.SPACE_COOLING, FuelType.ELECTRICITY): {"a": 3.809, "b": 0},
+        (EndUse.WATER_HEATING, FuelType.ELECTRICITY): {"a": 0.92, "b": 0},
+        (EndUse.WATER_HEATING, FuelType.FOSSIL_FUEL): {
+            "a": 1.1877,
+            "b": 1.013,
+        },
     }
 
-    co2_home_types = ["rated_home", "co2_reference_home"]
+    co2_home_types = [HomeType.RATED_HOME, HomeType.CO2_REFERENCE_HOME]
 
     # Fossil fuel co2e coefficients
     # TODO: biomass is not included, and will need to be added in a future version
     fuel_emission_factors = {
-        "NATURAL_GAS": convert(147.3, "lb/MBtu", "lb/kBtu"),
-        "FUEL_OIL_2": convert(195.9, "lb/MBtu", "lb/kBtu"),
-        "LIQUID_PETROLEUM_GAS": convert(177.8, "lb/MBtu", "lb/kBtu"),
+        FuelType.NATURAL_GAS: convert(147.3, "lb/MBtu", "lb/kBtu"),
+        FuelType.FUEL_OIL_2: convert(195.9, "lb/MBtu", "lb/kBtu"),
+        FuelType.LIQUID_PETROLEUM_GAS: convert(177.8, "lb/MBtu", "lb/kBtu"),
     }
 
     # define FOSSIL_FUEL types to allocate proper 'a' and 'b' coefficients in fuel_coefficients dictionary
-    fossil_fuel_types = ["NATURAL_GAS", "FUEL_OIL_2", "LIQUID_PETROLEUM_GAS"]
-    energy_types = fossil_fuel_types + ["ELECTRICITY"]
-    system_types = ["space_heating", "space_cooling", "water_heating"]
-    other_end_uses = ["lighting_and_appliance", "ventilation", "dehumidification"]
-
-    time_types = ["annual", "hourly"]
+    fossil_fuel_types = [
+        FuelType.NATURAL_GAS,
+        FuelType.FUEL_OIL_2,
+        FuelType.LIQUID_PETROLEUM_GAS,
+    ]
+    fuel_types = fossil_fuel_types + [FuelType.ELECTRICITY]
+    system_end_uses = [
+        EndUse.SPACE_HEATING,
+        EndUse.SPACE_COOLING,
+        EndUse.WATER_HEATING,
+    ]
+    other_end_uses = [
+        EndUse.LIGHTING_AND_APPLIANCE,
+        EndUse.VENTILATION,
+        EndUse.DEHUMIDIFCATION,
+    ]
+    end_uses = system_end_uses + other_end_uses
 
     # '_system_output" and "_energy" are added to simplify code for co2e emission calculation
-    system_types_system_output = [
-        system_type + "_system_output" for system_type in system_types
-    ]
+    end_uses_system_output = [end_use + "_system_output" for end_use in system_end_uses]
     other_end_uses_energy = [
         other_end_use + "_energy" for other_end_use in other_end_uses
     ]
@@ -71,22 +114,108 @@ class HERSDiagnosticData:
     NUMBER_OF_TIMESTEPS = 8760
 
     def __init__(self, file):
+
+        self._hers_index = -1.0
+        self._co2_index = -1.0
+        self._iaf_rh = -1.0
+        self._aco2 = -1.0
+        self._arco2 = -1.0
+        self._pe_frac = -1.0
+        self._tnml = -1.0
+        self._trl = -1.0
+        self._teu = -1.0
+        self._opp = -1.0
+        self._bsl = -1.0
+        self._iad_save = -1.0
+        self._iaf_cfa = -1.0
+        self._iaf_nbr = -1.0
+        self._iaf_ns = -1.0
+        self._tnml_iad = -1.0
+        self._trl_iad = -1.0
+        self._nmeul_heat = -1.0
+        self._nmeul_cool = -1.0
+        self._nmeul_hw = -1.0
+        self._ec_la = -1.0
+        self._ec_vent = -1.0
+        self._ec_dh = -1.0
+        self._nmeul_heat_iad = -1.0
+        self._nmeul_cool_iad = -1.0
+        self._nmeul_hw_iad = -1.0
+        self._ec_la_iad = -1.0
+        self._ec_vent_iad = -1.0
+        self._ec_dh_iad = -1.0
+        self._reul_heat = -1.0
+        self._reul_cool = -1.0
+        self._reul_hw = -1.0
+        self._rec_la = -1.0
+        self._rec_vent = -1.0
+        self._rec_dh = -1.0
+        self._reul_heat_iad = -1.0
+        self._reul_cool_iad = -1.0
+        self._reul_hw_iad = -1.0
+        self._rec_la_iad = -1.0
+        self._rec_vent_iad = -1.0
+        self._rec_dh_iad = -1.0
+
+        self.hers_index_set = False
+        self.co2_index_set = False
+        self.iaf_rh_set = False
+        self.aco2_set = False
+        self.arco2_set = False
+        self.pe_frac_set = False
+        self.tnml_set = False
+        self.trl_set = False
+        self.teu_set = False
+        self.opp_set = False
+        self.bsl_set = False
+        self.iad_save_set = False
+        self.iaf_cfa_set = False
+        self.iaf_nbr_set = False
+        self.iaf_ns_set = False
+        self.tnml_iad_set = False
+        self.trl_iad_set = False
+        self.nmeul_heat_set = False
+        self.nmeul_cool_set = False
+        self.nmeul_hw_set = False
+        self.ec_la_set = False
+        self.ec_vent_set = False
+        self.ec_dh_set = False
+        self.nmeul_heat_iad_set = False
+        self.nmeul_cool_iad_set = False
+        self.nmeul_hw_iad_set = False
+        self.ec_la_iad_set = False
+        self.ec_vent_iad_set = False
+        self.ec_dh_iad_set = False
+        self.reul_heat_set = False
+        self.reul_cool_set = False
+        self.reul_hw_set = False
+        self.rec_la_set = False
+        self.rec_vent_set = False
+        self.rec_dh_set = False
+        self.reul_heat_iad_set = False
+        self.reul_cool_iad_set = False
+        self.reul_hw_iad_set = False
+        self.rec_la_iad_set = False
+        self.rec_vent_iad_set = False
+        self.rec_dh_iad_set = False
+
         # load data
         # determine number of sub-systems for each system type (ex. determine number of heating systems)
         self.data = lattice.load(file)
+        self.software = self.data["software_name"]
+        self.project_name = self.data["project_name"]
+
         self.number_of_systems = {}
-        for system_type in self.system_types:
-            self.number_of_systems[system_type] = len(
-                self.data["rated_home_output"][f"{system_type}_system_output"]
+        for end_use in self.system_end_uses:
+            self.number_of_systems[end_use] = len(
+                self.data["rated_home_output"][f"{end_use}_system_output"]
             )
         self.number_of_other_end_uses = {}
         for other_end_use in self.other_end_uses:
-            try:
+            if f"{other_end_use}_energy" in self.data["rated_home_output"]:
                 self.number_of_other_end_uses[other_end_use] = len(
                     self.data["rated_home_output"][f"{other_end_use}_energy"]
                 )
-            except:
-                pass
 
         # initialize energy use for each fuel type and home type to calculate co2e emissions
         # TODO: there will be several layers to the data cache
@@ -95,410 +224,1064 @@ class HERSDiagnosticData:
         self.data_cache = {}
 
         for home_type in self.co2_home_types:
-            for energy_type in self.energy_types:
-                for time_type in self.time_types:
-                    if time_type == "hourly":
-                        self.data_cache[(energy_type, home_type, time_type)] = [
-                            0
-                        ] * self.NUMBER_OF_TIMESTEPS
-                    elif time_type == "annual":
-                        self.data_cache[(energy_type, home_type, time_type)] = 0
+            for energy_type in self.fuel_types:
+                if energy_type == FuelType.ELECTRICITY:
+                    self.data_cache[(energy_type, home_type, "hourly")] = [
+                        0
+                    ] * self.NUMBER_OF_TIMESTEPS
+                else:
+                    self.data_cache[(energy_type, home_type, "annual")] = 0
 
-        self.emissions = {"rated_home": 0, "co2_reference_home": 0}
+        self.emissions = {
+            HomeType.RATED_HOME: 0,
+            HomeType.CO2_REFERENCE_HOME: 0,
+        }
+
+        self.annual_subsystem_energy_cache = {}
+        self.annual_energy_cache = {}
+        self.annual_end_use_energy_cache = {}
+        self.annual_fuel_type_energy_cache = {}
+        self.hourly_electricity_use = [0] * self.NUMBER_OF_TIMESTEPS
+        self.hourly_electricity_emission_factors_kwh = self.data[
+            "electricity_co2_emissions_factors"
+        ]
+        self.hourly_electricity_emission_factors_kbtu = convert(
+            self.data["electricity_co2_emissions_factors"],
+            "lb/kWh",
+            "lb/kBtu",
+        )
+
+    @property
+    def hers_index(self):
+        if self.hers_index_set:
+            return self._hers_index
+        else:
+            self.hers_index = self.pe_frac * self.tnml / (self.trl * self.iaf_rh) * 100
+            return self._hers_index
+
+    @hers_index.setter
+    def hers_index(self, hers_index):
+        self._hers_index = hers_index
+        self.hers_index_set = True
+
+    @property
+    def co2_index(self):
+        if self.co2_index_set:
+            return self._co2_index
+        else:
+            self.co2_index = (
+                self.aco2 / (self.arco2 * self.iaf_rh) * 100
+            )  # CO2 Index = ACO2 / ARCO2 * 100
+            return self._co2_index
+
+    @co2_index.setter
+    def co2_index(self, co2_index):
+        self._co2_index = co2_index
+        self.co2_index_set = True
+
+    @property
+    def iaf_rh(self):
+        if self.iaf_rh_set:
+            return self._iaf_rh
+        else:
+            self.iaf_rh = (
+                self.iaf_cfa * self.iaf_nbr * self.iaf_ns
+            )  # IAF_RH = IAF_CFA * IAF_Nbr * IAF_NS
+            return self._iaf_rh
+
+    @iaf_rh.setter
+    def iaf_rh(self, iaf_rh):
+        self._iaf_rh = iaf_rh
+        self.iaf_rh_set = True
+
+    @property
+    def aco2(self):
+        if self.aco2_set:
+            return self._aco2
+        else:
+            self.aco2 = self.get_annual_hourly_co2_emissions(HomeType.RATED_HOME)
+            return self._aco2
+
+    @aco2.setter
+    def aco2(self, aco2):
+        self._aco2 = aco2
+        self.aco2_set = True
+
+    @property
+    def arco2(self):
+        if self.arco2_set:
+            return self._arco2
+        else:
+            self.arco2 = self.get_annual_hourly_co2_emissions(
+                HomeType.CO2_REFERENCE_HOME
+            )
+            return self._arco2
+
+    @arco2.setter
+    def arco2(self, arco2):
+        self._arco2 = arco2
+        self.arco2_set = True
+
+    @property
+    def pe_frac(self):
+        if self.pe_frac_set:
+            return self._pe_frac
+        else:
+            self.pe_frac = (
+                self.teu - self.opp + self.bsl
+            ) / self.teu  # PEfrac = (TEU - OPP) / TEU
+            return self._pe_frac
+
+    @pe_frac.setter
+    def pe_frac(self, pe_frac):
+        self._pe_frac = pe_frac
+        self.pe_frac_set = True
+
+    @property
+    def tnml(self):
+        if self.tnml_set:
+            return self._tnml
+        else:
+            self.tnml = self.get_total_normalized_modified_load(HomeType.RATED_HOME)
+            return self._tnml
+
+    @tnml.setter
+    def tnml(self, tnml):
+        self._tnml = tnml
+        self.tnml_set = True
+
+    @property
+    def trl(self):
+        if self.trl_set:
+            return self._trl
+        else:
+            self.trl = self.get_total_reference_home_load(HomeType.HERS_REFERENCE_HOME)
+            return self._trl
+
+    @trl.setter
+    def trl(self, trl):
+        self._trl = trl
+        self.trl_set = True
+
+    @property
+    def teu(self):
+        if self.teu_set:
+            return self._teu
+        else:
+            self.teu = convert(self.get_total_energy_use_rated_home(), "kWh", "MBtu")
+            return self._teu
+
+    @teu.setter
+    def teu(self, teu):
+        self._teu = teu
+        self.teu_set = True
+
+    @property
+    def opp(self):
+        if self.opp_set:
+            return self._opp
+        else:
+            self.opp = convert(self.get_on_site_power_production(), "kWh", "MBtu")
+            return self._opp
+
+    @opp.setter
+    def opp(self, opp):
+        self._opp = opp
+        self.opp_set = True
+
+    @property
+    def bsl(self):
+        if self.bsl_set:
+            return self._bsl
+        else:
+            self.bsl = convert(
+                self.get_battery_storage_charge_discharge(), "kWh", "MBtu"
+            )
+            return self._bsl
+
+    @bsl.setter
+    def bsl(self, bsl):
+        self._bsl = bsl
+        self.bsl_set = True
+
+    @property
+    def iad_save(self):
+        if self.iad_save_set:
+            return self._iad_save
+        else:
+            self.iad_save = self.get_index_adjustment_design_savings()
+            return self._iad_save
+
+    @iad_save.setter
+    def iad_save(self, iad_save):
+        self._iad_save = iad_save
+        self.iad_save_set = True
+
+    @property
+    def iaf_cfa(self):
+        if self.iaf_cfa_set:
+            return self._iaf_cfa
+        else:
+            self.iaf_cfa = self.get_index_adjustment_factor_conditioned_floor_area()
+            return self._iaf_cfa
+
+    @iaf_cfa.setter
+    def iaf_cfa(self, iaf_cfa):
+        self._iaf_cfa = iaf_cfa
+        self.iaf_cfa_set = True
+
+    @property
+    def iaf_nbr(self):
+        if self.iaf_nbr_set:
+            return self._iaf_nbr
+        else:
+            self.iaf_nbr = self.get_index_adjustment_factor_number_of_bedrooms()
+            return self._iaf_nbr
+
+    @iaf_nbr.setter
+    def iaf_nbr(self, iaf_nbr):
+        self._iaf_nbr = iaf_nbr
+        self.iaf_nbr_set = True
+
+    @property
+    def iaf_ns(self):
+        if self.iaf_ns_set:
+            return self._iaf_ns
+        else:
+            self.iaf_ns = self.get_index_adjustment_factor_number_of_stories()
+            return self._iaf_ns
+
+    @iaf_ns.setter
+    def iaf_ns(self, iaf_ns):
+        self._iaf_ns = iaf_ns
+        self.iaf_ns_set = True
+
+    @property
+    def tnml_iad(self):
+        if self.tnml_iad_set:
+            return self._tnml_iad
+        else:
+            self.tnml_iad = self.get_total_normalized_modified_load(
+                HomeType.IAD_RATED_HOME
+            )
+            return self._tnml_iad
+
+    @tnml_iad.setter
+    def tnml_iad(self, tnml_iad):
+        self._tnml_iad = tnml_iad
+        self.tnml_iad_set = True
+
+    @property
+    def trl_iad(self):
+        if self.trl_iad_set:
+            return self._trl_iad
+        else:
+            self.trl_iad = self.get_total_reference_home_load(
+                HomeType.IAD_HERS_REFERENCE_HOME
+            )
+            return self._trl_iad
+
+    @trl_iad.setter
+    def trl_iad(self, trl_iad):
+        self._trl_iad = trl_iad
+        self.trl_iad_set = True
+
+    # Rated Home
+    @property
+    def nmeul_heat(self):
+        if self.nmeul_heat_set:
+            return self._nmeul_heat
+        else:
+            self.nmeul_heat = self.get_end_use_energy_consumption(
+                HomeType.RATED_HOME, EndUse.SPACE_HEATING
+            )
+            return self._nmeul_heat
+
+    @nmeul_heat.setter
+    def nmeul_heat(self, nmeul_heat):
+        self._nmeul_heat = nmeul_heat
+        self.nmeul_heat_set = True
+
+    @property
+    def nmeul_cool(self):
+        if self.nmeul_cool_set:
+            return self._nmeul_cool
+        else:
+            self.nmeul_cool = self.get_end_use_energy_consumption(
+                HomeType.RATED_HOME, EndUse.SPACE_COOLING
+            )
+            return self._nmeul_cool
+
+    @nmeul_cool.setter
+    def nmeul_cool(self, nmeul_cool):
+        self._nmeul_cool = nmeul_cool
+        self.nmeul_cool_set = True
+
+    @property
+    def nmeul_hw(self):
+        if self.nmeul_hw_set:
+            return self._nmeul_hw
+        else:
+            self.nmeul_hw = self.get_end_use_energy_consumption(
+                HomeType.RATED_HOME, EndUse.WATER_HEATING
+            )
+            return self._nmeul_hw
+
+    @nmeul_hw.setter
+    def nmeul_hw(self, nmeul_hw):
+        self._nmeul_hw = nmeul_hw
+        self.nmeul_hw_set = True
+
+    @property
+    def ec_la(self):
+        if self.ec_la_set:
+            return self._ec_la
+        else:
+            self.ec_la = self.get_annual_end_use_energy(
+                HomeType.RATED_HOME, EndUse.LIGHTING_AND_APPLIANCE
+            )
+            return self._ec_la
+
+    @ec_la.setter
+    def ec_la(self, ec_la):
+        self._ec_la = ec_la
+        self.ec_la_set = True
+
+    @property
+    def ec_vent(self):
+        if self.ec_vent_set:
+            return self._ec_vent
+        else:
+            self.ec_vent = self.get_annual_end_use_energy(
+                HomeType.RATED_HOME, EndUse.VENTILATION
+            )
+            return self._ec_vent
+
+    @ec_vent.setter
+    def ec_vent(self, ec_vent):
+        self._ec_vent = ec_vent
+        self.ec_vent_set = True
+
+    @property
+    def ec_dh(self):
+        if self.ec_dh_set:
+            return self._ec_dh
+        else:
+            self.ec_dh = self.get_annual_end_use_energy(
+                HomeType.RATED_HOME, EndUse.DEHUMIDIFCATION
+            )
+            return self._ec_dh
+
+    @ec_dh.setter
+    def ec_dh(self, ec_dh):
+        self._ec_dh = ec_dh
+        self.ec_dh_set = True
+
+    # Reference Home
+    @property
+    def reul_heat(self):
+        if self.reul_heat_set:
+            return self._reul_heat
+        else:
+            self.reul_heat = self.get_reference_home_system_load(
+                HomeType.HERS_REFERENCE_HOME, EndUse.SPACE_HEATING
+            )
+            return self._reul_heat
+
+    @reul_heat.setter
+    def reul_heat(self, reul_heat):
+        self._reul_heat = reul_heat
+        self.reul_heat_set = True
+
+    @property
+    def reul_cool(self):
+        if self.reul_cool_set:
+            return self._reul_cool
+        else:
+            self.reul_cool = self.get_reference_home_system_load(
+                HomeType.HERS_REFERENCE_HOME, EndUse.SPACE_COOLING
+            )
+            return self._reul_cool
+
+    @reul_cool.setter
+    def reul_cool(self, reul_cool):
+        self._reul_cool = reul_cool
+        self.reul_cool_set = True
+
+    @property
+    def reul_hw(self):
+        if self.reul_hw_set:
+            return self._reul_hw
+        else:
+            self.reul_hw = self.get_reference_home_system_load(
+                HomeType.HERS_REFERENCE_HOME, EndUse.WATER_HEATING
+            )
+            return self._reul_hw
+
+    @reul_hw.setter
+    def reul_hw(self, reul_hw):
+        self._reul_hw = reul_hw
+        self.reul_hw_set = True
+
+    @property
+    def rec_la(self):
+        if self.rec_la_set:
+            return self._rec_la
+        else:
+            self.rec_la = self.get_annual_end_use_energy(
+                HomeType.HERS_REFERENCE_HOME, EndUse.LIGHTING_AND_APPLIANCE
+            )
+            return self._rec_la
+
+    @rec_la.setter
+    def rec_la(self, rec_la):
+        self._rec_la = rec_la
+        self.rec_la_set = True
+
+    @property
+    def rec_vent(self):
+        if self.rec_vent_set:
+            return self._rec_vent
+        else:
+            self.rec_vent = self.get_annual_end_use_energy(
+                HomeType.HERS_REFERENCE_HOME, EndUse.VENTILATION
+            )
+            return self._rec_vent
+
+    @rec_vent.setter
+    def rec_vent(self, rec_vent):
+        self._rec_vent = rec_vent
+        self.rec_vent_set = True
+
+    @property
+    def rec_dh(self):
+        if self.rec_dh_set:
+            return self._rec_dh
+        else:
+            self.rec_dh = self.get_annual_end_use_energy(
+                HomeType.HERS_REFERENCE_HOME, EndUse.DEHUMIDIFCATION
+            )
+            return self._rec_dh
+
+    @rec_dh.setter
+    def rec_dh(self, rec_dh):
+        self._rec_dh = rec_dh
+        self.rec_dh_set = True
+
+    # IAD Rated Home
+    @property
+    def nmeul_heat_iad(self):
+        if self.nmeul_heat_iad_set:
+            return self._nmeul_heat_iad
+        else:
+            self.nmeul_heat_iad = self.get_end_use_energy_consumption(
+                HomeType.IAD_RATED_HOME, EndUse.SPACE_HEATING
+            )
+            return self._nmeul_heat_iad
+
+    @nmeul_heat_iad.setter
+    def nmeul_heat_iad(self, nmeul_heat_iad):
+        self._nmeul_heat_iad = nmeul_heat_iad
+        self.nmeul_heat_iad_set = True
+
+    @property
+    def nmeul_cool_iad(self):
+        if self.nmeul_cool_iad_set:
+            return self._nmeul_cool_iad
+        else:
+            self.nmeul_cool_iad = self.get_end_use_energy_consumption(
+                HomeType.IAD_RATED_HOME, EndUse.SPACE_COOLING
+            )
+            return self._nmeul_cool_iad
+
+    @nmeul_cool_iad.setter
+    def nmeul_cool_iad(self, nmeul_cool_iad):
+        self._nmeul_cool_iad = nmeul_cool_iad
+        self.nmeul_cool_iad_set = True
+
+    @property
+    def nmeul_hw_iad(self):
+        if self.nmeul_hw_iad_set:
+            return self._nmeul_hw_iad
+        else:
+            self.nmeul_hw_iad = self.get_end_use_energy_consumption(
+                HomeType.IAD_RATED_HOME, EndUse.WATER_HEATING
+            )
+            return self._nmeul_hw_iad
+
+    @nmeul_hw_iad.setter
+    def nmeul_hw_iad(self, nmeul_hw_iad):
+        self._nmeul_hw_iad = nmeul_hw_iad
+        self.nmeul_hw_iad_set = True
+
+    @property
+    def ec_la_iad(self):
+        if self.ec_la_iad_set:
+            return self._ec_la_iad
+        else:
+            self.ec_la_iad = self.get_annual_end_use_energy(
+                HomeType.IAD_RATED_HOME,
+                EndUse.LIGHTING_AND_APPLIANCE,
+            )
+            return self._ec_la_iad
+
+    @ec_la_iad.setter
+    def ec_la_iad(self, ec_la_iad):
+        self._ec_la_iad = ec_la_iad
+        self.ec_la_iad_set = True
+
+    @property
+    def ec_vent_iad(self):
+        if self.ec_vent_iad_set:
+            return self._ec_vent_iad
+        else:
+            self.ec_vent_iad = self.get_annual_end_use_energy(
+                HomeType.IAD_RATED_HOME, EndUse.VENTILATION
+            )
+            return self._ec_vent_iad
+
+    @ec_vent_iad.setter
+    def ec_vent_iad(self, ec_vent_iad):
+        self._ec_vent_iad = ec_vent_iad
+        self.ec_vent_iad_set = True
+
+    @property
+    def ec_dh_iad(self):
+        if self.ec_dh_iad_set:
+            return self._ec_dh_iad
+        else:
+            self.ec_dh_iad = self.get_annual_end_use_energy(
+                HomeType.IAD_RATED_HOME, EndUse.DEHUMIDIFCATION
+            )
+            return self._ec_dh_iad
+
+    @ec_dh_iad.setter
+    def ec_dh_iad(self, ec_dh_iad):
+        self._ec_dh_iad = ec_dh_iad
+        self.ec_dh_iad_set = True
+
+    # IAD Reference Home
+    @property
+    def reul_heat_iad(self):
+        if self.reul_heat_iad_set:
+            return self._reul_heat_iad
+        else:
+            self.reul_heat_iad = self.get_reference_home_system_load(
+                HomeType.IAD_HERS_REFERENCE_HOME, EndUse.SPACE_HEATING
+            )
+            return self._reul_heat_iad
+
+    @reul_heat_iad.setter
+    def reul_heat_iad(self, reul_heat_iad):
+        self._reul_heat_iad = reul_heat_iad
+        self.reul_heat_iad_set = True
+
+    @property
+    def reul_cool_iad(self):
+        if self.reul_cool_iad_set:
+            return self._reul_cool_iad
+        else:
+            self.reul_cool_iad = self.get_reference_home_system_load(
+                HomeType.IAD_HERS_REFERENCE_HOME, EndUse.SPACE_COOLING
+            )
+            return self._reul_cool_iad
+
+    @reul_cool_iad.setter
+    def reul_cool_iad(self, reul_cool_iad):
+        self._reul_cool_iad = reul_cool_iad
+        self.reul_cool_iad_set = True
+
+    @property
+    def reul_hw_iad(self):
+        if self.reul_hw_iad_set:
+            return self._reul_hw_iad
+        else:
+            self.reul_hw_iad = self.get_reference_home_system_load(
+                HomeType.IAD_HERS_REFERENCE_HOME, EndUse.WATER_HEATING
+            )
+            return self._reul_hw_iad
+
+    @reul_hw_iad.setter
+    def reul_hw_iad(self, reul_hw_iad):
+        self._reul_hw_iad = reul_hw_iad
+        self.reul_hw_iad_set = True
+
+    @property
+    def rec_la_iad(self):
+        if self.rec_la_iad_set:
+            return self._rec_la_iad
+        else:
+            self.rec_la_iad = self.get_annual_end_use_energy(
+                HomeType.IAD_HERS_REFERENCE_HOME,
+                EndUse.LIGHTING_AND_APPLIANCE,
+            )
+            return self._rec_la_iad
+
+    @rec_la_iad.setter
+    def rec_la_iad(self, rec_la_iad):
+        self._rec_la_iad = rec_la_iad
+        self.rec_la_iad_set = True
+
+    @property
+    def rec_vent_iad(self):
+        if self.rec_vent_iad_set:
+            return self._rec_vent_iad
+        else:
+            self.rec_vent_iad = self.get_annual_end_use_energy(
+                HomeType.IAD_HERS_REFERENCE_HOME, EndUse.VENTILATION
+            )
+            return self._rec_vent_iad
+
+    @rec_vent_iad.setter
+    def rec_vent_iad(self, rec_vent_iad):
+        self._rec_vent_iad = rec_vent_iad
+        self.rec_vent_iad_set = True
+
+    @property
+    def rec_dh_iad(self):
+        if self.rec_dh_iad_set:
+            return self._rec_dh_iad
+        else:
+            self.rec_dh_iad = self.get_annual_end_use_energy(
+                HomeType.IAD_HERS_REFERENCE_HOME, EndUse.DEHUMIDIFCATION
+            )
+            return self._rec_dh_iad
+
+    @rec_dh_iad.setter
+    def rec_dh_iad(self, rec_dh_iad):
+        self._rec_dh_iad = rec_dh_iad
+        self.rec_dh_iad_set = True
 
     def get_system_energy_efficiency_coefficient(
-        self, home_type, system_type, system_index
+        self, home_type, end_use, system_index
     ):
         # EEC_x for rated home
         # EEC_r for reference home
         # Retrieve energy efficiency coefficient for each system type and sub-system type
-        return self.data[f"{home_type}_output"][f"{system_type}_system_output"][
+        return self.data[f"{home_type}_output"][f"{end_use}_system_output"][
             system_index
         ]["equipment_efficiency_coefficient"]
 
-    def get_system_fuel_type(self, home_type, system_type, system_index):
+    def get_system_fuel_type(self, home_type, end_use, system_index):
         # Retrieve fuel type
-        return self.data[f"{home_type}_output"][f"{system_type}_system_output"][
+        return self.data[f"{home_type}_output"][f"{end_use}_system_output"][
             system_index
         ]["primary_fuel_type"]
 
-    def get_system_fuel_type_co2(self, home_type, system_type, system_index):
-        # Retrieve fuel type
-        return self.data[f"{home_type}_output"][f"{system_type}_system_output"][
-            system_index
-        ]["energy_use"]
-
-    def get_system_energy_consumption(self, home_type, system_type, system_index):
+    def get_system_energy_consumption(self, home_type, end_use, system_index):
         # EC_x for rated home
         # EC_r for reference home
         # Retrieve energy consumption for each system type and sub-system type
         energy_consumption = 0
-        for energy_use in self.data[f"{home_type}_output"][
-            f"{system_type}_system_output"
-        ][system_index]["energy_use"]:
-            energy_consumption += sum(energy_use["energy"])
+        for energy_use in self.data[f"{home_type}_output"][f"{end_use}_system_output"][
+            system_index
+        ]["energy_use"]:
+            energy_consumption += self.get_system_end_use_annual_energy(
+                home_type, end_use, energy_use["fuel_type"], system_index
+            )
 
         return energy_consumption
 
-    def calculate_normalized_energy_consumption(
-        self, home_type, reference_home_type, system_type, system_index
+    def get_normalized_energy_consumption(
+        self, home_type, reference_home_type, end_use, system_index
     ):
         # nEC_x = EC_x * (a * EEC_x - b) * (EEC_r/EEC_x)
         # Retrieve energy consumption for each sub system and normalize the energy consumption
         # with the proper energy coefficients, 'a' and 'b'
-        EC_x = self.get_system_energy_consumption(home_type, system_type, system_index)
-        EEC_x = self.get_system_energy_efficiency_coefficient(
-            home_type, system_type, system_index
+        ec_x = self.get_system_energy_consumption(home_type, end_use, system_index)
+        eec_x = self.get_system_energy_efficiency_coefficient(
+            home_type, end_use, system_index
         )
-        EEC_r = self.get_system_energy_efficiency_coefficient(
-            reference_home_type, system_type, system_index
+        eec_r = self.get_system_energy_efficiency_coefficient(
+            reference_home_type, end_use, system_index
         )
-        fuel_type = self.get_system_fuel_type(home_type, system_type, system_index)
+        fuel_type = self.get_system_fuel_type(home_type, end_use, system_index)
         if fuel_type in self.fossil_fuel_types:
-            fuel_type = "FOSSIL_FUEL"
-        a = self.fuel_coefficients[(system_type, fuel_type)]["a"]
-        b = self.fuel_coefficients[(system_type, fuel_type)]["b"]
+            fuel_type = FuelType.FOSSIL_FUEL
+        a = self.fuel_coefficients[(end_use, fuel_type)]["a"]
+        b = self.fuel_coefficients[(end_use, fuel_type)]["b"]
 
-        return EC_x * (a * EEC_x - b) * (EEC_r / EEC_x)
+        return ec_x * (a * eec_x - b) * (eec_r / eec_x)
 
-    def get_system_loads(self, home_type, system_type, system_index):
-        # TODO: change name to get_system...
-        # TODO: if new calculation --> store, if already calculated --> retrieve
+    def get_system_loads(self, home_type, end_use, system_index):
         # REUL
         return sum(
-            self.data[f"{home_type}_output"][f"{system_type}_system_output"][
-                system_index
-            ]["load"]
+            self.data[f"{home_type}_output"][f"{end_use}_system_output"][system_index][
+                "load"
+            ]
         )
 
-    def calculate_normalized_modified_load(self, system_type, system_index, home_type):
+    def get_normalized_modified_load(self, end_use, system_index, home_type):
         # nMEUL  = REUL * nEC_x / EC_r
-        if home_type == "rated_home":
-            reference_home_type = "hers_reference_home"
-        elif home_type == "iad_rated_home":
-            reference_home_type = "iad_hers_reference_home"
+        if home_type == HomeType.RATED_HOME:
+            reference_home_type = HomeType.HERS_REFERENCE_HOME
+        elif home_type == HomeType.IAD_RATED_HOME:
+            reference_home_type = HomeType.IAD_HERS_REFERENCE_HOME
         else:
             raise NameError(
                 "'home_type' must be equal to 'rated_home' or 'iad_rated_home'."
             )
 
-        REUL = self.get_system_loads(reference_home_type, system_type, system_index)
-        nEC_x = self.calculate_normalized_energy_consumption(
-            home_type, reference_home_type, system_type, system_index
+        reul = self.get_system_loads(reference_home_type, end_use, system_index)
+        nec_x = self.get_normalized_energy_consumption(
+            home_type, reference_home_type, end_use, system_index
         )
-        EC_r = self.get_system_energy_consumption(
-            reference_home_type, system_type, system_index
+        ec_r = self.get_system_energy_consumption(
+            reference_home_type, end_use, system_index
         )
 
-        return REUL * nEC_x / EC_r
+        return reul * nec_x / ec_r
 
-    def calculate_other_end_use_system_energy_types(self, home_type, other_end_use):
-        # sum other end use system energy use (ex. lighting and appliances may use electricity and natural gas; this ensures both natural gas and electricity are accounted for)
-
-        system_total = 0
-        home_type_output = self.data[f"{home_type}_output"]
-        other_end_use_energy = f"{other_end_use}_energy"
-
-        if other_end_use_energy not in home_type_output:
-            return system_total
-
-        energy_output = home_type_output[other_end_use_energy]
-
-        for fuel_type_index in range(len(energy_output)):
-            system_total += sum(energy_output[fuel_type_index]["energy"])
-
-        return system_total
-
-    def calculate_other_end_use_energy_consumption(self, home_type):
-        # EC for lighting and appliances, ventilation, and dehumidification
-        # REC for lighting and appliances, ventilation, and dehumidification
-
+    def get_end_use_energy_consumption(self, home_type, end_use):
         end_use_total = 0
-
-        for other_end_use in self.other_end_uses:
-            end_use_total += self.calculate_other_end_use_system_energy_types(
-                home_type, other_end_use
+        for system_index in range(self.number_of_systems[end_use]):
+            end_use_total += self.get_normalized_modified_load(
+                end_use, system_index, home_type
             )
-
         return end_use_total
 
-    def calculate_total_normalized_modified_load(self, home_type):
+    def get_total_normalized_modified_load(self, home_type):
         # TnML = nMEUL_HEAT + nMEUL_COOL + nMEUL_HW + EC_LA + EC_VENT + EC_DH
+        if home_type == HomeType.RATED_HOME:
+            return (
+                self.nmeul_heat
+                + self.nmeul_cool
+                + self.nmeul_hw
+                + self.ec_la
+                + self.ec_vent
+                + self.ec_dh
+            )
+        elif home_type == HomeType.IAD_RATED_HOME:
+            return (
+                self.nmeul_heat_iad
+                + self.nmeul_cool_iad
+                + self.nmeul_hw_iad
+                + self.ec_la_iad
+                + self.ec_vent_iad
+                + self.ec_dh_iad
+            )
+        else:
+            raise NameError(
+                f"{home_type} is not a valid home_type in calculate_total_normalized_modified_load."
+            )
 
-        # Calculate total normalized rated home loads for heating (nMEUL_HEAT), cooling (nMEUL_COOL), and hot water (nMEUL_HW)
-        nMEUL_total = 0
-        for system_type in self.system_types:
-            # self.nMEUL = { TODO: create nMEUL dictionary cache
-            #     "heating": [],
-            #     "cooling": [],
-            # }
-            for system_index in range(self.number_of_systems[system_type]):
-                nMEUL_total += self.calculate_normalized_modified_load(
-                    system_type, system_index, home_type
-                )
+    def get_reference_home_system_load(self, home_type, end_use):
+        reul_system = 0
+        for system_index in range(self.number_of_systems[end_use]):
+            reul_system += self.get_system_loads(home_type, end_use, system_index)
+        return reul_system
 
-        # Calculate rated home other end use energy consumption (lighting and appliances (EC_LA),
-        # ventilation (EC_VENT), and dehumidification (EC_DH))
-        EC_end_use_total = self.calculate_other_end_use_energy_consumption(home_type)
-
-        return nMEUL_total + EC_end_use_total
-
-    def calculate_total_reference_home_load(self, home_type):
+    def get_total_reference_home_load(self, home_type):
         # TRL = REUL_HEAT + REUL_COOL + REUL_HW + REC_LA + REC_VENT + REC_DH
 
-        # Calculate total reference home loads for heating (REUL_HEAT), cooling (REUL_COOL), and hot water (REUL_HW)
-        REUL_total = 0
-        for system_type in self.system_types:
-            for system_index in range(self.number_of_systems[system_type]):
-                REUL_total += self.get_system_loads(
-                    home_type, system_type, system_index
-                )
+        if home_type == HomeType.HERS_REFERENCE_HOME:
+            return (
+                self.reul_heat
+                + self.reul_cool
+                + self.reul_hw
+                + self.rec_la
+                + self.rec_vent
+                + self.rec_dh
+            )
+        elif home_type == HomeType.IAD_HERS_REFERENCE_HOME:
+            return (
+                self.reul_heat_iad
+                + self.reul_cool_iad
+                + self.reul_hw_iad
+                + self.rec_la_iad
+                + self.rec_vent_iad
+                + self.rec_dh_iad
+            )
+        else:
+            raise NameError(
+                f"{home_type} is not a valid home_type in calculate_total_reference_home_load."
+            )
 
-        # Calculate reference home other end use energy consumption (lighting and appliances (REC_LA),
-        # ventilation (REC_VENT), and dehumidification (REC_DH))
-        REC_system_total = self.calculate_other_end_use_energy_consumption(home_type)
-
-        return REUL_total + REC_system_total
-
-    def calculate_energy_type_total_energy(self, energy_use, home_type):
+    def get_energy_type_total_energy(self, energy_use, home_type):
         # add annual energy use by fuel type for each system to data_cache dictionary
         # data_cache will be used to sum energy use by fuel type for rated home and co2 reference home and calculate annual co2e emissions
 
         fuel_type = energy_use["fuel_type"]
         energy = energy_use["energy"]
 
-        self.data_cache[(fuel_type, home_type, "hourly")] = element_add(
-            self.data_cache[(fuel_type, home_type, "hourly")], energy
-        )
-        self.data_cache[(fuel_type, home_type, "annual")] += sum(energy)
+        if fuel_type == FuelType.ELECTRICITY:
+            self.data_cache[(fuel_type, home_type, "hourly")] = element_add(
+                self.data_cache[(fuel_type, home_type, "hourly")], energy
+            )
+        else:
+            self.data_cache[(fuel_type, home_type, "annual")] += sum(energy)
 
-    def multiply_energy_use_and_emission_factors(self):
-        # multiply co2e emission factors with each fuel type and home type, and then find annual co2e emissions for each home type
+    def get_system_end_use_annual_energy(
+        self,
+        home_type,
+        end_use,
+        fuel_type,
+        system_index,
+    ):
+        if (
+            home_type,
+            end_use,
+            fuel_type,
+            system_index,
+        ) not in self.annual_subsystem_energy_cache:
+            self.annual_subsystem_energy_cache[
+                (home_type, end_use, fuel_type, system_index)
+            ] = self.get_fuel_energy(
+                fuel_type,
+                self.data[f"{home_type}_output"][f"{end_use}_system_output"][
+                    system_index
+                ]["energy_use"],
+            )
+        return self.annual_subsystem_energy_cache[
+            (home_type, end_use, fuel_type, system_index)
+        ]
 
-        for key in self.data_cache.keys():
-            fuel_type = key[0]
-            home_type = key[1]
-            if home_type != "hers_reference_home":
-                if fuel_type == "ELECTRICITY":
-                    # conversion of electricity co2e lb/kWh to lb/kbtu is included in calculation below
-                    self.emissions[home_type] += convert(
-                        sum(
-                            element_product(
-                                self.data["electricity_co2_emissions_factors"],
-                                self.data_cache[(fuel_type, home_type, "hourly")],
-                            )
-                        ),
-                        "lb/kWh",
-                        "lb/kBtu",
+    def get_fuel_energy(self, fuel_type, energy_uses):
+        total_energy = 0
+        for energy_use in energy_uses:
+            if fuel_type == energy_use["fuel_type"]:
+                total_energy += sum(energy_use["energy"])
+        return total_energy
+
+    def get_annual_energy(self, home_type, end_use, fuel_type):
+        if (home_type, end_use, fuel_type) not in self.annual_energy_cache:
+            total_energy = 0
+            if end_use in self.system_end_uses:
+                for system_index, energy_data in enumerate(
+                    self.data[f"{home_type}_output"][f"{end_use}_system_output"]
+                ):
+                    total_energy += self.get_system_end_use_annual_energy(
+                        home_type,
+                        end_use,
+                        fuel_type,
+                        system_index,
                     )
-                else:
-                    self.emissions[home_type] += (
-                        self.data_cache[(fuel_type, home_type, "annual")]
-                        * self.fuel_emission_factors[fuel_type]
-                    )
+            else:  # other end uses
+                if f"{end_use}_energy" in self.data[f"{home_type}_output"]:
+                    energy_data = self.data[f"{home_type}_output"][f"{end_use}_energy"]
+                    total_energy += self.get_fuel_energy(fuel_type, energy_data)
+            self.annual_energy_cache[(home_type, end_use, fuel_type)] = total_energy
+        return self.annual_energy_cache[(home_type, end_use, fuel_type)]
 
-    def calculate_annual_hourly_co2_emissions(self):
-        # retrieve energy use for each subsystem and multiply energy by emissions factors
+    def get_annual_end_use_energy(self, home_type, end_use):
+        if (home_type, end_use) not in self.annual_end_use_energy_cache:
+            total_energy = 0
+            for fuel_type in self.fuel_types:
+                total_energy += self.get_annual_energy(home_type, end_use, fuel_type)
+            self.annual_end_use_energy_cache[(home_type, end_use)] = total_energy
+        return self.annual_end_use_energy_cache[(home_type, end_use)]
 
-        for home_type in ["rated_home", "co2_reference_home"]:
-            for system_type in self.data[f"{home_type}_output"]:
-                if system_type in self.system_types_system_output:
-                    for system_index in range(
-                        len(self.data[f"{home_type}_output"][system_type])
-                    ):
-                        for energy_use in self.data[f"{home_type}_output"][system_type][
-                            system_index
-                        ]["energy_use"]:
-                            self.calculate_energy_type_total_energy(
-                                energy_use, home_type
+    def get_annual_fuel_type_energy(self, home_type, fuel_type):
+        if (home_type, fuel_type) not in self.annual_fuel_type_energy_cache:
+            total_energy = 0
+            for end_use in self.end_uses:
+                total_energy += self.get_annual_energy(home_type, end_use, fuel_type)
+            self.annual_fuel_type_energy_cache[(home_type, fuel_type)] = total_energy
+        return self.annual_fuel_type_energy_cache[(home_type, fuel_type)]
+
+    def get_hourly_electricity_emissions(self, home_type):
+        for end_use in self.end_uses:
+            if end_use in self.system_end_uses:
+                for energy_data in self.data[f"{home_type}_output"][
+                    f"{end_use}_system_output"
+                ]:
+                    for energy_use in energy_data["energy_use"]:
+                        if energy_use["fuel_type"] == FuelType.ELECTRICITY:
+                            self.hourly_electricity_use = element_add(
+                                energy_use["energy"], self.hourly_electricity_use
                             )
-                elif system_type in self.other_end_uses_energy:
-                    for energy_use in self.data[f"{home_type}_output"][system_type]:
-                        self.calculate_energy_type_total_energy(energy_use, home_type)
+            else:  # other end uses
+                if f"{end_use}_energy" in self.data[f"{home_type}_output"]:
+                    for energy_use in self.data[f"{home_type}_output"][
+                        f"{end_use}_energy"
+                    ]:
+                        if energy_use["fuel_type"] == FuelType.ELECTRICITY:
+                            self.hourly_electricity_use = element_add(
+                                energy_use["energy"], self.hourly_electricity_use
+                            )
+        return self.hourly_electricity_use
 
-            if "on_site_power_production" in self.data:
-                self.calculate_energy_type_total_energy(
-                    {
-                        "fuel_type": "ELECTRICITY",
-                        "energy": [
-                            convert(-value, "kWh", "kBtu")
-                            for value in self.data["on_site_power_production"]
-                        ],
-                    },
-                    "rated_home",
+    def get_annual_hourly_co2_emissions(self, home_type):
+        emissions = 0
+        for fuel_type in self.fuel_types:
+            if fuel_type == FuelType.ELECTRICITY:
+                emissions += sum(
+                    element_product(
+                        self.get_hourly_electricity_emissions(home_type),
+                        self.hourly_electricity_emission_factors_kbtu,
+                    )
                 )
-            if "battery_storage" in self.data:
-                self.calculate_energy_type_total_energy(
-                    {
-                        "fuel_type": "ELECTRICITY",
-                        "energy": [
-                            convert(value, "kWh", "kBtu")
-                            for value in self.data["battery_storage"]
-                        ],
-                    },
-                    "rated_home",
+            else:
+                emissions += (
+                    self.get_annual_fuel_type_energy(home_type, fuel_type)
+                    * self.fuel_emission_factors[fuel_type]
                 )
+        if "on_site_power_production" in self.data:
+            emissions += sum(
+                element_product(
+                    [-value for value in self.data["on_site_power_production"]],  # kWh
+                    self.hourly_electricity_emission_factors_kwh,  # lb/kWh
+                )
+            )
+        if "battery_storage" in self.data:
+            emissions += sum(
+                element_product(
+                    self.data["battery_storage"],
+                    self.hourly_electricity_emission_factors_kwh,
+                )
+            )
+        return emissions
 
-        self.multiply_energy_use_and_emission_factors()
-
-    def calculate_iad_hers_index(self):
+    def get_iad_hers_index(self):
         # ERI = TnML_IAD / TRL_IAD
 
-        TnML_IAD = self.calculate_total_normalized_modified_load("iad_rated_home")
-        TRL_IAD = self.calculate_total_reference_home_load("iad_hers_reference_home")
+        return self.tnml_iad / self.trl_iad * 100
 
-        return TnML_IAD / TRL_IAD
-
-    def calculate_index_adjustment_design_savings(self):
+    def get_index_adjustment_design_savings(self):
         # IAD_SAVE = (100 - ERI_IAD) / 100
 
-        ERI_IAD = self.calculate_iad_hers_index() * 100
+        eri_iad = self.get_iad_hers_index()
 
-        return (100 - ERI_IAD) / 100
+        return (100 - eri_iad) / 100
 
-    def calculate_index_adjustment_factor_conditioned_floor_area(self, IAD_SAVE):
+    def get_index_adjustment_factor_conditioned_floor_area(self):
         # IAF_RH = (2400/CFA) ^ (0.304 * IAD_SAVE)
 
-        CFA = self.data["conditioned_floor_area"]
+        cfa = self.data["conditioned_floor_area"]
 
-        return (2400 / CFA) ** (0.304 * IAD_SAVE)
+        return (2400 / cfa) ** (0.304 * self.iad_save)
 
-    def calculate_index_adjustment_factor_number_of_bedrooms(self, IAD_SAVE):
+    def get_index_adjustment_factor_number_of_bedrooms(self):
         # IAF_Nbr = 1 + (0.069 * IAD_SAVE * (NBr - 3))
 
-        NBr = self.data["number_of_bedrooms"]
+        nbr = self.data["number_of_bedrooms"]
 
-        return 1 + (0.069 * IAD_SAVE * (NBr - 3))
+        return 1 + (0.069 * self.iad_save * (nbr - 3))
 
-    def calculate_index_adjustment_factor_number_of_stories(self, IAD_SAVE):
+    def get_index_adjustment_factor_number_of_stories(self):
         # IAF_NS = (2/NS) ^ (0.12 * IAD_SAVE)
 
-        NS = self.data["number_of_stories"]
+        ns = self.data["number_of_stories"]
 
-        return (2 / NS) ** (0.12 * IAD_SAVE)
-
-    def calculate_index_adjustment_factor_rated_home(self):
-        # IAF_RH = IAF_CFA * IAF_Nbr * IAF_NS
-
-        IAD_SAVE = self.calculate_index_adjustment_design_savings()
-        IAF_CFA = self.calculate_index_adjustment_factor_conditioned_floor_area(
-            IAD_SAVE
-        )
-        IAF_Nbr = self.calculate_index_adjustment_factor_number_of_bedrooms(IAD_SAVE)
-        IAF_NS = self.calculate_index_adjustment_factor_number_of_stories(IAD_SAVE)
-        return IAF_CFA * IAF_Nbr * IAF_NS
+        return (2 / ns) ** (0.12 * self.iad_save)
 
     def get_fuel_conversion(self, fuel_type):
         # If fuel type is a fossil fuel, return 0.4, else return 1
 
         if fuel_type in self.fossil_fuel_types:
             return 0.4
-        else:
-            return 1
+        return 1.0
 
-    def get_annual_energy_use_or_consumption(self, energy_use_hourly):
-        # return the annual energy use from an 8760 array
-
-        return sum(energy_use_hourly)
-
-    def calculate_sub_system_energy_use(self, energy_use_specs):
+    def get_sub_system_energy_use(self, energy_use_specs):
         # Calculate the sub-system energy use, converted into kWh
 
         energy_use_hourly = energy_use_specs["energy"]
         fuel_type = energy_use_specs["fuel_type"]
         return convert(
-            self.get_annual_energy_use_or_consumption(energy_use_hourly)
-            * self.get_fuel_conversion(fuel_type),
+            sum(energy_use_hourly) * self.get_fuel_conversion(fuel_type),
             "kBtu",
             "kWh",
         )
 
-    def calculate_total_energy_use_rated_home(self):
+    def get_total_energy_use_rated_home(self):
         # calculate total energy use from the rated home
 
-        TEU = 0
-        for system_type, number_of_systems in self.number_of_systems.items():
+        teu = 0
+        for end_use, number_of_systems in self.number_of_systems.items():
             number_of_systems = len(
-                self.data["rated_home_output"][f"{system_type}_system_output"]
+                self.data["rated_home_output"][f"{end_use}_system_output"]
             )
             for system_index in range(number_of_systems):
                 for energy_use_specs in self.data["rated_home_output"][
-                    f"{system_type}_system_output"
+                    f"{end_use}_system_output"
                 ][system_index]["energy_use"]:
-                    TEU += self.calculate_sub_system_energy_use(energy_use_specs)
+                    teu += self.get_sub_system_energy_use(energy_use_specs)
         for other_end_use, number_of_systems in self.number_of_other_end_uses.items():
             for energy_use_specs in self.data["rated_home_output"][
                 f"{other_end_use}_energy"
             ]:
-                TEU += self.calculate_sub_system_energy_use(energy_use_specs)
-        return TEU
+                teu += self.get_sub_system_energy_use(energy_use_specs)
+        return teu
 
-    def calculate_battery_storage_charge_discharge(self):
+    def get_battery_storage_charge_discharge(self):
         # Calculate net annual battery storage losses of the rated home
 
-        try:
+        if "battery_storage" in self.data:
             return sum(self.data["battery_storage"])
-        except:
-            return 0.0
+        return 0.0
 
-    def calculate_on_site_power_production(self):
+    def get_on_site_power_production(self):
         # Calculate on-site power production (OPP)
 
-        try:
-            return self.get_annual_energy_use_or_consumption(
-                self.data["on_site_power_production"]
-            )
-        except:
-            return 0.0
-
-    def calculate_pefrac(self):
-        # PEfrac = (TEU - OPP) / TEU
-        TEU = convert(self.calculate_total_energy_use_rated_home(), "kWh", "MBtu")
-        OPP = convert(self.calculate_on_site_power_production(), "kWh", "MBtu")
-        BSL = convert(self.calculate_battery_storage_charge_discharge(), "kWh", "MBtu")
-        return (TEU - OPP + BSL) / TEU
-
-    def calculate_hers_index(self):
-        # ERI = PEfrac * (TnML / TRL * IAF_RH) * 100
-
-        PEfrac = self.calculate_pefrac()
-        TnML = self.calculate_total_normalized_modified_load("rated_home")
-        TRL = self.calculate_total_reference_home_load("hers_reference_home")
-        IAF_RH = self.calculate_index_adjustment_factor_rated_home()
-        HERS_INDEX = PEfrac * TnML / (TRL * IAF_RH) * 100
-        return HERS_INDEX
-
-    def calculate_carbon_index(self):
-        # CO2 Index = ACO2 / ARCO2 * 100
-
-        self.calculate_annual_hourly_co2_emissions()
-        ACO2 = self.emissions["rated_home"]
-        ARCO2 = self.emissions["co2_reference_home"]
-        IAF_RH = self.calculate_index_adjustment_factor_rated_home()
-        return ACO2 / (ARCO2 * IAF_RH) * 100
+        if "on_site_power_production" in self.data:
+            return sum(self.data["on_site_power_production"])
+        return 0.0
 
     def check_index_mismatch(self, index_name, calculated_index, output_index):
         difference_ratio = (calculated_index - output_index) / output_index
         if difference_ratio >= self.INDEX_TOLERANCE:
             raise RuntimeError(
-                f"""\n{self.data["project_name"]} {index_name} outside tolerance.\nCalculated Index: {calculated_index:.2f}\nOutput Index: {output_index:.2f}\nPercent Difference: {difference_ratio*100:.2f}%"""
+                f"""\n{self.project_name} {index_name} outside tolerance.\nCalculated Index: {calculated_index:.2f}\nOutput Index: {output_index:.2f}\nPercent Difference: {difference_ratio*100:.2f}%"""
             )
         else:
-            print(f"""{self.data["project_name"]} {index_name} within tolerance.""")
+            print(f"""{self.project_name} {index_name} within tolerance.""")
 
     def verify_hers_index(self):
         self.check_index_mismatch(
-            "HERS Index", self.calculate_hers_index(), self.data["hers_index"]
+            "HERS Index", self.hers_index, self.data["hers_index"]
         )
 
     def verify_carbon_index(self):
         self.check_index_mismatch(
-            "CO2 Index", self.calculate_carbon_index(), self.data["carbon_index"]
+            "CO2 Index", self.co2_index, self.data["carbon_index"]
         )
 
     def verify(self):
         self.verify_hers_index()
         self.verify_carbon_index()
 
+    def get_hers_index_intermediaries(self) -> Dict:
 
-# REUL calculation is repeated. This could be simplified by caching data in a dictionary.
+        return {
+            "hers_index": self.hers_index,
+            "co2_index": self.co2_index,
+            "iaf_rh": self.iaf_rh,
+            "aco2": self.aco2,
+            "arco2": self.arco2,
+            "pe_frac": self.pe_frac,
+            "tnml": self.tnml,
+            "trl": self.trl,
+            "teu": self.teu,
+            "opp": self.opp,
+            "bsl": self.bsl,
+            "iad_save": self.iad_save,
+            "iaf_cfa": self.iaf_cfa,
+            "iaf_nbr": self.iaf_nbr,
+            "iaf_ns": self.iaf_ns,
+            "tnml_iad": self.tnml_iad,
+            "trl_iad": self.trl_iad,
+            "nmeul_heat": self.nmeul_heat,
+            "nmeul_cool": self.nmeul_cool,
+            "nmeul_hw": self.nmeul_hw,
+            "ec_la": self.ec_la,
+            "ec_vent": self.ec_vent,
+            "ec_dh": self.ec_dh,
+            "nmeul_heat_iad": self.nmeul_heat_iad,
+            "nmeul_cool_iad": self.nmeul_cool_iad,
+            "nmeul_hw_iad": self.nmeul_hw_iad,
+            "ec_la_iad": self.ec_la_iad,
+            "ec_vent_iad": self.ec_vent_iad,
+            "ec_dh_iad": self.ec_dh_iad,
+            "reul_heat": self.reul_heat,
+            "reul_cool": self.reul_cool,
+            "reul_hw": self.reul_hw,
+            "rec_la": self.rec_la,
+            "rec_vent": self.rec_vent,
+            "rec_dh": self.rec_dh,
+            "reul_heat_iad": self.reul_heat_iad,
+            "reul_cool_iad": self.reul_cool_iad,
+            "reul_hw_iad": self.reul_hw_iad,
+            "rec_la_iad": self.rec_la_iad,
+            "rec_vent_iad": self.rec_vent_iad,
+            "rec_dh_iad": self.rec_dh_iad,
+        }
