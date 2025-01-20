@@ -6,10 +6,14 @@ packages = [{include = "hers_diagnostic_output"}]
 version = "0.3.0"
 
 [tool.poetry.dependencies]
+dimes = {path = "../dimes"}
 koozie = "*"
 lattice = {git = "https://github.com/bigladder/lattice.git", branch = "main"}# {git = "https://github.com/bigladder/lattice.git", branch = "main"} #{path = "../lattice", develop = true} # "0.1.4"
-pandas = "2.2.1"
-python = "^3.9"
+numpy = "*"
+pandas = "2.1.4"
+pygit2 = "^1.15.1"
+python = "^3.10"
+python-openblas-build = "*"
 
 [tool.poetry.group.dev.dependencies]
 doit = "0.36.0"
