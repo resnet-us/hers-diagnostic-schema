@@ -12,13 +12,19 @@ color_palette = plotly.colors.qualitative.Set1
 directory_path = Path("examples")
 # file_paths = [file for file in directory_path.iterdir()]  # add if statement
 
-files = [
-    "base",
-    "base-hvac-multiple",
-    "base-hvac-air-to-air-heat-pump-1-speed",
-]
+files = {
+    "base": "Software A",
+    "base-hvac-multiple": "Software B",
+    "base-hvac-air-to-air-heat-pump-1-speed": "Software C",
+}
 
-file_paths = [Path(directory_path, f"{file}.json") for file in files]
+file_paths = [Path(directory_path, f"{file}.json") for file in files.keys()]
+names = [name for name in files.values()]
+
+plot_scale = 5
+
+width = 1280
+height = 720
 
 
 def sum_lists(list1, list2):
@@ -47,26 +53,7 @@ class DateData:
 year = 2025
 
 date_data_dict = [
-    DateData(
-        datetime(year, 1, 1, 0),
-        datetime(year, 12, 31, 0),
-        TimeFrequency.day,
-    ),
-    DateData(
-        datetime(year, 7, 23, 0),
-        datetime(year, 8, 9, 0),
-        TimeFrequency.day,
-    ),
-    DateData(
-        datetime(year, 1, 1, 0),
-        datetime(year, 12, 31, 0),
-        TimeFrequency.hour,
-    ),
-    DateData(
-        datetime(year, 8, 3, 0),
-        datetime(year, 8, 9, 0),
-        TimeFrequency.hour,
-    ),
+    DateData(datetime(year, 1, 1, 0), datetime(year, 12, 31, 0), TimeFrequency.hour),
 ]
 
 january_1 = datetime(year, 1, 1, 0)
@@ -90,26 +77,12 @@ for plot_index, date_data in enumerate(date_data_dict):
             (beginning_of_time.days * 24 + beginning_of_time.seconds / 3600) + 1
         )
     end_data_index = start_data_index + len(time)
-    # if (start_date == datetime(year, 1, 1)) & (end_date == datetime(year, 12, 31)):
-    #     subtitle = "Entire Year"
-    # else:
-    #     subtitle = f"""{start_date.strftime("%b %d")} - {end_date.strftime("%b %d")}"""
     plot = DimensionalPlot(
         time,
-        title=f"OS-ERI<br>{time_frequency.value} Cooling System Energy Consumption<br>Denver, CO",
+        title="Cooling System Energy Consumption<br>Denver, CO",
     )
 
-    for color_index, file_path in enumerate(file_paths):
-        name = " ".join(
-            [
-                (
-                    sub_string.upper()
-                    if sub_string.lower() == "hvac"
-                    else sub_string.capitalize()
-                )
-                for sub_string in file_path.name.replace(".json", "").split("-")
-            ]
-        )
+    for color_index, (file_path, name) in enumerate(zip(file_paths, names)):
         color = color_palette[color_index]
         data = HERSDiagnosticData(file_path)
         cooling_data_hourly = [0] * 8760
@@ -135,7 +108,13 @@ for plot_index, date_data in enumerate(date_data_dict):
                 name=name,
                 native_units="kBtu",
                 y_axis_name="Energy Consumption",
+                is_visible=True if name == "Software A" else False,
             )
         )
-    plot.write_html_plot(Path(f"test_{plot_index}.html"))
-    plot.write_image_plot(Path(f"test_{plot_index}.jpeg"), scale=2, width=1, height=1)
+    plot.write_image_plot(
+        Path("Kruis-Consistency-RESNET-2025-example-plot.png"),
+        width=width,
+        height=height,
+        scale=plot_scale,
+    )
+    plot.write_html_plot(Path("Kruis-Consistency-RESNET-2025-example-plot.html"))
