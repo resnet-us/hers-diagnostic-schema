@@ -3,11 +3,12 @@ authors = [{name = "Big Ladder Software"}]
 dependencies = [
   "koozie",
   "lattice",
-  "pandas==2.2.1",
+  "pandas",
+  "ruff>=0.11.5",
 ]
 description = ""
 name = "hers-diagnostic-output"
-requires-python = "~=3.10"
+requires-python = ">=3.10"
 version = "0.3.0"
 
 [dependency-groups]
@@ -24,7 +25,7 @@ default-groups = [
 ]
 
 [tool.uv.sources]
-lattice = {git = "https://github.com/bigladder/lattice.git", branch = "main"}
+lattice = {git = "https://github.com/bigladder/lattice.git", rev = "6157ed7"}
 
 [tool.hatch.build.targets.sdist]
 include = ["hers_diagnostic_output"]
