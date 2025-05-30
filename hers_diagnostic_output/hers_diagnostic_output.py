@@ -30,7 +30,7 @@ class EndUseSystem:
     home_type: str
 
 
-class HomeType:
+class HomeType(Enum):
     RATED_HOME = "rated_home"
     HERS_REFERENCE_HOME = "hers_reference_home"
     CO2_REFERENCE_HOME = "co2_reference_home"
@@ -38,7 +38,7 @@ class HomeType:
     IAD_HERS_REFERENCE_HOME = "iad_hers_reference_home"
 
 
-class EndUse:
+class EndUse(Enum):
     SPACE_HEATING = "space_heating"
     SPACE_COOLING = "space_cooling"
     WATER_HEATING = "water_heating"
@@ -47,7 +47,7 @@ class EndUse:
     DEHUMIDIFCATION = "dehumidification"
 
 
-class FuelType:
+class FuelType(Enum):
     ELECTRICITY = "ELECTRICITY"
     BIOMASS = "BIOMASS"
     NATURAL_GAS = "NATURAL_GAS"
@@ -104,9 +104,11 @@ class HERSDiagnosticData:
     end_uses = system_end_uses + other_end_uses
 
     # '_system_output" and "_energy" are added to simplify code for co2e emission calculation
-    end_uses_system_output = [end_use + "_system_output" for end_use in system_end_uses]
+    end_uses_system_output = [
+        end_use.value + "_system_output" for end_use in system_end_uses
+    ]
     other_end_uses_energy = [
-        other_end_use + "_energy" for other_end_use in other_end_uses
+        other_end_use.value + "_energy" for other_end_use in other_end_uses
     ]
 
     INDEX_TOLERANCE = 0.005
