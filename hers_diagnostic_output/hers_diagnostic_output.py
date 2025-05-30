@@ -115,7 +115,6 @@ class HERSDiagnosticData:
     NUMBER_OF_TIMESTEPS = 8760
 
     def __init__(self, file):
-
         self._hers_index = -1.0
         self._co2_index = -1.0
         self._iaf_rh = -1.0
