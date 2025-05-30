@@ -57,7 +57,6 @@ class FuelType:
 
 
 class HERSDiagnosticData:
-
     # Define coefficients 'a' and 'b based on Table 4.1.1(1) in Standard 301 for
     # space heating, space cooling, and water heating
     fuel_coefficients = {
