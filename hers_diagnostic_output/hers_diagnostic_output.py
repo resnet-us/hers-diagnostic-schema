@@ -30,7 +30,7 @@ class EndUseSystem:
     home_type: str
 
 
-class HomeType:
+class HomeType(Enum):
     RATED_HOME = "rated_home"
     HERS_REFERENCE_HOME = "hers_reference_home"
     CO2_REFERENCE_HOME = "co2_reference_home"
@@ -38,7 +38,7 @@ class HomeType:
     IAD_HERS_REFERENCE_HOME = "iad_hers_reference_home"
 
 
-class EndUse:
+class EndUse(Enum):
     SPACE_HEATING = "space_heating"
     SPACE_COOLING = "space_cooling"
     WATER_HEATING = "water_heating"
@@ -47,7 +47,7 @@ class EndUse:
     DEHUMIDIFCATION = "dehumidification"
 
 
-class FuelType:
+class FuelType(Enum):
     ELECTRICITY = "ELECTRICITY"
     BIOMASS = "BIOMASS"
     NATURAL_GAS = "NATURAL_GAS"
@@ -57,7 +57,6 @@ class FuelType:
 
 
 class HERSDiagnosticData:
-
     # Define coefficients 'a' and 'b based on Table 4.1.1(1) in Standard 301 for
     # space heating, space cooling, and water heating
     fuel_coefficients = {
@@ -105,16 +104,17 @@ class HERSDiagnosticData:
     end_uses = system_end_uses + other_end_uses
 
     # '_system_output" and "_energy" are added to simplify code for co2e emission calculation
-    end_uses_system_output = [end_use + "_system_output" for end_use in system_end_uses]
+    end_uses_system_output = [
+        end_use.value + "_system_output" for end_use in system_end_uses
+    ]
     other_end_uses_energy = [
-        other_end_use + "_energy" for other_end_use in other_end_uses
+        other_end_use.value + "_energy" for other_end_use in other_end_uses
     ]
 
     INDEX_TOLERANCE = 0.005
     NUMBER_OF_TIMESTEPS = 8760
 
     def __init__(self, file):
-
         self._hers_index = -1.0
         self._co2_index = -1.0
         self._iaf_rh = -1.0
@@ -1221,7 +1221,7 @@ class HERSDiagnosticData:
         difference_ratio = (calculated_index - output_index) / output_index
         if difference_ratio >= self.INDEX_TOLERANCE:
             raise RuntimeError(
-                f"""\n{self.project_name} {index_name} outside tolerance.\nCalculated Index: {calculated_index:.2f}\nOutput Index: {output_index:.2f}\nPercent Difference: {difference_ratio*100:.2f}%"""
+                f"""\n{self.project_name} {index_name} outside tolerance.\nCalculated Index: {calculated_index:.2f}\nOutput Index: {output_index:.2f}\nPercent Difference: {difference_ratio * 100:.2f}%"""
             )
         else:
             print(f"""{self.project_name} {index_name} within tolerance.""")
@@ -1241,7 +1241,6 @@ class HERSDiagnosticData:
         self.verify_carbon_index()
 
     def get_hers_index_intermediaries(self) -> Dict:
-
         return {
             "hers_index": self.hers_index,
             "co2_index": self.co2_index,
