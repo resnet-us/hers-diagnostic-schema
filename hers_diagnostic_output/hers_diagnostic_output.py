@@ -1,11 +1,10 @@
 """Package calculating HERS Index."""
 
-from pathlib import Path
-import lattice  # type: ignore
-from koozie import convert  # type: ignore
-import pandas as pd
 from enum import Enum
-from typing import Dict
+from typing import Dict, List
+
+from koozie import convert  # type: ignore
+import lattice  # type: ignore
 
 
 def element_add(list1, list2):
