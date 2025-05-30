@@ -6,3 +6,5 @@ build/
 __pycache__/
 .lattice/
 .venv/
+examples/
+test-bak/
