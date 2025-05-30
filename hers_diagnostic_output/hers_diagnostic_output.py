@@ -1,11 +1,10 @@
 """Package calculating HERS Index."""
 
-from pathlib import Path
-import lattice  # type: ignore
-from koozie import convert  # type: ignore
-import pandas as pd
 from enum import Enum
-from typing import Dict
+from typing import Dict, List
+
+from koozie import convert  # type: ignore
+import lattice  # type: ignore
 
 
 def element_add(list1, list2):
@@ -59,55 +58,55 @@ class FuelType(Enum):
 class HERSDiagnosticData:
     # Define coefficients 'a' and 'b based on Table 4.1.1(1) in Standard 301 for
     # space heating, space cooling, and water heating
-    fuel_coefficients = {
-        (EndUse.SPACE_HEATING, FuelType.ELECTRICITY): {"a": 2.2561, "b": 0},
+    fuel_coefficients: Dict[tuple[EndUse, FuelType], Dict[str, float]] = {
+        (EndUse.SPACE_HEATING, FuelType.ELECTRICITY): {"a": 2.2561, "b": 0.0},
         (EndUse.SPACE_HEATING, FuelType.FOSSIL_FUEL): {
             "a": 1.0943,
             "b": 0.403,
         },
         (EndUse.SPACE_HEATING, FuelType.BIOMASS): {"a": 0.885, "b": 0.4047},
-        (EndUse.SPACE_COOLING, FuelType.ELECTRICITY): {"a": 3.809, "b": 0},
-        (EndUse.WATER_HEATING, FuelType.ELECTRICITY): {"a": 0.92, "b": 0},
+        (EndUse.SPACE_COOLING, FuelType.ELECTRICITY): {"a": 3.809, "b": 0.0},
+        (EndUse.WATER_HEATING, FuelType.ELECTRICITY): {"a": 0.92, "b": 0.0},
         (EndUse.WATER_HEATING, FuelType.FOSSIL_FUEL): {
             "a": 1.1877,
             "b": 1.013,
         },
     }
 
-    co2_home_types = [HomeType.RATED_HOME, HomeType.CO2_REFERENCE_HOME]
+    co2_home_types: List[HomeType] = [HomeType.RATED_HOME, HomeType.CO2_REFERENCE_HOME]
 
     # Fossil fuel co2e coefficients
     # TODO: biomass is not included, and will need to be added in a future version
-    fuel_emission_factors = {
+    fuel_emission_factors: Dict[FuelType, float] = {
         FuelType.NATURAL_GAS: convert(147.3, "lb/MBtu", "lb/kBtu"),
         FuelType.FUEL_OIL_2: convert(195.9, "lb/MBtu", "lb/kBtu"),
         FuelType.LIQUID_PETROLEUM_GAS: convert(177.8, "lb/MBtu", "lb/kBtu"),
     }
 
     # define FOSSIL_FUEL types to allocate proper 'a' and 'b' coefficients in fuel_coefficients dictionary
-    fossil_fuel_types = [
+    fossil_fuel_types: List[FuelType] = [
         FuelType.NATURAL_GAS,
         FuelType.FUEL_OIL_2,
         FuelType.LIQUID_PETROLEUM_GAS,
     ]
-    fuel_types = fossil_fuel_types + [FuelType.ELECTRICITY]
-    system_end_uses = [
+    fuel_types: List[FuelType] = fossil_fuel_types + [FuelType.ELECTRICITY]
+    system_end_uses: List[EndUse] = [
         EndUse.SPACE_HEATING,
         EndUse.SPACE_COOLING,
         EndUse.WATER_HEATING,
     ]
-    other_end_uses = [
+    other_end_uses: List[EndUse] = [
         EndUse.LIGHTING_AND_APPLIANCE,
         EndUse.VENTILATION,
         EndUse.DEHUMIDIFCATION,
     ]
-    end_uses = system_end_uses + other_end_uses
+    end_uses: List[EndUse] = system_end_uses + other_end_uses
 
     # '_system_output" and "_energy" are added to simplify code for co2e emission calculation
-    end_uses_system_output = [
+    end_uses_system_output: List[str] = [
         end_use.value + "_system_output" for end_use in system_end_uses
     ]
-    other_end_uses_energy = [
+    other_end_uses_energy: List[str] = [
         other_end_use.value + "_energy" for other_end_use in other_end_uses
     ]
 
@@ -205,16 +204,16 @@ class HERSDiagnosticData:
         self.software = self.data["software_name"]
         self.project_name = self.data["project_name"]
 
-        self.number_of_systems = {}
+        self.number_of_systems: Dict[EndUse, int] = {}
         for end_use in self.system_end_uses:
             self.number_of_systems[end_use] = len(
-                self.data["rated_home_output"][f"{end_use}_system_output"]
+                self.data["rated_home_output"][f"{end_use.value}_system_output"]
             )
-        self.number_of_other_end_uses = {}
+        self.number_of_other_end_uses: Dict[EndUse, int] = {}
         for other_end_use in self.other_end_uses:
             if f"{other_end_use}_energy" in self.data["rated_home_output"]:
                 self.number_of_other_end_uses[other_end_use] = len(
-                    self.data["rated_home_output"][f"{other_end_use}_energy"]
+                    self.data["rated_home_output"][f"{other_end_use.value}_energy"]
                 )
 
         # initialize energy use for each fuel type and home type to calculate co2e emissions
@@ -853,29 +852,33 @@ class HERSDiagnosticData:
         self.rec_dh_iad_set = True
 
     def get_system_energy_efficiency_coefficient(
-        self, home_type, end_use, system_index
+        self, home_type: HomeType, end_use: EndUse, system_index: int
     ):
         # EEC_x for rated home
         # EEC_r for reference home
         # Retrieve energy efficiency coefficient for each system type and sub-system type
-        return self.data[f"{home_type}_output"][f"{end_use}_system_output"][
+        return self.data[f"{home_type.value}_output"][f"{end_use.value}_system_output"][
             system_index
         ]["equipment_efficiency_coefficient"]
 
-    def get_system_fuel_type(self, home_type, end_use, system_index):
+    def get_system_fuel_type(
+        self, home_type: HomeType, end_use: EndUse, system_index: int
+    ):
         # Retrieve fuel type
-        return self.data[f"{home_type}_output"][f"{end_use}_system_output"][
+        return self.data[f"{home_type.value}_output"][f"{end_use.value}_system_output"][
             system_index
         ]["primary_fuel_type"]
 
-    def get_system_energy_consumption(self, home_type, end_use, system_index):
+    def get_system_energy_consumption(
+        self, home_type: HomeType, end_use: EndUse, system_index: int
+    ):
         # EC_x for rated home
         # EC_r for reference home
         # Retrieve energy consumption for each system type and sub-system type
         energy_consumption = 0
-        for energy_use in self.data[f"{home_type}_output"][f"{end_use}_system_output"][
-            system_index
-        ]["energy_use"]:
+        for energy_use in self.data[f"{home_type.value}_output"][
+            f"{end_use.value}_system_output"
+        ][system_index]["energy_use"]:
             energy_consumption += self.get_system_end_use_annual_energy(
                 home_type, end_use, energy_use["fuel_type"], system_index
             )
@@ -883,7 +886,11 @@ class HERSDiagnosticData:
         return energy_consumption
 
     def get_normalized_energy_consumption(
-        self, home_type, reference_home_type, end_use, system_index
+        self,
+        home_type: HomeType,
+        reference_home_type: HomeType,
+        end_use: EndUse,
+        system_index: int,
     ):
         # nEC_x = EC_x * (a * EEC_x - b) * (EEC_r/EEC_x)
         # Retrieve energy consumption for each sub system and normalize the energy consumption
@@ -903,15 +910,17 @@ class HERSDiagnosticData:
 
         return ec_x * (a * eec_x - b) * (eec_r / eec_x)
 
-    def get_system_loads(self, home_type, end_use, system_index):
+    def get_system_loads(self, home_type: HomeType, end_use: EndUse, system_index: int):
         # REUL
         return sum(
-            self.data[f"{home_type}_output"][f"{end_use}_system_output"][system_index][
-                "load"
-            ]
+            self.data[f"{home_type.value}_output"][f"{end_use.value}_system_output"][
+                system_index
+            ]["load"]
         )
 
-    def get_normalized_modified_load(self, end_use, system_index, home_type):
+    def get_normalized_modified_load(
+        self, home_type: HomeType, end_use: EndUse, system_index: int
+    ):
         # nMEUL  = REUL * nEC_x / EC_r
         if home_type == HomeType.RATED_HOME:
             reference_home_type = HomeType.HERS_REFERENCE_HOME
@@ -932,15 +941,15 @@ class HERSDiagnosticData:
 
         return reul * nec_x / ec_r
 
-    def get_end_use_energy_consumption(self, home_type, end_use):
+    def get_end_use_energy_consumption(self, home_type: HomeType, end_use: EndUse):
         end_use_total = 0
         for system_index in range(self.number_of_systems[end_use]):
             end_use_total += self.get_normalized_modified_load(
-                end_use, system_index, home_type
+                home_type, end_use, system_index
             )
         return end_use_total
 
-    def get_total_normalized_modified_load(self, home_type):
+    def get_total_normalized_modified_load(self, home_type: HomeType):
         # TnML = nMEUL_HEAT + nMEUL_COOL + nMEUL_HW + EC_LA + EC_VENT + EC_DH
         if home_type == HomeType.RATED_HOME:
             return (
@@ -962,16 +971,16 @@ class HERSDiagnosticData:
             )
         else:
             raise NameError(
-                f"{home_type} is not a valid home_type in calculate_total_normalized_modified_load."
+                f"{home_type.value} is not a valid home_type in calculate_total_normalized_modified_load."
             )
 
-    def get_reference_home_system_load(self, home_type, end_use):
+    def get_reference_home_system_load(self, home_type: HomeType, end_use: EndUse):
         reul_system = 0
         for system_index in range(self.number_of_systems[end_use]):
             reul_system += self.get_system_loads(home_type, end_use, system_index)
         return reul_system
 
-    def get_total_reference_home_load(self, home_type):
+    def get_total_reference_home_load(self, home_type: HomeType):
         # TRL = REUL_HEAT + REUL_COOL + REUL_HW + REC_LA + REC_VENT + REC_DH
 
         if home_type == HomeType.HERS_REFERENCE_HOME:
@@ -997,26 +1006,12 @@ class HERSDiagnosticData:
                 f"{home_type} is not a valid home_type in calculate_total_reference_home_load."
             )
 
-    def get_energy_type_total_energy(self, energy_use, home_type):
-        # add annual energy use by fuel type for each system to data_cache dictionary
-        # data_cache will be used to sum energy use by fuel type for rated home and co2 reference home and calculate annual co2e emissions
-
-        fuel_type = energy_use["fuel_type"]
-        energy = energy_use["energy"]
-
-        if fuel_type == FuelType.ELECTRICITY:
-            self.data_cache[(fuel_type, home_type, "hourly")] = element_add(
-                self.data_cache[(fuel_type, home_type, "hourly")], energy
-            )
-        else:
-            self.data_cache[(fuel_type, home_type, "annual")] += sum(energy)
-
     def get_system_end_use_annual_energy(
         self,
-        home_type,
-        end_use,
-        fuel_type,
-        system_index,
+        home_type: HomeType,
+        end_use: EndUse,
+        fuel_type: FuelType,
+        system_index: int,
     ):
         if (
             home_type,
@@ -1028,27 +1023,31 @@ class HERSDiagnosticData:
                 (home_type, end_use, fuel_type, system_index)
             ] = self.get_fuel_energy(
                 fuel_type,
-                self.data[f"{home_type}_output"][f"{end_use}_system_output"][
-                    system_index
-                ]["energy_use"],
+                self.data[f"{home_type.value}_output"][
+                    f"{end_use.value}_system_output"
+                ][system_index]["energy_use"],
             )
         return self.annual_subsystem_energy_cache[
             (home_type, end_use, fuel_type, system_index)
         ]
 
-    def get_fuel_energy(self, fuel_type, energy_uses):
+    def get_fuel_energy(self, fuel_type: FuelType, energy_uses: List[Dict]):
         total_energy = 0
         for energy_use in energy_uses:
             if fuel_type == energy_use["fuel_type"]:
                 total_energy += sum(energy_use["energy"])
         return total_energy
 
-    def get_annual_energy(self, home_type, end_use, fuel_type):
+    def get_annual_energy(
+        self, home_type: HomeType, end_use: EndUse, fuel_type: FuelType
+    ):
         if (home_type, end_use, fuel_type) not in self.annual_energy_cache:
             total_energy = 0
             if end_use in self.system_end_uses:
                 for system_index, energy_data in enumerate(
-                    self.data[f"{home_type}_output"][f"{end_use}_system_output"]
+                    self.data[f"{home_type.value}_output"][
+                        f"{end_use.value}_system_output"
+                    ]
                 ):
                     total_energy += self.get_system_end_use_annual_energy(
                         home_type,
@@ -1057,13 +1056,15 @@ class HERSDiagnosticData:
                         system_index,
                     )
             else:  # other end uses
-                if f"{end_use}_energy" in self.data[f"{home_type}_output"]:
-                    energy_data = self.data[f"{home_type}_output"][f"{end_use}_energy"]
+                if f"{end_use.value}_energy" in self.data[f"{home_type.value}_output"]:
+                    energy_data = self.data[f"{home_type.value}_output"][
+                        f"{end_use.value}_energy"
+                    ]
                     total_energy += self.get_fuel_energy(fuel_type, energy_data)
             self.annual_energy_cache[(home_type, end_use, fuel_type)] = total_energy
         return self.annual_energy_cache[(home_type, end_use, fuel_type)]
 
-    def get_annual_end_use_energy(self, home_type, end_use):
+    def get_annual_end_use_energy(self, home_type: HomeType, end_use: EndUse):
         if (home_type, end_use) not in self.annual_end_use_energy_cache:
             total_energy = 0
             for fuel_type in self.fuel_types:
@@ -1071,7 +1072,7 @@ class HERSDiagnosticData:
             self.annual_end_use_energy_cache[(home_type, end_use)] = total_energy
         return self.annual_end_use_energy_cache[(home_type, end_use)]
 
-    def get_annual_fuel_type_energy(self, home_type, fuel_type):
+    def get_annual_fuel_type_energy(self, home_type: HomeType, fuel_type: FuelType):
         if (home_type, fuel_type) not in self.annual_fuel_type_energy_cache:
             total_energy = 0
             for end_use in self.end_uses:
@@ -1079,11 +1080,11 @@ class HERSDiagnosticData:
             self.annual_fuel_type_energy_cache[(home_type, fuel_type)] = total_energy
         return self.annual_fuel_type_energy_cache[(home_type, fuel_type)]
 
-    def get_hourly_electricity_emissions(self, home_type):
+    def get_hourly_electricity_emissions(self, home_type: HomeType):
         for end_use in self.end_uses:
             if end_use in self.system_end_uses:
-                for energy_data in self.data[f"{home_type}_output"][
-                    f"{end_use}_system_output"
+                for energy_data in self.data[f"{home_type.value}_output"][
+                    f"{end_use.value}_system_output"
                 ]:
                     for energy_use in energy_data["energy_use"]:
                         if energy_use["fuel_type"] == FuelType.ELECTRICITY:
@@ -1091,9 +1092,9 @@ class HERSDiagnosticData:
                                 energy_use["energy"], self.hourly_electricity_use
                             )
             else:  # other end uses
-                if f"{end_use}_energy" in self.data[f"{home_type}_output"]:
-                    for energy_use in self.data[f"{home_type}_output"][
-                        f"{end_use}_energy"
+                if f"{end_use.value}_energy" in self.data[f"{home_type.value}_output"]:
+                    for energy_use in self.data[f"{home_type.value}_output"][
+                        f"{end_use.value}_energy"
                     ]:
                         if energy_use["fuel_type"] == FuelType.ELECTRICITY:
                             self.hourly_electricity_use = element_add(
@@ -1101,7 +1102,7 @@ class HERSDiagnosticData:
                             )
         return self.hourly_electricity_use
 
-    def get_annual_hourly_co2_emissions(self, home_type):
+    def get_annual_hourly_co2_emissions(self, home_type: HomeType):
         emissions = 0
         for fuel_type in self.fuel_types:
             if fuel_type == FuelType.ELECTRICITY:
@@ -1165,7 +1166,7 @@ class HERSDiagnosticData:
 
         return (2 / ns) ** (0.12 * self.iad_save)
 
-    def get_fuel_conversion(self, fuel_type):
+    def get_fuel_conversion(self, fuel_type: FuelType):
         # If fuel type is a fossil fuel, return 0.4, else return 1
 
         if fuel_type in self.fossil_fuel_types:
@@ -1189,16 +1190,16 @@ class HERSDiagnosticData:
         teu = 0
         for end_use, number_of_systems in self.number_of_systems.items():
             number_of_systems = len(
-                self.data["rated_home_output"][f"{end_use}_system_output"]
+                self.data["rated_home_output"][f"{end_use.value}_system_output"]
             )
             for system_index in range(number_of_systems):
                 for energy_use_specs in self.data["rated_home_output"][
-                    f"{end_use}_system_output"
+                    f"{end_use.value}_system_output"
                 ][system_index]["energy_use"]:
                     teu += self.get_sub_system_energy_use(energy_use_specs)
         for other_end_use, number_of_systems in self.number_of_other_end_uses.items():
             for energy_use_specs in self.data["rated_home_output"][
-                f"{other_end_use}_energy"
+                f"{other_end_use.value}_energy"
             ]:
                 teu += self.get_sub_system_energy_use(energy_use_specs)
         return teu
@@ -1217,7 +1218,9 @@ class HERSDiagnosticData:
             return sum(self.data["on_site_power_production"])
         return 0.0
 
-    def check_index_mismatch(self, index_name, calculated_index, output_index):
+    def check_index_mismatch(
+        self, index_name: str, calculated_index: float, output_index: float
+    ):
         difference_ratio = (calculated_index - output_index) / output_index
         if difference_ratio >= self.INDEX_TOLERANCE:
             raise RuntimeError(
