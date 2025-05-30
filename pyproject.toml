@@ -3,7 +3,7 @@ authors = [{name = "Big Ladder Software"}]
 dependencies = [
   "koozie",
   "lattice",
-  "pandas",
+  "pandas>=2.2.3",
   "ruff>=0.11.5",
 ]
 description = ""
