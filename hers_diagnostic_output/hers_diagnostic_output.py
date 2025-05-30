@@ -1241,7 +1241,6 @@ class HERSDiagnosticData:
         self.verify_carbon_index()
 
     def get_hers_index_intermediaries(self) -> Dict:
-
         return {
             "hers_index": self.hers_index,
             "co2_index": self.co2_index,
