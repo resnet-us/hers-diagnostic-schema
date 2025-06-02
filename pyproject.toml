@@ -1,29 +1,38 @@
-[tool.poetry]
-authors = ["Big Ladder Software"]
+[project]
+authors = [{name = "Big Ladder Software"}]
+dependencies = [
+  "koozie",
+  "lattice",
+  "pandas>=2.2.3",
+  "ruff>=0.11.5",
+]
 description = ""
 name = "hers-diagnostic-output"
-packages = [{include = "hers_diagnostic_output"}]
+requires-python = ">=3.10"
 version = "0.3.0"
 
-[tool.poetry.dependencies]
-dimes = {path = "../dimes", develop = true}
-# dimes = {git = "https://github.com/bigladder/dimes", branch = "export-image", develop = true}
-koozie = "*"
-lattice = {git = "https://github.com/bigladder/lattice.git", branch = "main"}# {git = "https://github.com/bigladder/lattice.git", branch = "main"} #{path = "../lattice", develop = true} # "0.1.4"
-numpy = "*"
-pandas = "2.1.4"
-pygit2 = "^1.15.1"
-python = "^3.10"
-python-dateutil = "==2.9.0"
-python-openblas-build = "*"
+[dependency-groups]
+dev = [
+  "doit==0.36.0",
+  "tomli==2.0.1",
+]
+extras = ["pyinstrument"]
 
-[tool.poetry.group.dev.dependencies]
-doit = "0.36.0"
-tomli = "2.0.1"
+[tool.uv]
+default-groups = [
+  "dev",
+  "extras",
+]
 
-[tool.poetry.group.extras.dependencies]
-pyinstrument = "*"
+[tool.uv.sources]
+lattice = {git = "https://github.com/bigladder/lattice.git", rev = "6157ed7"}
+
+[tool.hatch.build.targets.sdist]
+include = ["hers_diagnostic_output"]
+
+[tool.hatch.build.targets.wheel]
+include = ["hers_diagnostic_output"]
 
 [build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]
+build-backend = "hatchling.build"
+requires = ["hatchling"]

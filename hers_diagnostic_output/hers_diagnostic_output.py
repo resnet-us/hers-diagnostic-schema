@@ -865,9 +865,11 @@ class HERSDiagnosticData:
         self, home_type: HomeType, end_use: EndUse, system_index: int
     ):
         # Retrieve fuel type
-        return self.data[f"{home_type.value}_output"][f"{end_use.value}_system_output"][
-            system_index
-        ]["primary_fuel_type"]
+        return FuelType(
+            self.data[f"{home_type.value}_output"][f"{end_use.value}_system_output"][
+                system_index
+            ]["primary_fuel_type"]
+        )
 
     def get_system_energy_consumption(
         self, home_type: HomeType, end_use: EndUse, system_index: int
@@ -880,7 +882,7 @@ class HERSDiagnosticData:
             f"{end_use.value}_system_output"
         ][system_index]["energy_use"]:
             energy_consumption += self.get_system_end_use_annual_energy(
-                home_type, end_use, energy_use["fuel_type"], system_index
+                home_type, end_use, FuelType(energy_use["fuel_type"]), system_index
             )
 
         return energy_consumption
@@ -1034,7 +1036,7 @@ class HERSDiagnosticData:
     def get_fuel_energy(self, fuel_type: FuelType, energy_uses: List[Dict]):
         total_energy = 0
         for energy_use in energy_uses:
-            if fuel_type == energy_use["fuel_type"]:
+            if fuel_type.value == energy_use["fuel_type"]:
                 total_energy += sum(energy_use["energy"])
         return total_energy
 
@@ -1087,7 +1089,7 @@ class HERSDiagnosticData:
                     f"{end_use.value}_system_output"
                 ]:
                     for energy_use in energy_data["energy_use"]:
-                        if energy_use["fuel_type"] == FuelType.ELECTRICITY:
+                        if energy_use["fuel_type"] == FuelType.ELECTRICITY.value:
                             self.hourly_electricity_use = element_add(
                                 energy_use["energy"], self.hourly_electricity_use
                             )
@@ -1096,7 +1098,7 @@ class HERSDiagnosticData:
                     for energy_use in self.data[f"{home_type.value}_output"][
                         f"{end_use.value}_energy"
                     ]:
-                        if energy_use["fuel_type"] == FuelType.ELECTRICITY:
+                        if energy_use["fuel_type"] == FuelType.ELECTRICITY.value:
                             self.hourly_electricity_use = element_add(
                                 energy_use["energy"], self.hourly_electricity_use
                             )
@@ -1177,7 +1179,7 @@ class HERSDiagnosticData:
         # Calculate the sub-system energy use, converted into kWh
 
         energy_use_hourly = energy_use_specs["energy"]
-        fuel_type = energy_use_specs["fuel_type"]
+        fuel_type = FuelType(energy_use_specs["fuel_type"])
         return convert(
             sum(energy_use_hourly) * self.get_fuel_conversion(fuel_type),
             "kBtu",
