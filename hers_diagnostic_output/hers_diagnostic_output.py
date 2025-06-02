@@ -1179,7 +1179,7 @@ class HERSDiagnosticData:
         # Calculate the sub-system energy use, converted into kWh
 
         energy_use_hourly = energy_use_specs["energy"]
-        fuel_type = energy_use_specs["fuel_type"]
+        fuel_type = FuelType(energy_use_specs["fuel_type"])
         return convert(
             sum(energy_use_hourly) * self.get_fuel_conversion(fuel_type),
             "kBtu",
