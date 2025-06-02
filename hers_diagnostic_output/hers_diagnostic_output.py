@@ -865,9 +865,11 @@ class HERSDiagnosticData:
         self, home_type: HomeType, end_use: EndUse, system_index: int
     ):
         # Retrieve fuel type
-        return self.data[f"{home_type.value}_output"][f"{end_use.value}_system_output"][
-            system_index
-        ]["primary_fuel_type"]
+        return FuelType(
+            self.data[f"{home_type.value}_output"][f"{end_use.value}_system_output"][
+                system_index
+            ]["primary_fuel_type"]
+        )
 
     def get_system_energy_consumption(
         self, home_type: HomeType, end_use: EndUse, system_index: int
