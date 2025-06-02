@@ -1089,7 +1089,7 @@ class HERSDiagnosticData:
                     f"{end_use.value}_system_output"
                 ]:
                     for energy_use in energy_data["energy_use"]:
-                        if energy_use["fuel_type"] == FuelType.ELECTRICITY:
+                        if energy_use["fuel_type"] == FuelType.ELECTRICITY.value:
                             self.hourly_electricity_use = element_add(
                                 energy_use["energy"], self.hourly_electricity_use
                             )
@@ -1098,7 +1098,7 @@ class HERSDiagnosticData:
                     for energy_use in self.data[f"{home_type.value}_output"][
                         f"{end_use.value}_energy"
                     ]:
-                        if energy_use["fuel_type"] == FuelType.ELECTRICITY:
+                        if energy_use["fuel_type"] == FuelType.ELECTRICITY.value:
                             self.hourly_electricity_use = element_add(
                                 energy_use["energy"], self.hourly_electricity_use
                             )
