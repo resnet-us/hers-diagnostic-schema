@@ -882,7 +882,7 @@ class HERSDiagnosticData:
             f"{end_use.value}_system_output"
         ][system_index]["energy_use"]:
             energy_consumption += self.get_system_end_use_annual_energy(
-                home_type, end_use, energy_use["fuel_type"], system_index
+                home_type, end_use, FuelType(energy_use["fuel_type"]), system_index
             )
 
         return energy_consumption
@@ -1036,7 +1036,7 @@ class HERSDiagnosticData:
     def get_fuel_energy(self, fuel_type: FuelType, energy_uses: List[Dict]):
         total_energy = 0
         for energy_use in energy_uses:
-            if fuel_type == energy_use["fuel_type"]:
+            if fuel_type.value == energy_use["fuel_type"]:
                 total_energy += sum(energy_use["energy"])
         return total_energy
 
