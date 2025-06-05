@@ -211,7 +211,7 @@ class HERSDiagnosticData:
             )
         self.number_of_other_end_uses: Dict[EndUse, int] = {}
         for other_end_use in self.other_end_uses:
-            if f"{other_end_use}_energy" in self.data["rated_home_output"]:
+            if f"{other_end_use.value}_energy" in self.data["rated_home_output"]:
                 self.number_of_other_end_uses[other_end_use] = len(
                     self.data["rated_home_output"][f"{other_end_use.value}_energy"]
                 )
