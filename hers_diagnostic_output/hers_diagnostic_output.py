@@ -211,7 +211,7 @@ class HERSDiagnosticData:
             )
         self.number_of_other_end_uses: Dict[EndUse, int] = {}
         for other_end_use in self.other_end_uses:
-            if f"{other_end_use}_energy" in self.data["rated_home_output"]:
+            if f"{other_end_use.value}_energy" in self.data["rated_home_output"]:
                 self.number_of_other_end_uses[other_end_use] = len(
                     self.data["rated_home_output"][f"{other_end_use.value}_energy"]
                 )
@@ -240,7 +240,10 @@ class HERSDiagnosticData:
         self.annual_energy_cache = {}
         self.annual_end_use_energy_cache = {}
         self.annual_fuel_type_energy_cache = {}
-        self.hourly_electricity_use = [0] * self.NUMBER_OF_TIMESTEPS
+        self.hourly_electricity_use = {
+            HomeType.RATED_HOME: [0] * self.NUMBER_OF_TIMESTEPS,
+            HomeType.CO2_REFERENCE_HOME: [0] * self.NUMBER_OF_TIMESTEPS,
+        }
         self.hourly_electricity_emission_factors_kwh = self.data[
             "electricity_co2_emissions_factors"
         ]
@@ -1090,8 +1093,9 @@ class HERSDiagnosticData:
                 ]:
                     for energy_use in energy_data["energy_use"]:
                         if energy_use["fuel_type"] == FuelType.ELECTRICITY.value:
-                            self.hourly_electricity_use = element_add(
-                                energy_use["energy"], self.hourly_electricity_use
+                            self.hourly_electricity_use[home_type] = element_add(
+                                energy_use["energy"],
+                                self.hourly_electricity_use[home_type],
                             )
             else:  # other end uses
                 if f"{end_use.value}_energy" in self.data[f"{home_type.value}_output"]:
@@ -1099,10 +1103,11 @@ class HERSDiagnosticData:
                         f"{end_use.value}_energy"
                     ]:
                         if energy_use["fuel_type"] == FuelType.ELECTRICITY.value:
-                            self.hourly_electricity_use = element_add(
-                                energy_use["energy"], self.hourly_electricity_use
+                            self.hourly_electricity_use[home_type] = element_add(
+                                energy_use["energy"],
+                                self.hourly_electricity_use[home_type],
                             )
-        return self.hourly_electricity_use
+        return self.hourly_electricity_use[home_type]
 
     def get_annual_hourly_co2_emissions(self, home_type: HomeType):
         emissions = 0
@@ -1119,20 +1124,23 @@ class HERSDiagnosticData:
                     self.get_annual_fuel_type_energy(home_type, fuel_type)
                     * self.fuel_emission_factors[fuel_type]
                 )
-        if "on_site_power_production" in self.data:
-            emissions += sum(
-                element_product(
-                    [-value for value in self.data["on_site_power_production"]],  # kWh
-                    self.hourly_electricity_emission_factors_kwh,  # lb/kWh
+        if home_type == HomeType.RATED_HOME:
+            if "on_site_power_production" in self.data:
+                emissions += sum(
+                    element_product(
+                        [
+                            -value for value in self.data["on_site_power_production"]
+                        ],  # kWh
+                        self.hourly_electricity_emission_factors_kwh,  # lb/kWh
+                    )
                 )
-            )
-        if "battery_storage" in self.data:
-            emissions += sum(
-                element_product(
-                    self.data["battery_storage"],
-                    self.hourly_electricity_emission_factors_kwh,
+            if "battery_storage" in self.data:
+                emissions += sum(
+                    element_product(
+                        self.data["battery_storage"],
+                        self.hourly_electricity_emission_factors_kwh,
+                    )
                 )
-            )
         return emissions
 
     def get_iad_hers_index(self):
@@ -1224,9 +1232,9 @@ class HERSDiagnosticData:
         self, index_name: str, calculated_index: float, output_index: float
     ):
         difference_ratio = (calculated_index - output_index) / output_index
-        if difference_ratio >= self.INDEX_TOLERANCE:
+        if abs(difference_ratio) >= self.INDEX_TOLERANCE:
             raise RuntimeError(
-                f"""\n{self.project_name} {index_name} outside tolerance.\nCalculated Index: {calculated_index:.2f}\nOutput Index: {output_index:.2f}\nPercent Difference: {difference_ratio * 100:.2f}%"""
+                f"""\n{self.project_name} {index_name} outside tolerance.\nCalculated Index: {calculated_index:.2f}\nOutput Index: {output_index:.2f}\nPercent Difference: {difference_ratio:.2%}"""
             )
         else:
             print(f"""{self.project_name} {index_name} within tolerance.""")
