@@ -240,7 +240,10 @@ class HERSDiagnosticData:
         self.annual_energy_cache = {}
         self.annual_end_use_energy_cache = {}
         self.annual_fuel_type_energy_cache = {}
-        self.hourly_electricity_use = [0] * self.NUMBER_OF_TIMESTEPS
+        self.hourly_electricity_use = {
+            HomeType.RATED_HOME: [0] * self.NUMBER_OF_TIMESTEPS,
+            HomeType.CO2_REFERENCE_HOME: [0] * self.NUMBER_OF_TIMESTEPS,
+        }
         self.hourly_electricity_emission_factors_kwh = self.data[
             "electricity_co2_emissions_factors"
         ]
@@ -1090,8 +1093,9 @@ class HERSDiagnosticData:
                 ]:
                     for energy_use in energy_data["energy_use"]:
                         if energy_use["fuel_type"] == FuelType.ELECTRICITY.value:
-                            self.hourly_electricity_use = element_add(
-                                energy_use["energy"], self.hourly_electricity_use
+                            self.hourly_electricity_use[home_type] = element_add(
+                                energy_use["energy"],
+                                self.hourly_electricity_use[home_type],
                             )
             else:  # other end uses
                 if f"{end_use.value}_energy" in self.data[f"{home_type.value}_output"]:
@@ -1099,10 +1103,11 @@ class HERSDiagnosticData:
                         f"{end_use.value}_energy"
                     ]:
                         if energy_use["fuel_type"] == FuelType.ELECTRICITY.value:
-                            self.hourly_electricity_use = element_add(
-                                energy_use["energy"], self.hourly_electricity_use
+                            self.hourly_electricity_use[home_type] = element_add(
+                                energy_use["energy"],
+                                self.hourly_electricity_use[home_type],
                             )
-        return self.hourly_electricity_use
+        return self.hourly_electricity_use[home_type]
 
     def get_annual_hourly_co2_emissions(self, home_type: HomeType):
         emissions = 0
