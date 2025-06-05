@@ -1124,20 +1124,23 @@ class HERSDiagnosticData:
                     self.get_annual_fuel_type_energy(home_type, fuel_type)
                     * self.fuel_emission_factors[fuel_type]
                 )
-        if "on_site_power_production" in self.data:
-            emissions += sum(
-                element_product(
-                    [-value for value in self.data["on_site_power_production"]],  # kWh
-                    self.hourly_electricity_emission_factors_kwh,  # lb/kWh
+        if home_type == HomeType.RATED_HOME:
+            if "on_site_power_production" in self.data:
+                emissions += sum(
+                    element_product(
+                        [
+                            -value for value in self.data["on_site_power_production"]
+                        ],  # kWh
+                        self.hourly_electricity_emission_factors_kwh,  # lb/kWh
+                    )
                 )
-            )
-        if "battery_storage" in self.data:
-            emissions += sum(
-                element_product(
-                    self.data["battery_storage"],
-                    self.hourly_electricity_emission_factors_kwh,
+            if "battery_storage" in self.data:
+                emissions += sum(
+                    element_product(
+                        self.data["battery_storage"],
+                        self.hourly_electricity_emission_factors_kwh,
+                    )
                 )
-            )
         return emissions
 
     def get_iad_hers_index(self):
