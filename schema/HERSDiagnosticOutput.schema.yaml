@@ -163,7 +163,7 @@ SystemOutput:
       Description: Equipment efficiency coefficient (EEC)
       Data Type: Numeric
       Units: "-"
-      Constraints: ">=0"
+      Constraints: ">0"
       Required: True
     load:
       Description: System load
