@@ -7,15 +7,21 @@ from .sub_system_output import SubSystemOutput
 
 
 class SystemOutput:
-    def __init__(self, system_output: List[Dict[str, str | float | List[float] | Dict[str, str | List[float]]]], home_type):
-        # self.sub_system_outputs: List[SubSystemOutput] = []
+    def __init__(self, system_output: List[Dict[str, str | float | List[float] | Dict[str, str | List[float]]]], home_type: HomeType):
+        self.sub_system_outputs: List[SubSystemOutput] = []
         self.load_annual_total: float = 0
+        self.energy_annual_total: float = 0
         self.energy_electricity_use_equivalent: float = 0
 
         self.load_annual_fuel_type: Dict[FuelType, float] = {fuel_type: 0.0 for fuel_type in FuelType}
         self.energy_annual_fuel_type: Dict[FuelType, float] = {fuel_type: 0.0 for fuel_type in FuelType}
         self.load_hourly_fuel_type: Dict[FuelType, List[float]] = {fuel_type: [0.0] * 8760 for fuel_type in FuelType}
         self.energy_hourly_fuel_type: Dict[FuelType, List[float]] = {fuel_type: [0.0] * 8760 for fuel_type in FuelType}
+
+        if home_type in [HomeType.RATED_HOME, HomeType.IAD_RATED_HOME]:
+            self.nmeul: float = 0
+        elif home_type in [HomeType.HERS_REFERENCE_HOME, HomeType.IAD_HERS_REFERENCE_HOME]:
+            self.reul: float = 0
 
         for sub_system_output in system_output:
             primary_fuel_type: FuelType = FuelType(to_upper_case(sub_system_output["primary_fuel_type"]))  # type: ignore
@@ -37,12 +43,13 @@ class SystemOutput:
                 self.energy_annual_fuel_type[fuel_type] += energy_annual_fuel_type
                 self.energy_hourly_fuel_type[fuel_type] = sum_lists(self.energy_hourly_fuel_type[fuel_type], energy_hourly_fuel_type)
                 self.energy_electricity_use_equivalent += energy_annual_fuel_type * get_fuel_conversion(fuel_type)
+                self.energy_annual_total += energy_annual_fuel_type
 
-            # sub_system_output = SubSystemOutput(
-            #     primary_fuel_type,
-            #     equipment_efficiency_coefficient,
-            #     load,
-            #     energy_use,
-            # )
+            sub_system_output = SubSystemOutput(
+                primary_fuel_type,
+                equipment_efficiency_coefficient,
+                self.load_annual_total,
+                self.energy_annual_total,
+            )  # type: ignore
 
-            # self.sub_system_outputs.append(sub_system_output)
+            self.sub_system_outputs.append(sub_system_output)  # type: ignore

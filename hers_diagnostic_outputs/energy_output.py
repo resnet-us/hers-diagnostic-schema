@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from .definitions import FuelType
+from .definitions import FuelType, HomeType
 from .functions import to_upper_case, get_annual_data, get_fuel_conversion, sum_lists
 from .sub_energy_output import SubEnergyOutput
 
@@ -12,6 +12,7 @@ class EnergyOutput:
         self.energy_electricity_use_equivalent: float = 0.0
 
         # EnergyOutput in HERSDiagnosticOutput files are reported in kBtu
+        self.energy_annual_total: float = 0
         self.energy_annual_fuel_type_cache: Dict[FuelType, float] = {fuel_type: 0.0 for fuel_type in FuelType}
         self.energy_hourly_fuel_type_cache: Dict[FuelType, List[float]] = {fuel_type: [0.0] * 8760 for fuel_type in FuelType}
 
@@ -20,6 +21,7 @@ class EnergyOutput:
             energy: List[float] = sub_energy_output["energy"]
 
             annual_energy = get_annual_data(energy)
+            self.energy_annual_total += annual_energy
             self.energy_annual_fuel_type_cache[fuel_type] += annual_energy
             self.energy_electricity_use_equivalent += annual_energy * get_fuel_conversion(fuel_type)
 

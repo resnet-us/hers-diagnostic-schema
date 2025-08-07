@@ -177,7 +177,15 @@ class HERSCache:
         if self.tnml_set:
             return self._tnml
         else:
-            # self.tnml = self.get_total_normalized_modified_load(HomeType.RATED_HOME)
+            self.tnml = (
+                self.hers_diagnostic_output.rated_home_output.space_heating_system_output.nmeul
+                + self.hers_diagnostic_output.rated_home_output.space_cooling_system_output.nmeul
+                + self.hers_diagnostic_output.rated_home_output.water_heating_system_output.nmeul
+                + self.hers_diagnostic_output.rated_home_output.lighting_and_appliance_energy.energy_annual_total
+                + self.hers_diagnostic_output.rated_home_output.ventilation_energy.energy_annual_total
+                + self.hers_diagnostic_output.rated_home_output.dehumidification_energy.energy_annual_total
+            )
+
             return self._tnml
 
     @tnml.setter
@@ -190,7 +198,14 @@ class HERSCache:
         if self.trl_set:
             return self._trl
         else:
-            # self.trl = self.get_total_reference_home_load(HomeType.HERS_REFERENCE_HOME)
+            self.trl = (
+                self.hers_diagnostic_output.hers_reference_home_output.space_heating_system_output.reul
+                + self.hers_diagnostic_output.hers_reference_home_output.space_cooling_system_output.reul
+                + self.hers_diagnostic_output.hers_reference_home_output.water_heating_system_output.reul
+                + self.hers_diagnostic_output.hers_reference_home_output.lighting_and_appliance_energy.energy_annual_total
+                + self.hers_diagnostic_output.hers_reference_home_output.ventilation_energy.energy_annual_total
+                + self.hers_diagnostic_output.hers_reference_home_output.dehumidification_energy.energy_annual_total
+            )
             return self._trl
 
     @trl.setter
@@ -251,7 +266,7 @@ class HERSCache:
         if self.iad_save_set:
             return self._iad_save
         else:
-            # self.iad_save = self.get_index_adjustment_design_savings()
+            self.iad_save = self.get_index_adjustment_design_savings()
             return self._iad_save
 
     @iad_save.setter
@@ -264,7 +279,7 @@ class HERSCache:
         if self.iaf_cfa_set:
             return self._iaf_cfa
         else:
-            # self.iaf_cfa = self.get_index_adjustment_factor_conditioned_floor_area()
+            self.iaf_cfa = self.get_index_adjustment_factor_conditioned_floor_area()
             return self._iaf_cfa
 
     @iaf_cfa.setter
@@ -277,7 +292,7 @@ class HERSCache:
         if self.iaf_nbr_set:
             return self._iaf_nbr
         else:
-            # self.iaf_nbr = self.get_index_adjustment_factor_number_of_bedrooms()
+            self.iaf_nbr = self.get_index_adjustment_factor_number_of_bedrooms()
             return self._iaf_nbr
 
     @iaf_nbr.setter
@@ -290,7 +305,7 @@ class HERSCache:
         if self.iaf_ns_set:
             return self._iaf_ns
         else:
-            # self.iaf_ns = self.get_index_adjustment_factor_number_of_stories()
+            self.iaf_ns = self.get_index_adjustment_factor_number_of_stories()
             return self._iaf_ns
 
     @iaf_ns.setter
@@ -303,7 +318,7 @@ class HERSCache:
         if self.tnml_iad_set:
             return self._tnml_iad
         else:
-            # self.tnml_iad = self.get_total_normalized_modified_load(HomeType.IAD_RATED_HOME)
+            self.tnml_iad = self.get_total_normalized_modified_load(HomeType.IAD_RATED_HOME)
             return self._tnml_iad
 
     @tnml_iad.setter
@@ -330,7 +345,7 @@ class HERSCache:
         if self.nmeul_heat_set:
             return self._nmeul_heat
         else:
-            self.nmeul_heat = self.get_end_use_energy_consumption(HomeType.RATED_HOME, EndUse.SPACE_HEATING)
+            self.nmeul_heat = self.hers_diagnostic_output.rated_home_output.space_heating_system_output.nmeul
             return self._nmeul_heat
 
     @nmeul_heat.setter
@@ -343,7 +358,7 @@ class HERSCache:
         if self.nmeul_cool_set:
             return self._nmeul_cool
         else:
-            self.nmeul_cool = self.get_end_use_energy_consumption(HomeType.RATED_HOME, EndUse.SPACE_COOLING)
+            self.nmeul_cool = self.hers_diagnostic_output.rated_home_output.space_cooling_system_output.nmeul
             return self._nmeul_cool
 
     @nmeul_cool.setter
@@ -356,7 +371,7 @@ class HERSCache:
         if self.nmeul_hw_set:
             return self._nmeul_hw
         else:
-            self.nmeul_hw = self.get_end_use_energy_consumption(HomeType.RATED_HOME, EndUse.WATER_HEATING)
+            self.nmeul_hw = self.hers_diagnostic_output.rated_home_output.water_heating_system_output.nmeul
             return self._nmeul_hw
 
     @nmeul_hw.setter
@@ -369,7 +384,7 @@ class HERSCache:
         if self.ec_la_set:
             return self._ec_la
         else:
-            self.ec_la = self.get_annual_end_use_energy(HomeType.RATED_HOME, EndUse.LIGHTING_AND_APPLIANCE)
+            self.ec_la = self.hers_diagnostic_output.rated_home_output.lighting_and_appliance_energy.energy_annual_total
             return self._ec_la
 
     @ec_la.setter
@@ -382,7 +397,7 @@ class HERSCache:
         if self.ec_vent_set:
             return self._ec_vent
         else:
-            self.ec_vent = self.get_annual_end_use_energy(HomeType.RATED_HOME, EndUse.VENTILATION)
+            self.ec_vent = self.hers_diagnostic_output.rated_home_output.ventilation_energy.energy_annual_total
             return self._ec_vent
 
     @ec_vent.setter
@@ -395,7 +410,7 @@ class HERSCache:
         if self.ec_dh_set:
             return self._ec_dh
         else:
-            self.ec_dh = self.get_annual_end_use_energy(HomeType.RATED_HOME, EndUse.DEHUMIDIFCATION)
+            self.ec_dh = self.hers_diagnostic_output.rated_home_output.dehumidification_energy.energy_annual_total
             return self._ec_dh
 
     @ec_dh.setter
@@ -409,7 +424,7 @@ class HERSCache:
         if self.reul_heat_set:
             return self._reul_heat
         else:
-            self.reul_heat = self.get_reference_home_system_load(HomeType.HERS_REFERENCE_HOME, EndUse.SPACE_HEATING)
+            self.reul_heat = self.hers_diagnostic_output.hers_reference_home_output.space_heating_system_output.reul
             return self._reul_heat
 
     @reul_heat.setter
@@ -422,7 +437,7 @@ class HERSCache:
         if self.reul_cool_set:
             return self._reul_cool
         else:
-            self.reul_cool = self.get_reference_home_system_load(HomeType.HERS_REFERENCE_HOME, EndUse.SPACE_COOLING)
+            self.reul_cool = self.hers_diagnostic_output.hers_reference_home_output.space_cooling_system_output.reul
             return self._reul_cool
 
     @reul_cool.setter
@@ -435,7 +450,7 @@ class HERSCache:
         if self.reul_hw_set:
             return self._reul_hw
         else:
-            self.reul_hw = self.get_reference_home_system_load(HomeType.HERS_REFERENCE_HOME, EndUse.WATER_HEATING)
+            self.reul_hw = self.hers_diagnostic_output.hers_reference_home_output.water_heating_system_output.reul
             return self._reul_hw
 
     @reul_hw.setter
@@ -448,7 +463,7 @@ class HERSCache:
         if self.rec_la_set:
             return self._rec_la
         else:
-            self.rec_la = self.get_annual_end_use_energy(HomeType.HERS_REFERENCE_HOME, EndUse.LIGHTING_AND_APPLIANCE)
+            self.rec_la = self.hers_diagnostic_output.hers_reference_home_output.lighting_and_appliance_energy.energy_annual_total
             return self._rec_la
 
     @rec_la.setter
@@ -461,7 +476,7 @@ class HERSCache:
         if self.rec_vent_set:
             return self._rec_vent
         else:
-            self.rec_vent = self.get_annual_end_use_energy(HomeType.HERS_REFERENCE_HOME, EndUse.VENTILATION)
+            self.rec_vent = self.hers_diagnostic_output.hers_reference_home_output.ventilation_energy.energy_annual_total
             return self._rec_vent
 
     @rec_vent.setter
@@ -474,7 +489,7 @@ class HERSCache:
         if self.rec_dh_set:
             return self._rec_dh
         else:
-            self.rec_dh = self.get_annual_end_use_energy(HomeType.HERS_REFERENCE_HOME, EndUse.DEHUMIDIFCATION)
+            self.rec_dh = self.hers_diagnostic_output.hers_reference_home_output.dehumidification_energy.energy_annual_total
             return self._rec_dh
 
     @rec_dh.setter
@@ -488,7 +503,7 @@ class HERSCache:
         if self.nmeul_heat_iad_set:
             return self._nmeul_heat_iad
         else:
-            self.nmeul_heat_iad = self.get_end_use_energy_consumption(HomeType.IAD_RATED_HOME, EndUse.SPACE_HEATING)
+            self.nmeul_heat_iad = self.hers_diagnostic_output.iad_rated_home_output.space_heating_system_output.nmeul
             return self._nmeul_heat_iad
 
     @nmeul_heat_iad.setter
@@ -501,7 +516,7 @@ class HERSCache:
         if self.nmeul_cool_iad_set:
             return self._nmeul_cool_iad
         else:
-            self.nmeul_cool_iad = self.get_end_use_energy_consumption(HomeType.IAD_RATED_HOME, EndUse.SPACE_COOLING)
+            self.nmeul_cool_iad = self.hers_diagnostic_output.iad_rated_home_output.space_cooling_system_output.nmeul
             return self._nmeul_cool_iad
 
     @nmeul_cool_iad.setter
@@ -514,7 +529,7 @@ class HERSCache:
         if self.nmeul_hw_iad_set:
             return self._nmeul_hw_iad
         else:
-            self.nmeul_hw_iad = self.get_end_use_energy_consumption(HomeType.IAD_RATED_HOME, EndUse.WATER_HEATING)
+            self.nmeul_hw_iad = self.hers_diagnostic_output.iad_rated_home_output.water_heating_system_output.nmeul
             return self._nmeul_hw_iad
 
     @nmeul_hw_iad.setter
@@ -527,10 +542,7 @@ class HERSCache:
         if self.ec_la_iad_set:
             return self._ec_la_iad
         else:
-            self.ec_la_iad = self.get_annual_end_use_energy(
-                HomeType.IAD_RATED_HOME,
-                EndUse.LIGHTING_AND_APPLIANCE,
-            )
+            self.ec_la_iad = self.hers_diagnostic_output.iad_rated_home_output.lighting_and_appliance_energy.energy_annual_total
             return self._ec_la_iad
 
     @ec_la_iad.setter
@@ -543,7 +555,7 @@ class HERSCache:
         if self.ec_vent_iad_set:
             return self._ec_vent_iad
         else:
-            self.ec_vent_iad = self.get_annual_end_use_energy(HomeType.IAD_RATED_HOME, EndUse.VENTILATION)
+            self.ec_vent_iad = self.hers_diagnostic_output.iad_rated_home_output.ventilation_energy.energy_annual_total
             return self._ec_vent_iad
 
     @ec_vent_iad.setter
@@ -556,7 +568,7 @@ class HERSCache:
         if self.ec_dh_iad_set:
             return self._ec_dh_iad
         else:
-            self.ec_dh_iad = self.get_annual_end_use_energy(HomeType.IAD_RATED_HOME, EndUse.DEHUMIDIFCATION)
+            self.ec_dh_iad = self.hers_diagnostic_output.iad_rated_home_output.dehumidification_energy.energy_annual_total
             return self._ec_dh_iad
 
     @ec_dh_iad.setter
@@ -570,7 +582,7 @@ class HERSCache:
         if self.reul_heat_iad_set:
             return self._reul_heat_iad
         else:
-            self.reul_heat_iad = self.get_reference_home_system_load(HomeType.IAD_HERS_REFERENCE_HOME, EndUse.SPACE_HEATING)
+            self.reul_heat_iad = self.hers_diagnostic_output.iad_hers_reference_home_output.space_heating_system_output.reul
             return self._reul_heat_iad
 
     @reul_heat_iad.setter
@@ -583,7 +595,7 @@ class HERSCache:
         if self.reul_cool_iad_set:
             return self._reul_cool_iad
         else:
-            self.reul_cool_iad = self.get_reference_home_system_load(HomeType.IAD_HERS_REFERENCE_HOME, EndUse.SPACE_COOLING)
+            self.reul_cool_iad = self.hers_diagnostic_output.iad_hers_reference_home_output.space_cooling_system_output.reul
             return self._reul_cool_iad
 
     @reul_cool_iad.setter
@@ -596,7 +608,7 @@ class HERSCache:
         if self.reul_hw_iad_set:
             return self._reul_hw_iad
         else:
-            self.reul_hw_iad = self.get_reference_home_system_load(HomeType.IAD_HERS_REFERENCE_HOME, EndUse.WATER_HEATING)
+            self.reul_hw_iad = self.hers_diagnostic_output.iad_hers_reference_home_output.water_heating_system_output.reul
             return self._reul_hw_iad
 
     @reul_hw_iad.setter
@@ -609,10 +621,7 @@ class HERSCache:
         if self.rec_la_iad_set:
             return self._rec_la_iad
         else:
-            self.rec_la_iad = self.get_annual_end_use_energy(
-                HomeType.IAD_HERS_REFERENCE_HOME,
-                EndUse.LIGHTING_AND_APPLIANCE,
-            )
+            self.rec_la_iad = self.hers_diagnostic_output.iad_hers_reference_home_output.lighting_and_appliance_energy.energy_annual_total
             return self._rec_la_iad
 
     @rec_la_iad.setter
@@ -625,7 +634,7 @@ class HERSCache:
         if self.rec_vent_iad_set:
             return self._rec_vent_iad
         else:
-            self.rec_vent_iad = self.get_annual_end_use_energy(HomeType.IAD_HERS_REFERENCE_HOME, EndUse.VENTILATION)
+            self.rec_vent_iad = self.hers_diagnostic_output.iad_hers_reference_home_output.ventilation_energy.energy_annual_total
             return self._rec_vent_iad
 
     @rec_vent_iad.setter
@@ -638,7 +647,7 @@ class HERSCache:
         if self.rec_dh_iad_set:
             return self._rec_dh_iad
         else:
-            self.rec_dh_iad = self.get_annual_end_use_energy(HomeType.IAD_HERS_REFERENCE_HOME, EndUse.DEHUMIDIFCATION)
+            self.rec_dh_iad = self.hers_diagnostic_output.iad_hers_reference_home_output.dehumidification_energy.energy_annual_total
             return self._rec_dh_iad
 
     @rec_dh_iad.setter
