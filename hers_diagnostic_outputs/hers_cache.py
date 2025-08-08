@@ -199,9 +199,9 @@ class HERSCache:
             return self._trl
         else:
             self.trl = (
-                self.hers_diagnostic_output.hers_reference_home_output.space_heating_system_output.reul
-                + self.hers_diagnostic_output.hers_reference_home_output.space_cooling_system_output.reul
-                + self.hers_diagnostic_output.hers_reference_home_output.water_heating_system_output.reul
+                self.hers_diagnostic_output.hers_reference_home_output.space_heating_system_output.load_annual_total
+                + self.hers_diagnostic_output.hers_reference_home_output.space_cooling_system_output.load_annual_total
+                + self.hers_diagnostic_output.hers_reference_home_output.water_heating_system_output.load_annual_total
                 + self.hers_diagnostic_output.hers_reference_home_output.lighting_and_appliance_energy.energy_annual_total
                 + self.hers_diagnostic_output.hers_reference_home_output.ventilation_energy.energy_annual_total
                 + self.hers_diagnostic_output.hers_reference_home_output.dehumidification_energy.energy_annual_total
@@ -266,7 +266,7 @@ class HERSCache:
         if self.iad_save_set:
             return self._iad_save
         else:
-            self.iad_save = self.get_index_adjustment_design_savings()
+            self.iad_save = (100 - (self.tnml_iad / self.trl_iad * 100)) / 100
             return self._iad_save
 
     @iad_save.setter
@@ -279,7 +279,7 @@ class HERSCache:
         if self.iaf_cfa_set:
             return self._iaf_cfa
         else:
-            self.iaf_cfa = self.get_index_adjustment_factor_conditioned_floor_area()
+            self.iaf_cfa = (2400 / self.hers_diagnostic_output.conditioned_floor_area) ** (0.304 * self.iad_save)
             return self._iaf_cfa
 
     @iaf_cfa.setter
@@ -292,7 +292,7 @@ class HERSCache:
         if self.iaf_nbr_set:
             return self._iaf_nbr
         else:
-            self.iaf_nbr = self.get_index_adjustment_factor_number_of_bedrooms()
+            self.iaf_nbr = 1 + (0.069 * self.iad_save * (self.hers_diagnostic_output.number_of_bedrooms - 3))
             return self._iaf_nbr
 
     @iaf_nbr.setter
@@ -305,7 +305,7 @@ class HERSCache:
         if self.iaf_ns_set:
             return self._iaf_ns
         else:
-            self.iaf_ns = self.get_index_adjustment_factor_number_of_stories()
+            self.iaf_ns = (2 / self.hers_diagnostic_output.number_of_stories) ** (0.12 * self.iad_save)
             return self._iaf_ns
 
     @iaf_ns.setter
@@ -318,7 +318,14 @@ class HERSCache:
         if self.tnml_iad_set:
             return self._tnml_iad
         else:
-            self.tnml_iad = self.get_total_normalized_modified_load(HomeType.IAD_RATED_HOME)
+            self.tnml_iad = (
+                self.hers_diagnostic_output.iad_rated_home_output.space_heating_system_output.nmeul
+                + self.hers_diagnostic_output.iad_rated_home_output.space_cooling_system_output.nmeul
+                + self.hers_diagnostic_output.iad_rated_home_output.water_heating_system_output.nmeul
+                + self.hers_diagnostic_output.iad_rated_home_output.lighting_and_appliance_energy.energy_annual_total
+                + self.hers_diagnostic_output.iad_rated_home_output.ventilation_energy.energy_annual_total
+                + self.hers_diagnostic_output.iad_rated_home_output.dehumidification_energy.energy_annual_total
+            )
             return self._tnml_iad
 
     @tnml_iad.setter
@@ -331,7 +338,14 @@ class HERSCache:
         if self.trl_iad_set:
             return self._trl_iad
         else:
-            self.trl_iad = self.get_total_reference_home_load(HomeType.IAD_HERS_REFERENCE_HOME)
+            self.trl_iad = (
+                self.hers_diagnostic_output.iad_hers_reference_home_output.space_heating_system_output.load_annual_total
+                + self.hers_diagnostic_output.iad_hers_reference_home_output.space_cooling_system_output.load_annual_total
+                + self.hers_diagnostic_output.iad_hers_reference_home_output.water_heating_system_output.load_annual_total
+                + self.hers_diagnostic_output.iad_hers_reference_home_output.lighting_and_appliance_energy.energy_annual_total
+                + self.hers_diagnostic_output.iad_hers_reference_home_output.ventilation_energy.energy_annual_total
+                + self.hers_diagnostic_output.iad_hers_reference_home_output.dehumidification_energy.energy_annual_total
+            )
             return self._trl_iad
 
     @trl_iad.setter

@@ -4,7 +4,6 @@ from typing import List, Optional
 from lattice import load
 
 from .definitions import FuelType, HomeType, fossil_fuel_types, fuel_coefficients
-from .energy_output import EnergyOutput
 from .hers_cache import HERSCache
 from .home_outputs import HomeOutputs
 from .system_output import SystemOutput
@@ -49,51 +48,30 @@ class HERSDiagnosticOutput:
             "water_heating_system_output",
         ]
 
-        other_end_uses = [
-            "lighting_and_appliance_energy",
-            "ventilation_energy",
-            "dehumidification_energy",
-        ]
+        for rated_home_output, hers_reference_home_output in zip(
+            [self.rated_home_output, self.iad_rated_home_output], [self.hers_reference_home_output, self.iad_hers_reference_home_output]
+        ):
+            for system_type in system_types:
+                rated_home_system_type: SystemOutput = getattr(rated_home_output, system_type)
+                reference_home_system_type: SystemOutput = getattr(hers_reference_home_output, system_type)
 
-        for system_type in system_types:
-            rated_home_system_type: SystemOutput = getattr(self.rated_home_output, system_type)
-            reference_home_system_type: SystemOutput = getattr(self.hers_reference_home_output, system_type)
+                for rated_home_sub_system, reference_home_sub_system in zip(
+                    rated_home_system_type.sub_system_outputs, reference_home_system_type.sub_system_outputs
+                ):
+                    ec_x = rated_home_sub_system.energy_use
+                    eec_x = rated_home_sub_system.equipment_efficiency_coefficient
+                    eec_r = reference_home_sub_system.equipment_efficiency_coefficient
+                    primary_fuel_type = rated_home_sub_system.primary_fuel_type
+                    if primary_fuel_type in fossil_fuel_types:
+                        primary_fuel_type = FuelType.FOSSIL_FUEL
+                    a = fuel_coefficients[(system_type, primary_fuel_type)]["a"]
+                    b = fuel_coefficients[(system_type, primary_fuel_type)]["b"]
 
-            for rated_home_sub_system, reference_home_sub_system in zip(
-                rated_home_system_type.sub_system_outputs, reference_home_system_type.sub_system_outputs
-            ):
-                ec_x = rated_home_sub_system.energy_use
-                eec_x = rated_home_sub_system.equipment_efficiency_coefficient
-                eec_r = reference_home_sub_system.equipment_efficiency_coefficient
-                primary_fuel_type = rated_home_sub_system.primary_fuel_type
-                if primary_fuel_type in fossil_fuel_types:
-                    primary_fuel_type = FuelType.FOSSIL_FUEL
-                a = fuel_coefficients[(system_type, primary_fuel_type)]["a"]
-                b = fuel_coefficients[(system_type, primary_fuel_type)]["b"]
+                    ec_r = reference_home_sub_system.energy_use
+                    nec_x = ec_x * (a * eec_x - b) * (eec_r / eec_x)
+                    reul = reference_home_sub_system.load
 
-                ec_r = reference_home_sub_system.energy_use
-                nec_x = ec_x * (a * eec_x - b) * (eec_r / eec_x)
-                reul = reference_home_sub_system.load
-
-                rated_home_system_type.nmeul += reul * nec_x / ec_r
-
-        # self.ec: float = 0
-        # self.rec: float = 0
-
-        # for other_end_use in other_end_uses:
-        #     rated_home_system_type: EnergyOutput = getattr(self.rated_home_output, other_end_use)
-        #     reference_home_system_type: EnergyOutput = getattr(self.hers_reference_home_output, other_end_use)
-
-        #     for rated_home_sub_system, reference_home_sub_system in zip(
-        #         rated_home_system_type.sub_energy_outputs, reference_home_system_type.sub_energy_outputs
-        #     ):
-        #         rated_home_system_type.ec += sum(rated_home_sub_system.energy)
-        #         reference_home_system_type.rec += sum(reference_home_sub_system.energy)
-
-        # get primary fuel type to get a and b coefficients
-        # get rated home energy consumption from all subsystems for each system
-        # get EEC from rated home
-        # get EEC from reference home
+                    rated_home_system_type.nmeul += reul * nec_x / ec_r
 
         self.hers_cache = HERSCache(self)
 
