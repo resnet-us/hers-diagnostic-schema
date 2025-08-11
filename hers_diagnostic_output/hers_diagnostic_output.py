@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from lattice import load
 
@@ -80,3 +80,45 @@ class HERSDiagnosticOutput:
 
     def calculate_carbon_index(self) -> float:
         return self.hers_cache.co2_index
+
+    def get_hers_index_intermediaries(self) -> Dict:
+        return {
+            "hers_index": self.hers_cache.hers_index,
+            "iaf_rh": self.hers_cache.iaf_rh,
+            "pe_frac": self.hers_cache.pe_frac,
+            "tnml": self.hers_cache.tnml,
+            "trl": self.hers_cache.trl,
+            "teu": self.hers_cache.teu,
+            "opp": self.hers_cache.opp,
+            "bsl": self.hers_cache.bsl,
+            "iad_save": self.hers_cache.iad_save,
+            "iaf_cfa": self.hers_cache.iaf_cfa,
+            "iaf_nbr": self.hers_cache.iaf_nbr,
+            "iaf_ns": self.hers_cache.iaf_ns,
+            "tnml_iad": self.hers_cache.tnml_iad,
+            "trl_iad": self.hers_cache.trl_iad,
+            "nmeul_heat": self.hers_cache.nmeul_heat,
+            "nmeul_cool": self.hers_cache.nmeul_cool,
+            "nmeul_hw": self.hers_cache.nmeul_hw,
+            "ec_la": self.hers_cache.ec_la,
+            "ec_vent": self.hers_cache.ec_vent,
+            "ec_dh": self.hers_cache.ec_dh,
+            "nmeul_heat_iad": self.hers_cache.nmeul_heat_iad,
+            "nmeul_cool_iad": self.hers_cache.nmeul_cool_iad,
+            "nmeul_hw_iad": self.hers_cache.nmeul_hw_iad,
+            "ec_la_iad": self.hers_cache.ec_la_iad,
+            "ec_vent_iad": self.hers_cache.ec_vent_iad,
+            "ec_dh_iad": self.hers_cache.ec_dh_iad,
+            "reul_heat": self.hers_cache.reul_heat,
+            "reul_cool": self.hers_cache.reul_cool,
+            "reul_hw": self.hers_cache.reul_hw,
+            "rec_la": self.hers_cache.rec_la,
+            "rec_vent": self.hers_cache.rec_vent,
+            "rec_dh": self.hers_cache.rec_dh,
+            "reul_heat_iad": self.hers_cache.reul_heat_iad,
+            "reul_cool_iad": self.hers_cache.reul_cool_iad,
+            "reul_hw_iad": self.hers_cache.reul_hw_iad,
+            "rec_la_iad": self.hers_cache.rec_la_iad,
+            "rec_vent_iad": self.hers_cache.rec_vent_iad,
+            "rec_dh_iad": self.hers_cache.rec_dh_iad,
+        }
