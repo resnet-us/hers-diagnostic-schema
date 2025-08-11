@@ -24,7 +24,7 @@ class SystemOutput:
             self.reul: float = 0
 
         for sub_system_output in system_output:
-            primary_fuel_type: FuelType = FuelType(to_upper_case(sub_system_output["primary_fuel_type"]))  # type: ignore
+            primary_fuel_type: FuelType = FuelType[to_upper_case(sub_system_output["primary_fuel_type"])]  # type: ignore
             equipment_efficiency_coefficient: float = sub_system_output["equipment_efficiency_coefficient"]  # type: ignore
 
             load: Optional[List[float]] = sub_system_output.get("load")  # type: ignore

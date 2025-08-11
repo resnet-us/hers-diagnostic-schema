@@ -17,7 +17,7 @@ class EnergyOutput:
         self.energy_hourly_fuel_type_cache: Dict[FuelType, List[float]] = {fuel_type: [0.0] * 8760 for fuel_type in FuelType}
 
         for sub_energy_output in energy_output:
-            fuel_type: FuelType = FuelType(to_upper_case(sub_energy_output["fuel_type"]))
+            fuel_type: FuelType = FuelType[to_upper_case(sub_energy_output["fuel_type"])]
             energy: List[float] = sub_energy_output["energy"]
 
             annual_energy = get_annual_data(energy)
