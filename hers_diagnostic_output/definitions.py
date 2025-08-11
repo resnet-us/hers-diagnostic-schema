@@ -11,12 +11,12 @@ class HomeType(Enum):
 
 
 class FuelType(Enum):
-    ELECTRICITY = "ELECTRICITY"
-    NATURAL_GAS = "NATURAL_GAS"
-    FUEL_OIL_2 = "FUEL OIL #2"
-    LIQUID_PETROLEUM_GAS = "LIQUID PETROLEUM GAS"
-    BIOMASS = "BIOMASS"
-    FOSSIL_FUEL = "FOSSIL FUEL"
+    ELECTRICITY = "Electricity"
+    NATURAL_GAS = "Natural Gas"
+    FUEL_OIL_2 = "Fuel Oil #2"
+    LIQUID_PETROLEUM_GAS = "Liquid Petroleum Gas"
+    BIOMASS = "Biomass"
+    FOSSIL_FUEL = "Fossil Fuel"
 
 
 fossil_fuel_types: List[FuelType] = [
