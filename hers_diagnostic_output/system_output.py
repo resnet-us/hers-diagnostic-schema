@@ -13,10 +13,10 @@ class SystemOutput:
         self.energy_annual_total: float = 0
         self.energy_electricity_use_equivalent: float = 0
 
-        self.load_annual_fuel_type: Dict[FuelType, float] = {fuel_type: 0.0 for fuel_type in FuelType}
-        self.energy_annual_fuel_type: Dict[FuelType, float] = {fuel_type: 0.0 for fuel_type in FuelType}
-        self.load_hourly_fuel_type: Dict[FuelType, List[float]] = {fuel_type: [0.0] * 8760 for fuel_type in FuelType}
-        self.energy_hourly_fuel_type: Dict[FuelType, List[float]] = {fuel_type: [0.0] * 8760 for fuel_type in FuelType}
+        self.load_annual_fuel_type: Dict[FuelType, float] = {}
+        self.energy_annual_fuel_type: Dict[FuelType, float] = {}
+        self.load_hourly_fuel_type: Dict[FuelType, List[float]] = {}
+        self.energy_hourly_fuel_type: Dict[FuelType, List[float]] = {}
 
         if home_type in [HomeType.RATED_HOME, HomeType.IAD_RATED_HOME]:
             self.nmeul: float = 0
@@ -26,6 +26,9 @@ class SystemOutput:
         for sub_system_output in system_output:
             primary_fuel_type: FuelType = FuelType[to_upper_case(sub_system_output["primary_fuel_type"])]  # type: ignore
             equipment_efficiency_coefficient: float = sub_system_output["equipment_efficiency_coefficient"]  # type: ignore
+
+            self.load_annual_fuel_type[primary_fuel_type] = 0
+            self.load_hourly_fuel_type[primary_fuel_type] = [0] * 8760
 
             load: Optional[List[float]] = sub_system_output.get("load")  # type: ignore
 
@@ -40,6 +43,10 @@ class SystemOutput:
             for (fuel_type, energy_annual_fuel_type), (fuel_type, energy_hourly_fuel_type) in zip(
                 energy_use.energy_annual_fuel_type_cache.items(), energy_use.energy_hourly_fuel_type_cache.items()
             ):
+                if fuel_type not in self.energy_annual_fuel_type:
+                    self.energy_annual_fuel_type[fuel_type] = 0
+                    self.energy_hourly_fuel_type[fuel_type] = [0] * 8760
+
                 self.energy_annual_fuel_type[fuel_type] += energy_annual_fuel_type
                 self.energy_hourly_fuel_type[fuel_type] = sum_lists(self.energy_hourly_fuel_type[fuel_type], energy_hourly_fuel_type)
                 self.energy_electricity_use_equivalent += energy_annual_fuel_type * get_fuel_conversion(fuel_type)
