@@ -24,6 +24,8 @@ class SystemOutput:
             self.reul: float = 0
 
         for sub_system_output in system_output:
+            self.load_annual_total_subsystem: float = 0
+            self.energy_annual_total_subsystem: float = 0
             primary_fuel_type: FuelType = FuelType[to_upper_case(sub_system_output["primary_fuel_type"])]  # type: ignore
             equipment_efficiency_coefficient: float = sub_system_output["equipment_efficiency_coefficient"]  # type: ignore
 
@@ -35,6 +37,8 @@ class SystemOutput:
             if load:
                 annual_load = get_annual_data(load)
                 self.load_annual_total += annual_load
+                self.load_annual_total_subsystem += annual_load
+
                 self.load_annual_fuel_type[primary_fuel_type] += annual_load
                 self.load_hourly_fuel_type[primary_fuel_type] = sum_lists(self.load_hourly_fuel_type[primary_fuel_type], load)
 
@@ -51,12 +55,13 @@ class SystemOutput:
                 self.energy_hourly_fuel_type[fuel_type] = sum_lists(self.energy_hourly_fuel_type[fuel_type], energy_hourly_fuel_type)
                 self.energy_electricity_use_equivalent += energy_annual_fuel_type * get_fuel_conversion(fuel_type)
                 self.energy_annual_total += energy_annual_fuel_type
+                self.energy_annual_total_subsystem += energy_annual_fuel_type
 
             sub_system_output = SubSystemOutput(
                 primary_fuel_type,
                 equipment_efficiency_coefficient,
-                self.load_annual_total,
-                self.energy_annual_total,
+                self.load_annual_total_subsystem,
+                self.energy_annual_total_subsystem,
             )  # type: ignore
 
             self.sub_system_outputs.append(sub_system_output)  # type: ignore

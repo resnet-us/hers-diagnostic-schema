@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional
 
-from .definitions import FuelType, HomeType, fuel_emission_factors
+from .definitions import FuelType, HomeType, blank_energy_output, fuel_emission_factors
 from .energy_output import EnergyOutput
 from .functions import product_lists
 from .system_output import SystemOutput
@@ -14,7 +14,14 @@ class HomeOutputs:
         self.water_heating_system_output: SystemOutput = SystemOutput(home_output["water_heating_system_output"], home_type)
         self.lighting_and_appliance_energy: EnergyOutput = EnergyOutput(home_output["lighting_and_appliance_energy"])
         self.ventilation_energy: EnergyOutput = EnergyOutput(home_output["ventilation_energy"])
-        self.dehumidification_energy: EnergyOutput = EnergyOutput(home_output["dehumidification_energy"])
+
+        dehumidification_energy = home_output.get("dehumidifaction_energy")
+
+        if dehumidification_energy:
+            self.dehumidification_energy: EnergyOutput = EnergyOutput(dehumidification_energy)
+        else:
+            self.dehumidification_energy: EnergyOutput = EnergyOutput(blank_energy_output)
+
         self.emissions_annual_total: float = 0
 
         def get_annual_emissions(fuel_type: FuelType, energy_hourly: List[float]) -> float:
