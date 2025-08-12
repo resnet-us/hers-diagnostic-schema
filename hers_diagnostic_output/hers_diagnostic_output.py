@@ -33,9 +33,6 @@ class HERSDiagnosticOutput:
 
         self.on_site_power_production: Optional[List[float]] = self.data.get("on_site_power_production")
         if self.on_site_power_production:
-            self.battery_storage_annual_emissions: float = sum(
-                product_lists(self.data["battery_storage"], self.data["electricity_co2_emissions_factors"])
-            )
             self.on_site_power_production_annual_emissions: float = sum(
                 product_lists(self.data["on_site_power_production"], self.data["electricity_co2_emissions_factors"])
             )
