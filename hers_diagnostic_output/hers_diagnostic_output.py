@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 from koozie import convert
 from lattice import load  # type: ignore
 
-from .definitions import FuelType, HomeType, fossil_fuel_types, fuel_coefficients
+from .definitions import FuelType, HomeType, fossil_fuel_types, fuel_coefficients, INDEX_TOLERANCE
 from .functions import product_lists
 from .hers_cache import HERSCache
 from .home_outputs import HomeOutputs
@@ -15,6 +15,7 @@ class HERSDiagnosticOutput:
     def __init__(self, file_path: str | Path):
         self.data = load(file_path)
 
+        self.project_name: str = self.data["project_name"]
         self.software_name: str = self.data["software_name"]
         self.software_version: str = self.data["software_version"]
         self.conditioned_floor_area: float = self.data["conditioned_floor_area"]
@@ -101,6 +102,25 @@ class HERSDiagnosticOutput:
 
     def calculate_carbon_index(self) -> float:
         return self.hers_cache.co2_index
+
+    def check_index_mismatch(self, index_name: str, calculated_index: float, output_index: float):
+        difference_ratio = (calculated_index - output_index) / output_index
+        if abs(difference_ratio) >= INDEX_TOLERANCE:
+            raise RuntimeError(
+                f"""\n{self.project_name} {index_name} outside tolerance.\nCalculated Index: {calculated_index:.2f}\nOutput Index: {output_index:.2f}\nPercent Difference: {difference_ratio:.2%}"""
+            )
+        else:
+            print(f"""{self.project_name} {index_name} within tolerance.""")
+
+    def verify_hers_index(self):
+        self.check_index_mismatch("HERS Index", self.hers_cache.hers_index, self.data["hers_index"])
+
+    def verify_carbon_index(self):
+        self.check_index_mismatch("CO2 Index", self.hers_cache.co2_index, self.data["carbon_index"])
+
+    def verify(self):
+        self.verify_hers_index()
+        self.verify_carbon_index()
 
     def get_hers_index_intermediaries(self) -> Dict:
         return {

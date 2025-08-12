@@ -21,6 +21,8 @@ class FuelType(Enum):
     FOSSIL_FUEL = "Fossil Fuel"
 
 
+INDEX_TOLERANCE = 0.005
+
 # Fossil fuel co2e coefficients
 # TODO: biomass is not included, and will need to be added in a future version
 fuel_emission_factors: Dict[FuelType, float] = {
