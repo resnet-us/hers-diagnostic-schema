@@ -13,8 +13,8 @@ class EnergyOutput:
 
         # EnergyOutput in HERSDiagnosticOutput files are reported in kBtu
         self.energy_annual_total: float = 0
-        self.energy_annual_fuel_type_cache: Dict[FuelType, float] = {fuel_type: 0.0 for fuel_type in FuelType}
-        self.energy_hourly_fuel_type_cache: Dict[FuelType, List[float]] = {fuel_type: [0.0] * 8760 for fuel_type in FuelType}
+        self.energy_annual_fuel_type: Dict[FuelType, float] = {fuel_type: 0.0 for fuel_type in FuelType}
+        self.energy_hourly_fuel_type: Dict[FuelType, List[float]] = {fuel_type: [0.0] * 8760 for fuel_type in FuelType}
 
         for sub_energy_output in energy_output:
             fuel_type: FuelType = FuelType[to_upper_case(sub_energy_output["fuel_type"])]
@@ -22,11 +22,11 @@ class EnergyOutput:
 
             annual_energy = get_annual_data(energy)
             self.energy_annual_total += annual_energy
-            self.energy_annual_fuel_type_cache[fuel_type] += annual_energy
+            self.energy_annual_fuel_type[fuel_type] += annual_energy
             self.energy_electricity_use_equivalent += annual_energy * get_fuel_conversion(fuel_type)
 
             # Update energy_hourly_fuel_type_cache[fuel_type] in place.
-            self.energy_hourly_fuel_type_cache[fuel_type] = sum_lists(self.energy_hourly_fuel_type_cache[fuel_type], energy)
+            self.energy_hourly_fuel_type[fuel_type] = sum_lists(self.energy_hourly_fuel_type[fuel_type], energy)
 
             sub_energy_output = SubEnergyOutput(fuel_type, energy)
 

@@ -41,7 +41,7 @@ class SystemOutput:
             energy_use: EnergyOutput = EnergyOutput(sub_system_output["energy_use"])  # type: ignore
 
             for (fuel_type, energy_annual_fuel_type), (fuel_type, energy_hourly_fuel_type) in zip(
-                energy_use.energy_annual_fuel_type_cache.items(), energy_use.energy_hourly_fuel_type_cache.items()
+                energy_use.energy_annual_fuel_type.items(), energy_use.energy_hourly_fuel_type.items()
             ):
                 if fuel_type not in self.energy_annual_fuel_type:
                     self.energy_annual_fuel_type[fuel_type] = 0

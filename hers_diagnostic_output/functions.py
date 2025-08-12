@@ -19,8 +19,16 @@ def get_fuel_conversion(fuel_type: FuelType):
     return 1.0
 
 
+def product_lists(list1: List[float], list2: List[float]) -> List[float]:
+    return_list: List[float] = [0.0] * len(list1)
+    for index, (value1, value2) in enumerate(zip(list1, list2)):
+        return_list[index] = value1 * value2
+
+    return return_list
+
+
 def sum_lists(list1: List[float], list2: List[float]) -> List[float]:
-    return_list = [0] * len(list1)
+    return_list: List[float] = [0.0] * len(list1)
     for index, (value1, value2) in enumerate(zip(list1, list2)):
         return_list[index] = value1 + value2
 
