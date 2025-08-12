@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Dict, List
 
+from koozie import convert  # type: ignore
+
 
 class HomeType(Enum):
     RATED_HOME = "rated_home"
@@ -17,6 +19,16 @@ class FuelType(Enum):
     LIQUID_PETROLEUM_GAS = "Liquid Petroleum Gas"
     BIOMASS = "Biomass"
     FOSSIL_FUEL = "Fossil Fuel"
+
+
+# Fossil fuel co2e coefficients
+# TODO: biomass is not included, and will need to be added in a future version
+fuel_emission_factors: Dict[FuelType, float] = {
+    FuelType.NATURAL_GAS: convert(147.3, "lb/MBtu", "lb/kBtu"),
+    FuelType.FUEL_OIL_2: convert(195.9, "lb/MBtu", "lb/kBtu"),
+    FuelType.LIQUID_PETROLEUM_GAS: convert(177.8, "lb/MBtu", "lb/kBtu"),
+    FuelType.BIOMASS: convert(0.0, "lb/MBtu", "lb/kBtu"),  # TODO: Need to update biomass fuel emission factor
+}
 
 
 fossil_fuel_types: List[FuelType] = [

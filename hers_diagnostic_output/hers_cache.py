@@ -138,7 +138,11 @@ class HERSCache:
         if self.aco2_set:
             return self._aco2
         else:
-            self.aco2 = self.get_annual_hourly_co2_emissions(HomeType.RATED_HOME)
+            self.aco2 = (
+                self.hers_diagnostic_output.rated_home_output.emissions_annual_total
+                - self.hers_diagnostic_output.on_site_power_production_annual_emissions
+                + self.hers_diagnostic_output.battery_storage_annual_emissions
+            )
             return self._aco2
 
     @aco2.setter
@@ -151,7 +155,7 @@ class HERSCache:
         if self.arco2_set:
             return self._arco2
         else:
-            self.arco2 = self.get_annual_hourly_co2_emissions(HomeType.CO2_REFERENCE_HOME)
+            self.arco2 = self.hers_diagnostic_output.co2_reference_home_output.emissions_annual_total
             return self._arco2
 
     @arco2.setter

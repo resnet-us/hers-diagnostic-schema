@@ -1,9 +1,11 @@
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from lattice import load
+from koozie import convert
+from lattice import load  # type: ignore
 
 from .definitions import FuelType, HomeType, fossil_fuel_types, fuel_coefficients
+from .functions import product_lists
 from .hers_cache import HERSCache
 from .home_outputs import HomeOutputs
 from .system_output import SystemOutput
@@ -21,11 +23,24 @@ class HERSDiagnosticOutput:
         self.hers_index_software: float = self.data["hers_index"]
         self.carbon_index_software: float = self.data["carbon_index"]
 
-        self.electricity_co2_emissions_factors: List[float] = self.data["electricity_co2_emissions_factors"]
+        self.electricity_co2_emissions_factors: List[float] = convert(
+            self.data["electricity_co2_emissions_factors"],
+            "lb/kWh",
+            "lb/kBtu",
+        )
         self.outdoor_drybulb_temperature: List[float] = self.data["outdoor_drybulb_temperature"]
         self.on_site_power_production: List[float] = self.data["on_site_power_production"]
+        self.on_site_power_production_annual_emissions: float = sum(
+            product_lists(self.data["on_site_power_production"], self.data["electricity_co2_emissions_factors"])
+        )
         self.on_site_power_production_annual: float = sum(self.on_site_power_production)
         battery_storage: Optional[List[float]] = self.data.get("battery_storage")
+        if battery_storage:
+            self.battery_storage_annual_emissions: float = sum(
+                product_lists(self.data["battery_storage"], self.data["electricity_co2_emissions_factors"])
+            )
+        else:
+            self.battery_storage_annual_emissions = 0
 
         if battery_storage:
             self.battery_storage: List[float] = self.data["battery_storage"]
@@ -34,9 +49,15 @@ class HERSDiagnosticOutput:
             self.battery_storage: List[float] = [0] * 8760  # type: ignore
             self.battery_storage_annual: float = 0  # type: ignore
 
-        self.rated_home_output: HomeOutputs = HomeOutputs(self.data["rated_home_output"], home_type=HomeType.RATED_HOME)
+        self.rated_home_output: HomeOutputs = HomeOutputs(
+            self.data["rated_home_output"], home_type=HomeType.RATED_HOME, electricity_co2_emissions_factors=self.electricity_co2_emissions_factors
+        )
         self.hers_reference_home_output: HomeOutputs = HomeOutputs(self.data["hers_reference_home_output"], home_type=HomeType.HERS_REFERENCE_HOME)
-        self.co2_reference_home_output: HomeOutputs = HomeOutputs(self.data["co2_reference_home_output"], home_type=HomeType.CO2_REFERENCE_HOME)
+        self.co2_reference_home_output: HomeOutputs = HomeOutputs(
+            self.data["co2_reference_home_output"],
+            home_type=HomeType.CO2_REFERENCE_HOME,
+            electricity_co2_emissions_factors=self.electricity_co2_emissions_factors,
+        )
         self.iad_rated_home_output: HomeOutputs = HomeOutputs(self.data["iad_rated_home_output"], home_type=HomeType.IAD_RATED_HOME)
         self.iad_hers_reference_home_output: HomeOutputs = HomeOutputs(
             self.data["iad_hers_reference_home_output"], home_type=HomeType.IAD_HERS_REFERENCE_HOME
@@ -84,7 +105,10 @@ class HERSDiagnosticOutput:
     def get_hers_index_intermediaries(self) -> Dict:
         return {
             "hers_index": self.hers_cache.hers_index,
+            "co2_index": self.hers_cache.co2_index,
             "iaf_rh": self.hers_cache.iaf_rh,
+            "aco2": self.hers_cache.aco2,
+            "arco2": self.hers_cache.arco2,
             "pe_frac": self.hers_cache.pe_frac,
             "tnml": self.hers_cache.tnml,
             "trl": self.hers_cache.trl,
