@@ -30,23 +30,30 @@ class HERSDiagnosticOutput:
             "lb/kBtu",
         )
         self.outdoor_drybulb_temperature: List[float] = self.data["outdoor_drybulb_temperature"]
-        self.on_site_power_production: List[float] = self.data["on_site_power_production"]
-        self.on_site_power_production_annual_emissions: float = sum(
-            product_lists(self.data["on_site_power_production"], self.data["electricity_co2_emissions_factors"])
-        )
-        self.on_site_power_production_annual: float = sum(self.on_site_power_production)
-        battery_storage: Optional[List[float]] = self.data.get("battery_storage")
-        if battery_storage:
+
+        self.on_site_power_production: Optional[List[float]] = self.data.get("on_site_power_production")
+        if self.on_site_power_production:
             self.battery_storage_annual_emissions: float = sum(
                 product_lists(self.data["battery_storage"], self.data["electricity_co2_emissions_factors"])
             )
+            self.on_site_power_production_annual_emissions: float = sum(
+                product_lists(self.data["on_site_power_production"], self.data["electricity_co2_emissions_factors"])
+            )
+            self.on_site_power_production_annual: float = sum(self.on_site_power_production)  # type: ignore
+        else:
+            self.battery_storage_annual_emissions: float = 0
+            self.on_site_power_production_annual_emissions: float = 0
+            self.on_site_power_production_annual: float = 0
+
+        self.battery_storage: Optional[List[float]] = self.data.get("battery_storage")
+        if self.battery_storage:
+            self.battery_storage_annual_emissions: float = sum(
+                product_lists(self.data["battery_storage"], self.data["electricity_co2_emissions_factors"])
+            )
+            self.battery_storage: List[float] = self.data["battery_storage"]
+            self.battery_storage_annual: float = sum(self.battery_storage)  # type: ignore
         else:
             self.battery_storage_annual_emissions = 0
-
-        if battery_storage:
-            self.battery_storage: List[float] = self.data["battery_storage"]
-            self.battery_storage_annual: float = sum(self.battery_storage)
-        else:
             self.battery_storage: List[float] = [0] * 8760  # type: ignore
             self.battery_storage_annual: float = 0  # type: ignore
 
