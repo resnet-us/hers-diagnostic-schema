@@ -20,9 +20,7 @@ class HomeOutputs:
         if dehumidification_energy:
             self.dehumidification_energy: EnergyOutput = EnergyOutput(dehumidification_energy)
         else:
-            self.dehumidification_energy: EnergyOutput = EnergyOutput(blank_energy_output)
-
-        self.emissions_annual_total: float = 0
+            self.dehumidification_energy: EnergyOutput = EnergyOutput()  # type: ignore
 
         def get_annual_emissions(fuel_type: FuelType, energy_hourly: List[float]) -> float:
             if fuel_type == FuelType.ELECTRICITY:
