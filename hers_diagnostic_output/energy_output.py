@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional
 
-from .definitions import FuelType, HomeType
+from .definitions import FuelType
 from .functions import to_upper_case, get_annual_data, get_fuel_conversion, sum_lists
 from .sub_energy_output import SubEnergyOutput
 
