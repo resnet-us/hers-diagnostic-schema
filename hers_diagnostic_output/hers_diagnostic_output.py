@@ -36,22 +36,23 @@ class HERSDiagnosticOutput:
             self.on_site_power_production_annual_emissions: float = sum(
                 product_lists(self.data["on_site_power_production"], self.data["electricity_co2_emissions_factors"])
             )
+            self.on_site_power_production_hourly: List[float] = self.on_site_power_production
             self.on_site_power_production_annual: float = sum(self.on_site_power_production)  # type: ignore
         else:
-            self.battery_storage_annual_emissions: float = 0
             self.on_site_power_production_annual_emissions: float = 0
+            self.on_site_power_production_hourly: List[float] = 0
             self.on_site_power_production_annual: float = 0
 
-        self.battery_storage: Optional[List[float]] = self.data.get("battery_storage")
-        if self.battery_storage:
+        self.battery_storage_hourly: Optional[List[float]] = self.data.get("battery_storage")
+        if self.battery_storage_hourly:
             self.battery_storage_annual_emissions: float = sum(
                 product_lists(self.data["battery_storage"], self.data["electricity_co2_emissions_factors"])
             )
-            self.battery_storage: List[float] = self.data["battery_storage"]
-            self.battery_storage_annual: float = sum(self.battery_storage)  # type: ignore
+            self.battery_storage_hourly: List[float] = self.data["battery_storage"]
+            self.battery_storage_annual: float = sum(self.battery_storage_hourly)  # type: ignore
         else:
             self.battery_storage_annual_emissions = 0
-            self.battery_storage: List[float] = [0] * 8760  # type: ignore
+            self.battery_storage_hourly: List[float] = [0] * 8760  # type: ignore
             self.battery_storage_annual: float = 0  # type: ignore
 
         self.hers_reference_home_output: HomeOutputs = HomeOutputs(self.data["hers_reference_home_output"], home_type=HomeType.HERS_REFERENCE_HOME)
