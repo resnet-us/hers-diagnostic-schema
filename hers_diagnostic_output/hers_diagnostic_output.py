@@ -12,6 +12,24 @@ from .home_outputs import HomeOutputs
 
 class HERSDiagnosticOutput:
     def __init__(self, file_path: str | Path):
+        def get_annual_emissions(hourly_energy: Optional[List[float]], emissions_factors: List[float]) -> float:
+            """Calculate total annual CO2 emissions."""
+            if hourly_energy:
+                return sum(product_lists(hourly_energy, emissions_factors))
+            return 0.0
+
+        def get_annual_energy(hourly_energy: Optional[List[float]]) -> float:
+            """Calculate total annual energy."""
+            if hourly_energy:
+                return sum(hourly_energy)
+            return 0.0
+
+        def get_hourly_energy(hourly_energy: Optional[List[float]]) -> List[float]:
+            """Return hourly energy list, or 8760 zeros if missing."""
+            if hourly_energy:
+                return hourly_energy
+            return [0.0] * 8760
+
         self.data = load(file_path)
 
         self.project_name: str = self.data["project_name"]
@@ -31,29 +49,15 @@ class HERSDiagnosticOutput:
 
         self.outdoor_drybulb_temperature: List[float] = self.data["outdoor_drybulb_temperature"]
 
-        self.on_site_power_production: Optional[List[float]] = self.data.get("on_site_power_production")
-        if self.on_site_power_production:
-            self.on_site_power_production_annual_emissions: float = sum(
-                product_lists(self.data["on_site_power_production"], self.data["electricity_co2_emissions_factors"])
-            )
-            self.on_site_power_production_hourly: List[float] = self.on_site_power_production
-            self.on_site_power_production_annual: float = sum(self.on_site_power_production)  # type: ignore
-        else:
-            self.on_site_power_production_annual_emissions: float = 0
-            self.on_site_power_production_hourly: List[float] = 0
-            self.on_site_power_production_annual: float = 0
+        self.on_site_power_production_annual_emissions = get_annual_emissions(
+            self.data.get("on_site_power_production"), self.data["electricity_co2_emissions_factors"]
+        )
+        self.on_site_power_production_annual = get_annual_energy(self.data.get("on_site_power_production"))
+        self.on_site_power_production_hourly = get_hourly_energy(self.data.get("on_site_power_production"))
 
-        self.battery_storage_hourly: Optional[List[float]] = self.data.get("battery_storage")
-        if self.battery_storage_hourly:
-            self.battery_storage_annual_emissions: float = sum(
-                product_lists(self.data["battery_storage"], self.data["electricity_co2_emissions_factors"])
-            )
-            self.battery_storage_hourly: List[float] = self.data["battery_storage"]
-            self.battery_storage_annual: float = sum(self.battery_storage_hourly)  # type: ignore
-        else:
-            self.battery_storage_annual_emissions = 0
-            self.battery_storage_hourly: List[float] = [0] * 8760  # type: ignore
-            self.battery_storage_annual: float = 0  # type: ignore
+        self.battery_storage_annual_emissions = get_annual_emissions(self.data.get("battery_storage"), self.data["electricity_co2_emissions_factors"])
+        self.battery_storage_annual = get_annual_energy(self.data.get("battery_storage"))
+        self.battery_storage_hourly = get_hourly_energy(self.data.get("battery_storage"))
 
         self.hers_reference_home_output: HomeOutputs = HomeOutputs(self.data["hers_reference_home_output"], home_type=HomeType.HERS_REFERENCE_HOME)
         self.co2_reference_home_output: HomeOutputs = HomeOutputs(
