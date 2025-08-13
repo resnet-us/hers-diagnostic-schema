@@ -4,11 +4,10 @@ from typing import Dict, List, Optional
 from koozie import convert
 from lattice import load  # type: ignore
 
-from .definitions import FuelType, HomeType, fossil_fuel_types, fuel_coefficients, INDEX_TOLERANCE
+from .definitions import HomeType, INDEX_TOLERANCE
 from .functions import product_lists
 from .hers_cache import HERSCache
 from .home_outputs import HomeOutputs
-from .system_output import SystemOutput
 
 
 class HERSDiagnosticOutput:
@@ -29,6 +28,7 @@ class HERSDiagnosticOutput:
             "lb/kWh",
             "lb/kBtu",
         )
+
         self.outdoor_drybulb_temperature: List[float] = self.data["outdoor_drybulb_temperature"]
 
         self.on_site_power_production: Optional[List[float]] = self.data.get("on_site_power_production")
@@ -54,50 +54,24 @@ class HERSDiagnosticOutput:
             self.battery_storage: List[float] = [0] * 8760  # type: ignore
             self.battery_storage_annual: float = 0  # type: ignore
 
-        self.rated_home_output: HomeOutputs = HomeOutputs(
-            self.data["rated_home_output"], home_type=HomeType.RATED_HOME, electricity_co2_emissions_factors=self.electricity_co2_emissions_factors
-        )
         self.hers_reference_home_output: HomeOutputs = HomeOutputs(self.data["hers_reference_home_output"], home_type=HomeType.HERS_REFERENCE_HOME)
         self.co2_reference_home_output: HomeOutputs = HomeOutputs(
             self.data["co2_reference_home_output"],
             home_type=HomeType.CO2_REFERENCE_HOME,
-            electricity_co2_emissions_factors=self.electricity_co2_emissions_factors,
+            hers_diagnostic_output=self,
         )
-        self.iad_rated_home_output: HomeOutputs = HomeOutputs(self.data["iad_rated_home_output"], home_type=HomeType.IAD_RATED_HOME)
         self.iad_hers_reference_home_output: HomeOutputs = HomeOutputs(
             self.data["iad_hers_reference_home_output"], home_type=HomeType.IAD_HERS_REFERENCE_HOME
         )
+        self.rated_home_output: HomeOutputs = HomeOutputs(
+            self.data["rated_home_output"],
+            home_type=HomeType.RATED_HOME,
+            hers_diagnostic_output=self,
+        )
 
-        system_types = [
-            "space_heating_system_output",
-            "space_cooling_system_output",
-            "water_heating_system_output",
-        ]
-
-        for rated_home_output, hers_reference_home_output in zip(
-            [self.rated_home_output, self.iad_rated_home_output], [self.hers_reference_home_output, self.iad_hers_reference_home_output]
-        ):
-            for system_type in system_types:
-                rated_home_system_type: SystemOutput = getattr(rated_home_output, system_type)
-                reference_home_system_type: SystemOutput = getattr(hers_reference_home_output, system_type)
-
-                for rated_home_sub_system, reference_home_sub_system in zip(
-                    rated_home_system_type.sub_system_outputs, reference_home_system_type.sub_system_outputs
-                ):
-                    ec_x = rated_home_sub_system.energy_use
-                    eec_x = rated_home_sub_system.equipment_efficiency_coefficient
-                    eec_r = reference_home_sub_system.equipment_efficiency_coefficient
-                    primary_fuel_type = rated_home_sub_system.primary_fuel_type
-                    if primary_fuel_type in fossil_fuel_types:
-                        primary_fuel_type = FuelType.FOSSIL_FUEL
-                    a = fuel_coefficients[(system_type, primary_fuel_type)]["a"]
-                    b = fuel_coefficients[(system_type, primary_fuel_type)]["b"]
-
-                    ec_r = reference_home_sub_system.energy_use
-                    nec_x = ec_x * (a * eec_x - b) * (eec_r / eec_x)
-                    reul = reference_home_sub_system.load
-
-                    rated_home_system_type.nmeul += reul * nec_x / ec_r
+        self.iad_rated_home_output: HomeOutputs = HomeOutputs(
+            self.data["iad_rated_home_output"], home_type=HomeType.IAD_RATED_HOME, hers_diagnostic_output=self
+        )
 
         self.hers_cache = HERSCache(self)
 
