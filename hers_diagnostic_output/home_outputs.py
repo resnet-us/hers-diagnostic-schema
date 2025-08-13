@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional, TYPE_CHECKING
 
-from .definitions import FuelType, HomeType, blank_energy_output, fuel_emission_factors
+from .definitions import FuelType, HomeType, fossil_fuel_types, fuel_coefficients, fuel_emission_factors
 from .energy_output import EnergyOutput
 from .functions import product_lists
 from .system_output import SystemOutput
@@ -32,7 +32,7 @@ class HomeOutputs:
 
         def get_annual_emissions(fuel_type: FuelType, energy_hourly: List[float]) -> float:
             if fuel_type == FuelType.ELECTRICITY:
-                return sum(product_lists(energy_hourly, electricity_co2_emissions_factors))  # type: ignore
+                return sum(product_lists(energy_hourly, hers_diagnostic_output.electricity_co2_emissions_factors))  # type: ignore
             elif fuel_type == FuelType.FOSSIL_FUEL:
                 return 0
             else:
@@ -51,6 +51,17 @@ class HomeOutputs:
                 "space_cooling_system_output",
                 "water_heating_system_output",
             ]
+
+        if hers_diagnostic_output:
+            if home_type == HomeType.RATED_HOME or home_type == HomeType.CO2_REFERENCE_HOME:
+                self.emissions_annual_total: float = 0
+                for system_output in [self.space_heating_system_output, self.space_cooling_system_output, self.water_heating_system_output]:
+                    for fuel_type, energy_hourly in system_output.energy_hourly_fuel_type.items():
+                        self.emissions_annual_total += get_annual_emissions(fuel_type, energy_hourly)
+                for energy_output in [self.lighting_and_appliance_energy, self.ventilation_energy, self.dehumidification_energy]:
+                    for fuel_type, energy_hourly in energy_output.energy_hourly_fuel_type.items():
+                        self.emissions_annual_total += get_annual_emissions(fuel_type, energy_hourly)
+
         rated_home_system_types: List[SystemOutput] = []
         reference_home_system_types: List[SystemOutput] = []
         system_types: List[str] = []
