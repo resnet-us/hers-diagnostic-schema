@@ -12,16 +12,16 @@ from .home_outputs import HomeOutputs
 
 class HERSDiagnosticOutput:
     def __init__(self, file_path: str | Path):
-        def get_annual_emissions(hourly_energy: Optional[List[float]], emissions_factors: List[float]) -> float:
+        def get_annual_emissions(annual_emissions: Optional[List[float]], emissions_factors: List[float]) -> float:
             """Calculate total annual CO2 emissions."""
-            if hourly_energy:
-                return sum(product_lists(hourly_energy, emissions_factors))
+            if annual_emissions:
+                return sum(product_lists(annual_emissions, emissions_factors))
             return 0.0
 
-        def get_annual_energy(hourly_energy: Optional[List[float]]) -> float:
+        def get_annual_energy(annual_energy: Optional[List[float]]) -> float:
             """Calculate total annual energy."""
-            if hourly_energy:
-                return sum(hourly_energy)
+            if annual_energy:
+                return sum(annual_energy)
             return 0.0
 
         def get_hourly_energy(hourly_energy: Optional[List[float]]) -> List[float]:
