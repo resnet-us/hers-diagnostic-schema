@@ -216,7 +216,7 @@ class HERSCache:
                 + self.hers_diagnostic_output.rated_home_output.ventilation_energy.energy_electricity_use_equivalent
                 + self.hers_diagnostic_output.rated_home_output.dehumidification_energy.energy_electricity_use_equivalent,
                 "kBtu",
-                "MBtu",
+                "kWh",
             )
             return self._teu
 
@@ -230,7 +230,7 @@ class HERSCache:
         if self.opp_set:
             return self._opp
         else:
-            self.opp = convert(self.hers_diagnostic_output.on_site_power_production_annual, "kWh", "MBtu")
+            self.opp = self.hers_diagnostic_output.on_site_power_production_annual  # kWh
             return self._opp
 
     @opp.setter
@@ -243,7 +243,7 @@ class HERSCache:
         if self.bsl_set:
             return self._bsl
         else:
-            self.bsl = convert(self.hers_diagnostic_output.battery_storage_annual, "kWh", "MBtu")
+            self.bsl = self.hers_diagnostic_output.battery_storage_annual  # kWh
             return self._bsl
 
     @bsl.setter
