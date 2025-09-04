@@ -1,5 +1,7 @@
 from typing import Dict, List, Optional, TYPE_CHECKING
 
+from koozie import convert
+
 from .definitions import FuelType, HomeType, fossil_fuel_types, fuel_coefficients, fuel_emission_factors
 from .energy_output import EnergyOutput
 from .functions import product_lists
@@ -90,7 +92,7 @@ class HomeOutputs:
             for rated_home_sub_system, reference_home_sub_system in zip(
                 rated_home_system_type.sub_system_outputs, reference_home_system_type.sub_system_outputs
             ):
-                ec_x = rated_home_sub_system.energy_use
+                ec_x = convert(rated_home_sub_system.energy_use, "kBtu", "MBtu")
                 eec_x = rated_home_sub_system.equipment_efficiency_coefficient
                 eec_r = reference_home_sub_system.equipment_efficiency_coefficient
                 primary_fuel_type = rated_home_sub_system.primary_fuel_type
@@ -99,8 +101,19 @@ class HomeOutputs:
                 a = fuel_coefficients[(system_type, primary_fuel_type)]["a"]
                 b = fuel_coefficients[(system_type, primary_fuel_type)]["b"]
 
-                ec_r = reference_home_sub_system.energy_use
+                ec_r = convert(reference_home_sub_system.energy_use, "kBtu", "MBtu")
                 nec_x = ec_x * (a * eec_x - b) * (eec_r / eec_x)
-                reul = reference_home_sub_system.load
+                reul = convert(reference_home_sub_system.load, "kBtu", "MBtu")
+                nmeul = reul * nec_x / ec_r
 
-                rated_home_system_type.nmeul += reul * nec_x / ec_r
+                rated_home_system_type.nmeul += nmeul
+
+                rated_home_system_type.ec_x_list.append(ec_x)
+                rated_home_system_type.eec_x_list.append(eec_x)
+                rated_home_system_type.eec_r_list.append(eec_r)
+                rated_home_system_type.a_list.append(a)
+                rated_home_system_type.b_list.append(b)
+                rated_home_system_type.ec_r_list.append(ec_r)
+                rated_home_system_type.nec_x_list.append(nec_x)
+                rated_home_system_type.reul_list.append(reul)
+                rated_home_system_type.nmeul_list.append(nmeul)

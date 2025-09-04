@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List
 
@@ -19,6 +20,13 @@ class FuelType(Enum):
     LIQUID_PETROLEUM_GAS = "Liquid Petroleum Gas"
     BIOMASS = "Biomass"
     FOSSIL_FUEL = "Fossil Fuel"
+
+
+@dataclass
+class NMEULComponents:
+    name: str
+    units: str | None
+    values: List[float]
 
 
 INDEX_TOLERANCE = 0.005

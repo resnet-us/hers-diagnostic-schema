@@ -106,7 +106,7 @@ class HERSDiagnosticOutput:
         self.verify_carbon_index()
 
     def get_hers_index_intermediaries(self) -> Dict:
-        return {
+        intermediaries = {
             "hers_index": self.hers_cache.hers_index,
             "co2_index": self.hers_cache.co2_index,
             "iaf_rh": self.hers_cache.iaf_rh,
@@ -149,3 +149,22 @@ class HERSDiagnosticOutput:
             "rec_vent_iad [MBtu]": self.hers_cache.rec_vent_iad,
             "rec_dh_iad [MBtu]": self.hers_cache.rec_dh_iad,
         }
+
+        # Add nMUEL sub-components from each space heating, space cooling, and water heating sub-systems to intermediaries dict.
+        for system_name, system_output in {
+            "heat": self.rated_home_output.space_heating_system_output,
+            "cool": self.rated_home_output.space_cooling_system_output,
+            "hw": self.rated_home_output.water_heating_system_output,
+            "heat_iad": self.iad_rated_home_output.space_heating_system_output,
+            "cool_iad": self.iad_rated_home_output.space_cooling_system_output,
+            "hw_iad": self.iad_rated_home_output.water_heating_system_output,
+        }.items():
+            for nmeul_component in system_output.nmeul_components_list:
+                component_name = nmeul_component.name
+                component_units = nmeul_component.units
+                component_values = nmeul_component.values
+                for index, value in enumerate(component_values):
+                    sub_system_index = index + 1
+                    intermediaries.update({f"{system_name}_{component_name}_sub_sys_{sub_system_index} [{component_units}]": value})
+
+        return intermediaries
