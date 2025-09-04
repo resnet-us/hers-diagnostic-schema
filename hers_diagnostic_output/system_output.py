@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional
 
-from .definitions import HomeType, FuelType
+from .definitions import HomeType, FuelType, NMEULComponents
 from .energy_output import EnergyOutput
 from .functions import get_annual_data, get_fuel_conversion, sum_lists, to_upper_case
 from .sub_system_output import SubSystemOutput
@@ -22,6 +22,28 @@ class SystemOutput:
             self.nmeul: float = 0
         elif home_type in [HomeType.HERS_REFERENCE_HOME, HomeType.IAD_HERS_REFERENCE_HOME]:
             self.reul: float = 0
+
+        self.ec_x_list: List[float] = []
+        self.eec_x_list: List[float] = []
+        self.eec_r_list: List[float] = []
+        self.a_list: List[float] = []
+        self.b_list: List[float] = []
+        self.ec_r_list: List[float] = []
+        self.nec_x_list: List[float] = []
+        self.reul_list: List[float] = []
+        self.nmeul_list: List[float] = []
+
+        self.nmeul_components_list: List[NMEULComponents] = [
+            NMEULComponents("ec_x", "MBtu", self.ec_x_list),
+            NMEULComponents("eec_x", None, self.eec_x_list),
+            NMEULComponents("eec_r", None, self.eec_r_list),
+            NMEULComponents("a", None, self.a_list),
+            NMEULComponents("b", None, self.b_list),
+            NMEULComponents("ec_r", "MBtu", self.ec_r_list),
+            NMEULComponents("nec_x", "MBtu", self.nec_x_list),
+            NMEULComponents("reul", "MBtu", self.reul_list),
+            NMEULComponents("nmeul", "MBtu", self.nmeul_list),
+        ]
 
         for sub_system_output in system_output:
             self.load_annual_total_subsystem: float = 0

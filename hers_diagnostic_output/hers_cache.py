@@ -335,7 +335,7 @@ class HERSCache:
         if self.nmeul_heat_set:
             return self._nmeul_heat
         else:
-            self.nmeul_heat = convert(self.hers_diagnostic_output.rated_home_output.space_heating_system_output.nmeul, "kBtu", "MBtu")
+            self.nmeul_heat = self.hers_diagnostic_output.rated_home_output.space_heating_system_output.nmeul
             return self._nmeul_heat
 
     @nmeul_heat.setter
@@ -348,7 +348,7 @@ class HERSCache:
         if self.nmeul_cool_set:
             return self._nmeul_cool
         else:
-            self.nmeul_cool = convert(self.hers_diagnostic_output.rated_home_output.space_cooling_system_output.nmeul, "kBtu", "MBtu")
+            self.nmeul_cool = self.hers_diagnostic_output.rated_home_output.space_cooling_system_output.nmeul
             return self._nmeul_cool
 
     @nmeul_cool.setter
@@ -361,7 +361,7 @@ class HERSCache:
         if self.nmeul_hw_set:
             return self._nmeul_hw
         else:
-            self.nmeul_hw = convert(self.hers_diagnostic_output.rated_home_output.water_heating_system_output.nmeul, "kBtu", "MBtu")
+            self.nmeul_hw = self.hers_diagnostic_output.rated_home_output.water_heating_system_output.nmeul
             return self._nmeul_hw
 
     @nmeul_hw.setter
@@ -501,7 +501,7 @@ class HERSCache:
         if self.nmeul_heat_iad_set:
             return self._nmeul_heat_iad
         else:
-            self.nmeul_heat_iad = convert(self.hers_diagnostic_output.iad_rated_home_output.space_heating_system_output.nmeul, "kBtu", "MBtu")
+            self.nmeul_heat_iad = self.hers_diagnostic_output.iad_rated_home_output.space_heating_system_output.nmeul
             return self._nmeul_heat_iad
 
     @nmeul_heat_iad.setter
@@ -514,7 +514,7 @@ class HERSCache:
         if self.nmeul_cool_iad_set:
             return self._nmeul_cool_iad
         else:
-            self.nmeul_cool_iad = convert(self.hers_diagnostic_output.iad_rated_home_output.space_cooling_system_output.nmeul, "kBtu", "MBtu")
+            self.nmeul_cool_iad = self.hers_diagnostic_output.iad_rated_home_output.space_cooling_system_output.nmeul
             return self._nmeul_cool_iad
 
     @nmeul_cool_iad.setter
@@ -527,7 +527,7 @@ class HERSCache:
         if self.nmeul_hw_iad_set:
             return self._nmeul_hw_iad
         else:
-            self.nmeul_hw_iad = convert(self.hers_diagnostic_output.iad_rated_home_output.water_heating_system_output.nmeul, "kBtu", "MBtu")
+            self.nmeul_hw_iad = self.hers_diagnostic_output.iad_rated_home_output.water_heating_system_output.nmeul
             return self._nmeul_hw_iad
 
     @nmeul_hw_iad.setter
