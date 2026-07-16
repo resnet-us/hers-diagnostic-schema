@@ -81,7 +81,6 @@ class HomeOutputs:
                             co2_cache["system_name"].append(system_name)
                             co2_cache["fuel_type"].append(fuel_type.name)
                             co2_cache["co2_emissions"].append(get_annual_emissions(fuel_type, energy_hourly))
-                DataFrame(co2_cache).to_csv(f"{home_type.name}_co2_emissions.csv")
 
         rated_home_system_types: List[SystemOutput] = []
         reference_home_system_types: List[SystemOutput] = []
