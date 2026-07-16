@@ -1,7 +1,6 @@
 from typing import Dict, List, Optional, TYPE_CHECKING
 
 from koozie import convert
-from pandas import DataFrame
 
 from .definitions import FuelType, HomeType, fossil_fuel_types, fuel_coefficients, fuel_emission_factors
 from .energy_output import EnergyOutput
