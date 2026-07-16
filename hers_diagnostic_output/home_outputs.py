@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional, TYPE_CHECKING
 
 from koozie import convert
+from pandas import DataFrame
 
 from .definitions import FuelType, HomeType, fossil_fuel_types, fuel_coefficients, fuel_emission_factors
 from .energy_output import EnergyOutput
@@ -54,15 +55,33 @@ class HomeOutputs:
                 "water_heating_system_output",
             ]
 
+        co2_cache: Dict[str, List[str | float]] = {"home_type": [], "system_name": [], "fuel_type": [], "co2_emissions": []}
         if hers_diagnostic_output:
             if home_type == HomeType.RATED_HOME or home_type == HomeType.CO2_REFERENCE_HOME:
                 self.emissions_annual_total: float = 0
-                for system_output in [self.space_heating_system_output, self.space_cooling_system_output, self.water_heating_system_output]:
+                for system_output, system_name in zip(
+                    [self.space_heating_system_output, self.space_cooling_system_output, self.water_heating_system_output],
+                    ["space_heating_system_output", "space_cooling_system_output", "water_heating_system_output"],
+                ):
                     for fuel_type, energy_hourly in system_output.energy_hourly_fuel_type.items():
                         self.emissions_annual_total += get_annual_emissions(fuel_type, energy_hourly)
-                for energy_output in [self.lighting_and_appliance_energy, self.ventilation_energy, self.dehumidification_energy]:
+                        if get_annual_emissions(fuel_type, energy_hourly) > 0:
+                            co2_cache["home_type"].append(home_type.name)
+                            co2_cache["system_name"].append(system_name)
+                            co2_cache["fuel_type"].append(fuel_type.name)
+                            co2_cache["co2_emissions"].append(get_annual_emissions(fuel_type, energy_hourly))
+                for energy_output, system_name in zip(
+                    [self.lighting_and_appliance_energy, self.ventilation_energy, self.dehumidification_energy],
+                    ["lighting_and_appliance_energy", "ventilation_energy", "dehumidification_energy"],
+                ):
                     for fuel_type, energy_hourly in energy_output.energy_hourly_fuel_type.items():
                         self.emissions_annual_total += get_annual_emissions(fuel_type, energy_hourly)
+                        if get_annual_emissions(fuel_type, energy_hourly) > 0:
+                            co2_cache["home_type"].append(home_type.name)
+                            co2_cache["system_name"].append(system_name)
+                            co2_cache["fuel_type"].append(fuel_type.name)
+                            co2_cache["co2_emissions"].append(get_annual_emissions(fuel_type, energy_hourly))
+                DataFrame(co2_cache).to_csv(f"{home_type.name}_co2_emissions.csv")
 
         rated_home_system_types: List[SystemOutput] = []
         reference_home_system_types: List[SystemOutput] = []
